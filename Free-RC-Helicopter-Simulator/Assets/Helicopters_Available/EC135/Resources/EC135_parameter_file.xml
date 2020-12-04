@@ -1,0 +1,210 @@
+<?xml version="1.0"?>
+<stru_transmitter_and_helicopter xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<transmitter>
+    <countdown_minutes>  <val>8.0</val>  </countdown_minutes>
+    <countdown_volume>  <val>60.0</val>  </countdown_volume>
+    <stick_roll>
+      <clearance>  <val>0.01</val>  </clearance>
+      <expo>  <val>20</val>  </expo>
+      <dualrate>  <val>60</val>  </dualrate>
+    </stick_roll>
+    <stick_pitch>
+      <clearance>  <val>0.01</val>  </clearance>
+      <expo>  <val>20</val>  </expo>
+      <dualrate>  <val>60</val>  </dualrate>
+    </stick_pitch>
+    <stick_yaw>
+      <clearance>  <val>0.01</val>  </clearance>
+      <expo>  <val>20</val>  </expo>
+      <dualrate>  <val>60</val>  </dualrate>
+    </stick_yaw>
+    <stick_collective>
+      <clearance>  <val>0.01</val>  </clearance>
+      <expo>  <val>20</val>  </expo>
+      <dualrate>  <val>100</val>  </dualrate>
+    </stick_collective>
+    <switch0>
+      <type>  <val>1</val>  </type>
+    </switch0>
+    <switch1>
+      <type>  <val>1</val>  </type>
+    </switch1>
+  </transmitter>
+  <helicopter>
+    <name>EC135</name>
+    <reference_to_masscentrum>
+      <position>
+        <vect3>  <x>0</x>  <y>0.460</y>  <z>0</z>  </vect3>
+      </position>
+      <orientation>
+        <vect3>  <x>0</x>  <y>0</y>  <z>0</z>  </vect3>
+      </orientation>
+    </reference_to_masscentrum>
+    <mass_total>  <val>15.0</val>  </mass_total>
+    <rotor_sound_recorded_rpm>  <val>1000</val>  </rotor_sound_recorded_rpm>   <!--real1300rpm-->  
+    <J_xyz>
+      <vect3>  <x>0.3</x>  <y>1.5</y>  <z>1.5</z>  </vect3>
+    </J_xyz>
+    <sound_volume>  <val>14</val>  </sound_volume>
+    <collision>
+      <friction_coeff>  <val>0.6</val>  </friction_coeff>
+      <friction_coeff_forward>  <val>0.3</val>  </friction_coeff_forward>
+      <friction_coeff_sideward>  <val>0.5</val>  </friction_coeff_sideward>
+      <friction_coeff_steering>   <val>0.5</val>  </friction_coeff_steering>
+      <stiffness_factor>  <val>3500</val>  </stiffness_factor>
+      <positions_left_type>  <val>0</val>  </positions_left_type>  <!--0:skids,1:gear-->
+      <positions_right_type>  <val>0</val>  </positions_right_type>  <!--0:skids,1:gear-->
+      <positions_steering_center_type>  <val>0</val>  </positions_steering_center_type>  <!--0:skids,1:gear-->
+      <damping_factor>  <val>70</val>  </damping_factor>
+      <positions_left>
+        <vect3>
+          <Vector3>  <x>0.48</x>  <y>-0.385</y>  <z>-0.215</z>  </Vector3>
+          <Vector3>  <x>-0.20</x>  <y>-0.405</y>  <z>-0.215</z>  </Vector3>
+        </vect3>
+      </positions_left>
+      <positions_right>
+        <vect3>
+          <Vector3>  <x>0.48</x>  <y>-0.385</y>  <z>0.215</z>  </Vector3>
+          <Vector3>  <x>-0.20</x>  <y>-0.405</y>  <z>0.215</z>  </Vector3>
+        </vect3>
+      </positions_right>
+      <positions_steering_center>
+        <vect3>
+          <Vector3>  <x>-1.25</x>  <y>-0.28</y>  <z>0</z>  </Vector3>
+        </vect3>
+      </positions_steering_center>
+    </collision>
+	<gyro>
+      <K_a>  <val>300</val>  </K_a>
+      <K_I>  <val>4.00</val>  </K_I>
+      <K_p>  <val>0.3</val>  </K_p>
+      <direct_feadtrough_gyroscope>  <val>false</val>  </direct_feadtrough_gyroscope>
+    </gyro>
+    <flybarless>
+      <K_a>  <val>200</val>  </K_a>
+      <K_I>  <val>2.0</val>  </K_I>
+      <K_p>  <val>0.1</val>  </K_p>
+      <direct_feadtrough_flybareless>  <val>false</val>  </direct_feadtrough_flybareless>
+    </flybarless>
+    <servo_damping>  		
+		<servo_col_mr_time_constant><val>0.040</val></servo_col_mr_time_constant>  		
+		<servo_lat_mr_time_constant><val>0.030</val></servo_lat_mr_time_constant>
+		<servo_col_tr_time_constant><val>0.025</val></servo_col_tr_time_constant>  		
+		<servo_lon_mr_time_constant><val>0.030</val></servo_lon_mr_time_constant>  	
+	</servo_damping>
+	<governor>
+      <target_rpm_1>  <val>950</val>  </target_rpm_1>
+      <target_rpm_2>  <val>1150</val>  </target_rpm_2>
+      <Kp>  <val>0.01</val>  </Kp>
+      <Ki>  <val>0.1</val>  </Ki>
+      <saturation_min>  <val>0</val>  </saturation_min>
+      <soft_start_factor>  <val>0.03</val>  </soft_start_factor>
+    </governor>
+    <brushless>
+      <R_a>  <val>0.028</val>  </R_a>
+      <B_M>  <val>4.5E-05</val>  </B_M>
+      <ns>  <val>560</val>  </ns>
+      <J>  <val>8E-05</val>  </J>
+    </brushless>
+    <accumulator>
+      <voltage_per_cell>  <val>3.7</val>  </voltage_per_cell>
+      <cell_count>  <val>8</val>  </cell_count>
+      <Ri>  <val>0.004</val>  </Ri>
+      <I_max>  <val>120</val>  </I_max>
+      <capacity>  <val>5000</val>  </capacity>
+    </accumulator>
+    <transmission>
+	  <invert_mainrotor_rotation_direction>  <val>false</val>  </invert_mainrotor_rotation_direction>
+      <invert_motor2maingear_transmission>  <val>true</val>  </invert_motor2maingear_transmission>
+      <invert_mainrotor2tailrotor_transmission>  <val>false</val>  </invert_mainrotor2tailrotor_transmission>
+      <invert_mainrotor2propeller_transmission>  <val>false</val>  </invert_mainrotor2propeller_transmission>
+      <i_gear_motor>  <val>13</val>  </i_gear_motor>
+      <i_gear_maingear>  <val>106</val>  </i_gear_maingear>
+      <i_gear_mainrotor>  <val>42</val>  </i_gear_mainrotor>
+      <i_gear_tailrotor>  <val>3</val>  </i_gear_tailrotor>
+      <i_gear_propeller>  <val>1</val>  </i_gear_propeller>
+      <k_freewheel>  <val>20</val>  </k_freewheel>  <!--[Nm/rad] rotational stiffness-->
+      <d_freewheel>  <val>0.5</val>  </d_freewheel>  <!--[Nm/(rad/s)] rotational damping-->
+      <J_mg>  <val>0.0002</val>  </J_mg>  <!--[kg*m^2]--> 
+    </transmission>
+    <mainrotor>
+      <b>  <val>3</val>  </b>
+      <R>  <val>1.26</val>  </R>
+      <C_l_alpha>  <val>5</val>  </C_l_alpha>
+      <c>  <val>0.034</val>  </c>
+      <J>  <val>1.00000</val>  </J>
+      <C_D0>  <val>0.010</val>  </C_D0>
+      <K_col>  <val>5</val>  </K_col>
+      <Theta_col_0>  <val>4.5</val>  </Theta_col_0>
+      <posLH>
+        <vect3>  <x>0</x>  <y>0.23640272617340088</y>  <z>0</z>  </vect3>
+      </posLH>
+      <oriLH>
+        <vect3>  <x>0</x>  <y>0</y>  <z>0</z>  </vect3>
+      </oriLH>
+    </mainrotor>
+    <flapping>
+      <hub_stiffness_mr>  <val>2000</val>  </hub_stiffness_mr>
+      <A_lon>  <val>10</val>  </A_lon>
+      <B_lat>  <val>10</val>  </B_lat>
+      <A_b_s>  <val>5</val>  </A_b_s>
+      <B_a_s>  <val>5</val>  </B_a_s>
+      <e>  <val>0.02</val>  </e>
+      <I_flapping>  <val>0.3</val>  </I_flapping>  <!--???-->  
+    </flapping>
+    <tailrotor>
+      <b>  <val>13</val>  </b>
+      <R>  <val>0.085</val>  </R>
+      <C_l_alpha>  <val>6.5</val>  </C_l_alpha>
+      <c>  <val>0.007</val>  </c>
+      <J>  <val>0.0001</val>  </J>
+      <C_D0>  <val>0.010</val>  </C_D0>
+      <K_col>  <val>20</val>  </K_col>
+      <Theta_col_0>  <val>-3.0</val>  </Theta_col_0>
+      <posLH>
+        <vect3>  <x>-1.1843128204345703</x>  <y>-0.043313351273536686</y>  <z>0.019200000166893008</z>  </vect3>
+      </posLH>
+      <oriLH>
+        <vect3>  <x>90</x>  <y>0</y>  <z>0</z>  </vect3>
+      </oriLH>
+    </tailrotor>
+    <fuselage>
+      <S_fxyz>
+        <vect3>  <x>0.1</x>  <y>0.3</y>  <z>0.3</z>  </vect3>
+      </S_fxyz>
+    </fuselage>
+    <horizontal_fin>
+	  <wing_exists>  <val>true</val>  </wing_exists>
+      <horizontal0_or_vertical1>  <val>0</val>  </horizontal0_or_vertical1>
+      <area>  <val>0.02000000</val>  </area>
+      <drag_coeff>  <val>1</val>  </drag_coeff>
+      <C_l_alpha>  <val>5.5</val>  </C_l_alpha>
+      <alpha_stall>  <val>20</val>  </alpha_stall>
+      <downwash_factor_mainrotor>  <val>1.0</val>  </downwash_factor_mainrotor>
+      <downwash_factor_tailrotor>  <val>0.0</val>  </downwash_factor_tailrotor>
+      <downwash_factor_propeller>  <val>0.0</val>  </downwash_factor_propeller>
+      <posLH>
+        <vect3>  <x>-0.85</x>  <y>0.0</y>  <z>0</z>  </vect3>
+      </posLH>
+    </horizontal_fin>
+    <vertical_fin>
+	  <wing_exists>  <val>true</val>  </wing_exists>
+      <horizontal0_or_vertical1>  <val>1</val>  </horizontal0_or_vertical1>
+      <area>  <val>0.0500000</val>  </area>
+      <drag_coeff>  <val>1</val>  </drag_coeff>
+      <C_l_alpha>  <val>6</val>  </C_l_alpha>
+      <alpha_stall>  <val>20</val>  </alpha_stall>
+      <downwash_factor_mainrotor>  <val>0.0</val>  </downwash_factor_mainrotor>
+      <downwash_factor_tailrotor>  <val>0.0</val>  </downwash_factor_tailrotor>
+      <downwash_factor_propeller>  <val>0.0</val>  </downwash_factor_propeller>
+      <posLH> 
+        <vect3>  <x>-1.2</x>  <y>0.0</y>  <z>0.0</z>  </vect3>
+      </posLH>
+    </vertical_fin>
+    <visual_effects>
+      <mainrotor_idle_deformation>  <val>6</val>  </mainrotor_idle_deformation>
+      <mainrotor_running_deformation>  <val>0.02</val>  </mainrotor_running_deformation>
+      <landing_gear_or_skids_deflection_stiffness>  <val>75</val>  </landing_gear_or_skids_deflection_stiffness>
+    </visual_effects>
+  </helicopter>
+</stru_transmitter_and_helicopter>

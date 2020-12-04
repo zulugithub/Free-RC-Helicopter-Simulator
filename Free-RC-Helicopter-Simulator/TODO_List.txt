@@ -1,0 +1,22 @@
+﻿- quality settings 
+	- separate menü
+ 	- presets and savable new sets
+	- bloom on off
+	- extra quality substructure	
+- parameter sets on ui
+	- separate menü
+ 	- presets and savable new sets
+- docu
+- xr
+- calibration abort needed (with esc-key)
+- drop-down list for some parameter in options (e.g. rotor_system_definition "Single", "Tandem", instead of "0", "1")
+- tandem helicopter: Mainrotor transparency overlapping issue
+- animation key "a" has to be pushed twice, if door opened, hten switch helicopter, then switch back
+- add low-pass-filter to wheel-rotation if in the air, thus rolling a little bit after liftoff
+- flybareless controller does not hold orianteation, if hub_stiffness_mr is small
+- collision point copy ( due to concave mesh problem) should have its distance to original point define by size. of helicopter
+- UI button in options opens on windows systems 'regedit', what is the code to open regdit? in macIO? 
+- when skybox download finished, avoid lag in game
+ 
+3d-modelling
+-

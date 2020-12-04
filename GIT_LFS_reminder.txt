@@ -1,0 +1,17 @@
+
+
+https://www.youtube.com/watch?v=09McJ2NL7YM
+https://gist.github.com/Srfigie/77b5c15bc5eb61733a74d34d10b3ed87
+
+
+git lfs install
+git lfs track *.PNG
+git add .gitattributes
+
+git lfs ls-files (after commit)
+
+
+
+
+git lfs status
+git lfs env 

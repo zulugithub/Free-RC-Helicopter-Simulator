@@ -1,0 +1,3522 @@
+﻿// ##################################################################################
+// Free RC helicopter Simulator
+// 20.01.2020 
+// Copyright (c) zulu
+//
+// Unity c# code
+// ##################################################################################
+//
+// Documents
+//  Helicopter
+//      115€: Cai, Guowei, Chen, Ben M., Lee, Tong Heng  (https://www.springer.com/de/book/9780857296344) 2011_Book_UnmannedRotorcraftSystems.pdf
+//      FREE: Vladislav Gavrilets (https://core.ac.uk/download/pdf/4385472.pdf)  Dynamic Model for aMiniature Aerobatic Helicopter
+//      FREE: Simon Lindblom & Adam Lundmark (http://liu.diva-portal.org/smash/get/diva2:821251/FULLTEXT01.pdf) Modelling and control of a hexarotor UAV
+//      FREE: Martin Insulander (https://www.researchgate.net/publication/305723278_Development_of_a_Helicopter_Simulation_for_Operator_Interface_Research) Development of a Helicopter Simulation for Operator Interface Research
+//      FREE: Heffley, Robert K. (https://ntrs.nasa.gov/search.jsp?R=19870015897) STUDY OF HELICOPTER ROLL CONTROL EFFECTIVENESS CRITERIA
+// Brushless
+//      FREE: Prof. Yon-Ping Chen (http://ocw.nctu.edu.tw/course/dssi032/DSSI_2.pdf) Modeling of DC Motor
+//      FREE: http://www.drivecalc.de/
+//            https://www.ecalc.ch/
+//
+// Solving ODEs in Unity:
+//      FREE: https://joinerda.github.io/Solving-ODEs-in-Unity/ main program structure based on his examlpe
+//      FREE: https://joinerda.github.io/Threading-In-Unity/ main program structure based on his examlpe
+//
+//
+// https://www.researchgate.net/publication/220806807_Aggressive_Maneuvering_Flight_Tests_of_a_Miniature_Robotic_Helicopter ???
+// http://www.ampere-lyon.fr/IMG/pdf/phd_book_skandertaamallah_final.pdf ???
+//
+// Ascii text generator
+// http://patorjk.com/software/taag/#p=display&f=Doh&t=ODE
+//
+// Unity Logfiles
+// https://docs.unity3d.com/Manual/LogFiles.html
+// 
+// https://www.reddit.com/r/Unity3D/comments/9vmhf5/anyone_getting_invalid_langversion_in_visual/
+// ##################################################################################
+//  Collsion does not work in build -> check http://docs.unity3d.com/Manual/LogFiles.html
+//
+//
+//
+// https://github.com/ValveSoftware/unity-xr-plugin/releases/tag/installer
+// ##################################################################################
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System.Diagnostics;
+using System;
+using System.Reflection;
+using UnityEditor;
+using UnityEngine.Profiling;
+using UnityEngine.UI;
+using Common;
+using UnityEngine.Rendering.PostProcessing;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using System.Xml;
+using System.IO;
+using System.Xml.Linq;
+using System.Linq;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.InputSystem.Utilities;
+using System.Runtime.InteropServices;
+using UnityEngine.InputSystem.Layouts;
+using UnityEngine.InputSystem.Controls;
+using System.Threading;
+using Rotor;
+using Parameter;
+
+using UnityEngine.XR;
+
+
+// ##################################################################################
+//    MMMMMMMM               MMMMMMMM                    iiii                   
+//    M:::::::M             M:::::::M                   i::::i                  
+//    M::::::::M           M::::::::M                    iiii                   
+//    M:::::::::M         M:::::::::M                                           
+//    M::::::::::M       M::::::::::M  aaaaaaaaaaaaa   iiiiiiinnnn  nnnnnnnn    
+//    M:::::::::::M     M:::::::::::M  a::::::::::::a  i:::::in:::nn::::::::nn  
+//    M:::::::M::::M   M::::M:::::::M  aaaaaaaaa:::::a  i::::in::::::::::::::nn 
+//    M::::::M M::::M M::::M M::::::M           a::::a  i::::inn:::::::::::::::n
+//    M::::::M  M::::M::::M  M::::::M    aaaaaaa:::::a  i::::i  n:::::nnnn:::::n
+//    M::::::M   M:::::::M   M::::::M  aa::::::::::::a  i::::i  n::::n    n::::n
+//    M::::::M    M:::::M    M::::::M a::::aaaa::::::a  i::::i  n::::n    n::::n
+//    M::::::M     MMMMM     M::::::Ma::::a    a:::::a  i::::i  n::::n    n::::n
+//    M::::::M               M::::::Ma::::a    a:::::a i::::::i n::::n    n::::n
+//    M::::::M               M::::::Ma:::::aaaa::::::a i::::::i n::::n    n::::n
+//    M::::::M               M::::::M a::::::::::aa:::ai::::::i n::::n    n::::n
+//    MMMMMMMM               MMMMMMMM  aaaaaaaaaa  aaaaiiiiiiii nnnnnn    nnnnnn
+// ##################################################################################
+public partial class Helicopter_Main : Helicopter_TimestepModel
+{
+
+
+
+    // ##################################################################################
+    //  PPPPPPPPPPPPPPPPP                                                                                                           tttt                                                      
+    //  P::::::::::::::::P                                                                                                       ttt:::t                                                      
+    //  P::::::PPPPPP:::::P                                                                                                      t:::::t                                                      
+    //  PP:::::P     P:::::P                                                                                                     t:::::t                                                      
+    //    P::::P     P:::::Paaaaaaaaaaaaa  rrrrr   rrrrrrrrr   aaaaaaaaaaaaa      mmmmmmm    mmmmmmm       eeeeeeeeeeee    ttttttt:::::ttttttt        eeeeeeeeeeee    rrrrr   rrrrrrrrr       
+    //    P::::P     P:::::Pa::::::::::::a r::::rrr:::::::::r  a::::::::::::a   mm:::::::m  m:::::::mm   ee::::::::::::ee  t:::::::::::::::::t      ee::::::::::::ee  r::::rrr:::::::::r      
+    //    P::::PPPPPP:::::P aaaaaaaaa:::::ar:::::::::::::::::r aaaaaaaaa:::::a m::::::::::mm::::::::::m e::::::eeeee:::::eet:::::::::::::::::t     e::::::eeeee:::::eer:::::::::::::::::r     
+    //    P:::::::::::::PP           a::::arr::::::rrrrr::::::r         a::::a m::::::::::::::::::::::me::::::e     e:::::etttttt:::::::tttttt    e::::::e     e:::::err::::::rrrrr::::::r    
+    //    P::::PPPPPPPPP      aaaaaaa:::::a r:::::r     r:::::r  aaaaaaa:::::a m:::::mmm::::::mmm:::::me:::::::eeeee::::::e      t:::::t          e:::::::eeeee::::::e r:::::r     r:::::r    
+    //    P::::P            aa::::::::::::a r:::::r     rrrrrrraa::::::::::::a m::::m   m::::m   m::::me:::::::::::::::::e       t:::::t          e:::::::::::::::::e  r:::::r     rrrrrrr    
+    //    P::::P           a::::aaaa::::::a r:::::r           a::::aaaa::::::a m::::m   m::::m   m::::me::::::eeeeeeeeeee        t:::::t          e::::::eeeeeeeeeee   r:::::r                
+    //    P::::P          a::::a    a:::::a r:::::r          a::::a    a:::::a m::::m   m::::m   m::::me:::::::e                 t:::::t    tttttte:::::::e            r:::::r                
+    //  PP::::::PP        a::::a    a:::::a r:::::r          a::::a    a:::::a m::::m   m::::m   m::::me::::::::e                t::::::tttt:::::te::::::::e           r:::::r                
+    //  P::::::::P        a:::::aaaa::::::a r:::::r          a:::::aaaa::::::a m::::m   m::::m   m::::m e::::::::eeeeeeee        tt::::::::::::::t e::::::::eeeeeeee   r:::::r                
+    //  P::::::::P         a::::::::::aa:::ar:::::r           a::::::::::aa:::am::::m   m::::m   m::::m  ee:::::::::::::e          tt:::::::::::tt  ee:::::::::::::e   r:::::r                
+    //  PPPPPPPPPP          aaaaaaaaaa  aaaarrrrrrr            aaaaaaaaaa  aaaammmmmm   mmmmmm   mmmmmm    eeeeeeeeeeeeee            ttttttttttt      eeeeeeeeeeeeee   rrrrrrr                  
+    // ##################################################################################
+    #region parameter
+    // ##################################################################################
+    // variables, objects
+    // ##################################################################################
+
+
+    // ##################################################################################
+    // XR
+    // ##################################################################################
+    //const bool virtual_reality_used_flag = true;
+    // sub_camera (for collsion object texturing) orientation, see https://forum.unity.com/threads/sync-multiple-cameras-with-arfoundation.718844/
+    // for black screen,rer see https://github.com/ValveSoftware/steamvr_unity_plugin/issues/713
+    // single pass ( in Assets -> XR -> Settings ) would be more efficiet , but shder must be edited https://docs.unity3d.com/Manual/SinglePassStereoRendering.html TODO
+    // ##################################################################################
+
+
+
+    [Header("Simulation Objects")]
+    public GameObject helicopters_available;
+
+    // main object where all the equations are calculated
+    public Helisimulator.Helicopter_ODE helicopter_ODE;
+    double time = 0.0; // [sec] time
+    readonly double[] u_inputs = new double[8]; // transmitter/controller input signal vector; // input for system of ordenary equations
+    readonly Stopwatch stopwatch = new Stopwatch();
+    int counter = 0;
+
+
+    // animation: pilot is rising his arms with transmitter
+    Animator animator_pilot_with_transmitter;
+
+    // animation: rising and lowering wheels
+    Animator animator_wheels_left;
+    Animator animator_wheels_right;
+    Animator animator_wheels_steering_center;
+    Animator animator_wheels_steering_left;
+    Animator animator_wheels_steering_right;
+    enum Wheels_Status_Variants
+    {
+        lowered,
+        raised
+    }
+    Wheels_Status_Variants wheels_status;
+    Wheels_Status_Variants wheels_status_old; // for detect flank
+    private float collision_positions_landing_gear_left_rising_offset_target = 0; // [0...1]
+    private float collision_positions_landing_gear_right_rising_offset_target = 0; // [0...1]
+    private float collision_positions_landing_gear_steering_center_rising_offset_target = 0; // [0...1]
+    private float collision_positions_landing_gear_steering_left_rising_offset_target = 0; // [0...1]
+    private float collision_positions_landing_gear_steering_right_rising_offset_target = 0; // [0...1]
+    private float collision_positions_landing_gear_left_rising_offset_velocity = 0.0f;  // [0...1/s]
+    private float collision_positions_landing_gear_right_rising_offset_velocity = 0.0f;  // [0...1/s]
+    private float collision_positions_landing_gear_steering_center_rising_offset_velocity = 0.0f;  // [0...1/s]
+    private float collision_positions_landing_gear_steering_left_rising_offset_velocity = 0.0f;  // [0...1/s]
+    private float collision_positions_landing_gear_steering_right_rising_offset_velocity = 0.0f;  // [0...1/s]
+
+    // animation: pilot sitting in scale helicopter
+    Animator animator_pilot;
+
+    // animation: opening and closing doors
+    Animator animator_doors;
+    enum Doors_Status_Variants
+    {
+        closed,
+        opened
+    }
+    Doors_Status_Variants doors_status;
+    Doors_Status_Variants doors_status_old; // for detect flank
+
+    enum Wheel_Brake_Status_Variants
+    {
+        enabled,
+        disabled
+    }
+    Wheel_Brake_Status_Variants wheel_brake_status = Wheel_Brake_Status_Variants.disabled;
+
+
+    // animation: air brake / speed brake (e.g. Sikorsky S-67)
+    Animator animator_speed_brake;
+    enum Animator_Speed_Brake_Status_Variants
+    {
+        closed,
+        opened
+    }
+    Animator_Speed_Brake_Status_Variants speed_brake_status = Animator_Speed_Brake_Status_Variants.closed;
+
+
+    Vector3 position = Vector3.zero;
+    Quaternion rotation = Quaternion.identity;
+    Vector3 velocity = Vector3.zero;
+
+    string scenery_name = "none";
+    string helicopter_name = "none";
+
+    enum State_Load_Skymap
+    {
+        not_running,
+        prepare_starting,
+        starting,
+        running,
+        finising
+    }
+    State_Load_Skymap load_skymap_state = State_Load_Skymap.not_running;
+
+    string version_number;
+    int first_start_flag = 1;
+    //int loading_flag = 0;
+    int active_helicopter_id = 0;
+    int active_scenery_id = 0;
+    GameObject helicopter_object;
+
+    readonly Helicopter_Rotor_Visualization_And_Audio mainrotor_object = new Helicopter_Rotor_Visualization_And_Audio();
+    readonly Helicopter_Rotor_Visualization_And_Audio tailrotor_object = new Helicopter_Rotor_Visualization_And_Audio();
+    readonly Helicopter_Rotor_Visualization_And_Audio propeller_object = new Helicopter_Rotor_Visualization_And_Audio();
+
+    GameObject helicopter_setup_instance;
+    GameObject helicopter_setup_gameobject;
+
+    GameObject helicopter_setup_gear_or_skids_left_instance;
+    GameObject helicopter_setup_gear_or_skids_left_gameobject;
+    GameObject helicopter_setup_gear_or_skids_right_instance;
+    GameObject helicopter_setup_gear_or_skids_right_gameobject;
+
+    //GameObject helicopter_setup_missile_instance;
+    GameObject helicopter_setup_missile_gameobject;
+    readonly List<Transform> list_helicopter_setup_missile_pylon_localposition = new List<Transform>();
+    int list_helicopter_setup_missile_pylon_localposition_current_active;
+
+    float omega_mr = 0;  // [rad/sec] mainrotor 
+    float omega_tr = 0;  // [rad/sec] tailrotor
+    float omega_pr = 0;  // [rad/sec] propeller
+
+    float Omega_mr = 0;  // [rad] mainrotor 
+    float Omega_tr = 0;  // [rad] tailrotor
+    float Omega_pr = 0;  // [rad] propeller
+
+    float flapping_a_s_mr_L = 0; // [rad] mainrotor pitch flapping angle a_s (longitudial direction)
+    float flapping_b_s_mr_L = 0; // [rad] mainrotor roll flapping angle b_s (lateral direction)
+
+    float flapping_a_s_tr_L = 0; // [rad] tailrotor pitch flapping angle a_s (longitudial direction) -  used for tandem rotor setup
+    float flapping_b_s_tr_L = 0; // [rad] tailrotor roll flapping angle b_s (lateral direction) -  used for tandem rotor setup
+
+    float flapping_a_s_pr_L = 0; // [rad] propeller pitch flapping angle a_s (longitudial direction) -  not used
+    float flapping_b_s_pr_L = 0; // [rad] propeller roll flapping angle b_s (lateral direction) -  not used
+
+    readonly List<Material> helicopter_canopy_material = new List<Material>(); int helicopter_canopy_material_ID = 0;
+    AudioSource ambient_audio_source;
+    AudioSource transmitter_audio_source;
+    AudioSource commentator_audio_source;
+    AudioSource crash_audio_source;
+    AudioSource audio_source_motor;
+    float audio_source_motor_smooth_transition = 0.5f; // [0 ..1]
+    Texture[] all_textures;
+
+    // Debug 2D plot figures
+    private Rect plot2D_graph_rect_1;
+    private Rect plot2D_graph_rect_2;
+
+    // game logic flag
+    [HideInInspector]
+    public bool gl_pause_flag = true;
+    bool gl_controller_connected_flag = false;
+
+    const float RIGHT2LEFT_HANDED = -1.0f;
+
+    private Coroutine co_hide_cursor;
+    float mouse_camera_fov;
+    float mouse_camera_yaw;
+    float mouse_camera_pitch;
+    const float mouse_camera_fov_limit = 20.0f;
+    const float mouse_scroll_fov_increment = 0.015f;
+    const float mouse_camera_speed_horizontaly = 0.25f;
+    const float mouse_camera_speed_verticaly = 0.25f;
+
+    //private Coroutine co_load_skymap;
+    List<stru_skymap_paths> list_skymap_paths = new List<stru_skymap_paths>();
+
+    Light directional_light;
+
+    Camera main_camera;
+    //Camera sub_camera; // needed for projecting skymap to mesh
+    Bloom bloom_layer = null;
+    float bloom_layer_intensity_old;
+
+    // graphic settings
+    MotionBlur motion_blur_layer = null;
+    bool motion_blur_old;
+
+    bool bloom_old;
+
+    int quality_setting_old = 0;
+
+    //int target_frame_rate_old;
+
+    GameObject pilot;
+
+    public ReflectionProbe reflextion_probe;
+
+    // transmitter countdown 
+    float transmitter_countdown_minutes_timer = 0;
+    int display_seconds_spent_old;
+    Texture2D[] transmitter_display_numbers_texture2D;
+    Material[] transmitter_display_digits_material;
+
+    //int v_sync_old;
+    long update_called_cntr = 0;
+
+
+    float scenery_selection_key_delay_timer;
+    bool scenery_selection_key_delay_flag;
+    float helicopter_selection_key_delay_timer;
+    bool helicopter_selection_key_delay_flag;
+
+
+
+    //Helper.Exponential_Moving_Average_Filter exponential_moving_average_filter_for_camera_position_x = new Helper.Exponential_Moving_Average_Filter();
+    //Helper.Exponential_Moving_Average_Filter exponential_moving_average_filter_for_camera_position_y = new Helper.Exponential_Moving_Average_Filter();
+    //Helper.Exponential_Moving_Average_Filter exponential_moving_average_filter_for_camera_position_z = new Helper.Exponential_Moving_Average_Filter();
+
+    // XR
+    // https://forum.unity.com/threads/deprecation-nightmare.812688/
+    readonly List<XRDisplaySubsystemDescriptor> displaysDescs = new List<XRDisplaySubsystemDescriptor>();
+    readonly List<XRDisplaySubsystem> displays = new List<XRDisplaySubsystem>();
+
+    // steering wheel
+    readonly Helper.Exponential_Moving_Average_Filter_For_Rotations exponential_moving_average_filter_for_roations_for_steering_wheel_center = new Helper.Exponential_Moving_Average_Filter_For_Rotations();
+    readonly Helper.Exponential_Moving_Average_Filter_For_Rotations exponential_moving_average_filter_for_roations_for_steering_wheel_left = new Helper.Exponential_Moving_Average_Filter_For_Rotations();
+    readonly Helper.Exponential_Moving_Average_Filter_For_Rotations exponential_moving_average_filter_for_roations_for_steering_wheel_right = new Helper.Exponential_Moving_Average_Filter_For_Rotations();
+    // ##################################################################################
+    #endregion
+
+
+
+
+
+    // ##################################################################################
+    //                                                                                                                              dddddddd                 
+    //    MMMMMMMM               MMMMMMMM                             tttt         hhhhhhh                                          d::::::d                 
+    //    M:::::::M             M:::::::M                          ttt:::t         h:::::h                                          d::::::d                 
+    //    M::::::::M           M::::::::M                          t:::::t         h:::::h                                          d::::::d                 
+    //    M:::::::::M         M:::::::::M                          t:::::t         h:::::h                                          d:::::d                  
+    //    M::::::::::M       M::::::::::M    eeeeeeeeeeee    ttttttt:::::ttttttt    h::::h hhhhh          ooooooooooo       ddddddddd:::::d     ssssssssss   
+    //    M:::::::::::M     M:::::::::::M  ee::::::::::::ee  t:::::::::::::::::t    h::::hh:::::hhh     oo:::::::::::oo   dd::::::::::::::d   ss::::::::::s  
+    //    M:::::::M::::M   M::::M:::::::M e::::::eeeee:::::eet:::::::::::::::::t    h::::::::::::::hh  o:::::::::::::::o d::::::::::::::::d ss:::::::::::::s 
+    //    M::::::M M::::M M::::M M::::::Me::::::e     e:::::etttttt:::::::tttttt    h:::::::hhh::::::h o:::::ooooo:::::od:::::::ddddd:::::d s::::::ssss:::::s
+    //    M::::::M  M::::M::::M  M::::::Me:::::::eeeee::::::e      t:::::t          h::::::h   h::::::ho::::o     o::::od::::::d    d:::::d  s:::::s  ssssss 
+    //    M::::::M   M:::::::M   M::::::Me:::::::::::::::::e       t:::::t          h:::::h     h:::::ho::::o     o::::od:::::d     d:::::d    s::::::s      
+    //    M::::::M    M:::::M    M::::::Me::::::eeeeeeeeeee        t:::::t          h:::::h     h:::::ho::::o     o::::od:::::d     d:::::d       s::::::s   
+    //    M::::::M     MMMMM     M::::::Me:::::::e                 t:::::t    tttttth:::::h     h:::::ho::::o     o::::od:::::d     d:::::d ssssss   s:::::s 
+    //    M::::::M               M::::::Me::::::::e                t::::::tttt:::::th:::::h     h:::::ho:::::ooooo:::::od::::::ddddd::::::dds:::::ssss::::::s
+    //    M::::::M               M::::::M e::::::::eeeeeeee        tt::::::::::::::th:::::h     h:::::ho:::::::::::::::o d:::::::::::::::::ds::::::::::::::s 
+    //    M::::::M               M::::::M  ee:::::::::::::e          tt:::::::::::tth:::::h     h:::::h oo:::::::::::oo   d:::::::::ddd::::d s:::::::::::ss  
+    //    MMMMMMMM               MMMMMMMM    eeeeeeeeeeeeee            ttttttttttt  hhhhhhh     hhhhhhh   ooooooooooo      ddddddddd   ddddd  sssssssssss   
+    // ##################################################################################
+    #region methods
+    // ##################################################################################
+    // Collsion detection with 3d geometry ------> see Helicopter_CollisionDetection.cs  TODO why not here? maybe script must be on trigger object?
+    // ##################################################################################
+    //void OnTriggerEnter(Collider other) //Collision collision
+    //{
+    //    //Debug.Log("Collision!!!");
+
+    //    Reset_Simulation_States();
+    //}
+
+    // ##################################################################################
+    // XR device check https://docs.unity3d.com/ScriptReference/XR.XRDevice-isPresent.html
+    // ##################################################################################
+    public static bool XRDeviceIsPresent()
+    {
+        var xrDisplaySubsystems = new List<XRDisplaySubsystem>();
+        SubsystemManager.GetInstances<XRDisplaySubsystem>(xrDisplaySubsystems);
+        foreach (var xrDisplay in xrDisplaySubsystems)
+        {
+            UnityEngine.Debug.Log("xrDisplay: " + xrDisplay);
+            if (xrDisplay.running)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    // https://forum.unity.com/threads/deprecation-nightmare.812688/
+    bool IsActive()
+    {
+        displaysDescs.Clear();
+        SubsystemManager.GetSubsystemDescriptors(displaysDescs);
+
+        // If there are registered display descriptors that is a good indication that VR is most likely "enabled"
+        return displaysDescs.Count > 0;
+    }
+
+    bool IsVrRunning()
+    {
+        bool vrIsRunning = false;
+        displays.Clear();
+        SubsystemManager.GetInstances(displays);
+        foreach (var displaySubsystem in displays)
+        {
+            if (displaySubsystem.running)
+            {
+                vrIsRunning = true;
+                break;
+            }
+        }
+
+        return vrIsRunning;
+    }
+
+    // ##################################################################################
+
+
+    /// <summary>
+    /// TODO: lock necceessry, better way ??????
+    /// </summary>
+    static readonly object _locker = new object();
+
+    // ##################################################################################
+    // This function is running in a thread with constant low stepsize (high frquency)
+    // Inside of it the explicit ODE solver is called gets the ODE with all its calculations updated
+    // The 4th order Runge Kutta needs four calls to the ODE to get the states for next timestep approximated
+    // ##################################################################################
+    public override void TakeStep(float dt)
+    {
+        lock (_locker)
+        {
+            IO_AntiStutter__Get_ODE_Transform_Before_Calculation(dt);
+
+            //dt = helicopter_ODE.par.simulation.delta_t.val;//  thread_ODE_deltat    override with const-value
+
+            //UnityEngine.Debug.Log("TakeStep Called");
+            stopwatch.Start();
+            time = helicopter_ODE.RK4Step(helicopter_ODE.x_states, u_inputs, time, dt * helicopter_ODE.par.simulation.timescale.val);
+            stopwatch.Stop();
+            counter++;
+
+            IO_AntiStutter__Get_ODE_Transform_After_Calculation();
+        }
+    }
+    // ##################################################################################
+
+
+
+
+    // ##################################################################################
+    // find the exact refreshrate
+    // ##################################################################################
+    public void Find_Exact_Monitor_Refreshrate()
+    {
+        float refreshRate;
+
+        if (!XRSettings.enabled)
+            refreshRate = (float)Screen.currentResolution.refreshRate;
+        else
+        {
+            refreshRate = XRDevice.refreshRate;
+            //UnityEngine.Debug.Log("XRDevice.refreshRate " + XRDevice.refreshRate); 
+            if (refreshRate == 0) refreshRate = 90; // todo see https://docs.unity3d.com/ScriptReference/XR.XRDevice-refreshRate.html
+        }
+
+        if (refresh_rate_sec_found_flag == false)
+        {
+            const float range_dT = 0.05f; // 5 %
+            if (Time.deltaTime < (refreshRate * (1.0f + range_dT)) ||
+                Time.deltaTime > (refreshRate * (1.0f - range_dT)))
+            {
+                // do the filtering
+                float refresh_rate_sec_filtered =
+                    (float)exponential_moving_average_filter_for_refresh_rate_sec.Calculate(200, (double)Time.deltaTime);
+
+                // clamp the refresh-rate close to the theoretical value
+                float refresh_rate_sec_rounded = 1.0f / refreshRate;
+                const float range = 0.05f; // 5 %
+                if (refresh_rate_sec_filtered > (refresh_rate_sec_rounded * (1.0f + range)) ||
+                    refresh_rate_sec_filtered < (refresh_rate_sec_rounded * (1.0f - range)))
+                    refresh_rate_sec = refresh_rate_sec_rounded;
+                else
+                {
+                    refresh_rate_sec = refresh_rate_sec_filtered;
+
+
+                    if (Mathf.Abs(refresh_rate_sec_old - refresh_rate_sec) < 0.0001f)
+                    {
+                        refresh_rate_sec_found_flag_cntr++;
+                        if (refresh_rate_sec_found_flag_cntr > 100) // if 100 times the value hasn't changed, then we found the refresh_rate_sec
+                            refresh_rate_sec_found_flag = true;
+                    }
+                    else
+                    {
+                        refresh_rate_sec_found_flag_cntr = 0;
+                    }
+                    refresh_rate_sec_old = refresh_rate_sec;
+
+                }
+
+                refresh_rate_hz = 1.0f / refresh_rate_sec;
+            }
+        }
+    }
+    // ##################################################################################
+
+
+
+    // ##################################################################################
+    // Resets the model to the initial conditions states
+    // ##################################################################################
+    public void Reset_Simulation_States()
+    {
+        time = 0; // [sec]
+
+        // reset to inintial state in ordinay differetial quations thread
+        helicopter_ODE.Set_Initial_Conditions();
+
+        // anti stutter - extrapolation of last two ODE-thread results
+        IO_AntiStutter__Preset_ODE_Thread_Transforms();
+
+        // reset transmitter countdown timer
+        transmitter_countdown_minutes_timer = helicopter_ODE.par.transmitter_and_helicopter.transmitter.countdown_minutes.val * 60.0f;
+        // play transmitter sound
+        Transmitter_Play_Audio(Application.streamingAssetsPath + "/Audio/Futaba_T18SZ_Sounds/Futaba_T18SZ_Click.wav");
+
+        // reset wheel animation to lowered wheels
+        Reset_Animation_Wheels();
+    }
+    // ##################################################################################
+
+
+
+
+    // ##################################################################################
+    // Load the setup (textures and and special objects) of the helicopter model
+    // ##################################################################################
+    void Load_Helicopter_Different_Setups()
+    {
+        // textures
+        string setup_foldername = helicopter_name + "_Setup_00" + helicopter_canopy_material_ID + "/";
+
+        // loop through A...E textures, and updat the materials
+        int i = 0;
+        for (char c = 'A'; c <= 'F'; c++)
+        {
+            if (helicopter_canopy_material.Count == i)
+                break;
+            if (helicopter_canopy_material[i] == null)
+                break;
+
+            Texture canopy_texture = Resources.Load<Texture>(setup_foldername + "Textures/" + helicopter_name + "_Canopy_00" + helicopter_canopy_material_ID + "_" + c);
+            if (canopy_texture != null)
+            {
+                helicopter_canopy_material[i].SetTexture("_MainTex", canopy_texture); // Diffuse 
+
+                if (c == 'A')
+                {
+                    // for EC135 mainrotor cover, that uses the same map, as the main hull -- TODO better
+                    mainrotor_object.Update_Rotor_Material(ref canopy_texture);
+
+                    // for AH56 Cheyenne tailrotor hub, that uses the same map, as the main hull -- TODO better
+                    tailrotor_object.Update_Rotor_Material(ref canopy_texture);
+
+                    // for AH56 Cheyenne propller hub, that uses the same map, as the main hull-- TODO better
+                    propeller_object.Update_Rotor_Material(ref canopy_texture);
+                }
+            }
+
+            Texture canopy_rougness_texture = Resources.Load<Texture>(setup_foldername + "Textures/" + helicopter_name + "_Canopy_Roughness_00" + helicopter_canopy_material_ID + "_" + c);
+            if (canopy_rougness_texture != null)
+                helicopter_canopy_material[i].SetTexture("_SpecGlossMap", canopy_rougness_texture); // Specular/Roughness
+
+            Texture canopy_metallic_texture = Resources.Load<Texture>(setup_foldername + "Textures/" + helicopter_name + "_Canopy_Metallic_00" + helicopter_canopy_material_ID + "_" + c);
+            if (canopy_metallic_texture != null)
+                helicopter_canopy_material[i].SetTexture("_MetallicGlossMap", canopy_metallic_texture); // Metallic
+            else
+            {
+                helicopter_canopy_material[i].SetTexture("_MetallicGlossMap", null); // Metallic
+                //  helicopter_canopy_material[i].SetFloat("_Metallic", .25f);
+            }
+
+            i++;
+        }
+
+        // load specific heilcopter setup's 3d-objects
+        Destroy(helicopter_setup_instance);
+        helicopter_setup_gameobject = Resources.Load(setup_foldername + "Prefabs/" + helicopter_name + "_setup_00" + helicopter_canopy_material_ID + " Variant", typeof(GameObject)) as GameObject;
+        if (helicopter_setup_gameobject != null)
+        {
+            helicopter_setup_instance = Instantiate(helicopter_setup_gameobject, helicopters_available.transform.Find(helicopter_name).gameObject.transform);
+
+            // search for max 10 missile launch pylons positioning objects
+            list_helicopter_setup_missile_pylon_localposition.Clear();
+            for (int j = 0; j < 10; j++)
+            {
+                Transform tr = helicopter_setup_instance.transform.Find("missile_pylon_00" + j);
+                if (tr != null)
+                    list_helicopter_setup_missile_pylon_localposition.Add(tr.gameObject.GetComponent<Transform>());
+            }
+        }
+
+        // load specific heilcopter setup's animated gear or skid-objects   
+        // setup wheel animation (animator can be owerwritten in Load_Helicopter_Different_Setups()-function, if setup specific gear or skids are available)
+        // ..._Gear_Or_Skid_Animation_Left and ..._Gear_Or_Skid_Animation_Right are used for skids and rotating wheels. Other wheels are added or removed in Load_Helicopter(). If thex should become setup specific,then add them here (so far was not necessary)
+        GameObject helicopter_setup_gear_or_skids_left_gameobject_temp = Resources.Load(setup_foldername + "Prefabs/" + helicopter_name + "_setup_00" + helicopter_canopy_material_ID + "_Gear_Or_Skid_Animation_Left Variant", typeof(GameObject)) as GameObject;
+        if (helicopter_setup_gear_or_skids_left_gameobject_temp != null)
+        {
+            Destroy(helicopter_setup_gear_or_skids_left_instance);
+            helicopter_setup_gear_or_skids_left_gameobject = helicopter_setup_gear_or_skids_left_gameobject_temp;
+
+            helicopter_setup_gear_or_skids_left_instance = Instantiate(helicopter_setup_gear_or_skids_left_gameobject, helicopters_available.transform.Find(helicopter_name).gameObject.transform);
+
+            animator_wheels_left = helicopter_setup_gear_or_skids_left_instance.gameObject.GetComponent<Animator>();
+        }
+
+        GameObject helicopter_setup_gear_or_skids_right_gameobject_temp = Resources.Load(setup_foldername + "Prefabs/" + helicopter_name + "_setup_00" + helicopter_canopy_material_ID + "_Gear_Or_Skid_Animation_Right Variant", typeof(GameObject)) as GameObject;
+        if (helicopter_setup_gear_or_skids_right_gameobject_temp != null)
+        {
+            Destroy(helicopter_setup_gear_or_skids_right_instance);
+            helicopter_setup_gear_or_skids_right_gameobject = helicopter_setup_gear_or_skids_right_gameobject_temp;
+
+            helicopter_setup_gear_or_skids_right_instance = Instantiate(helicopter_setup_gear_or_skids_right_gameobject, helicopters_available.transform.Find(helicopter_name).gameObject.transform);
+
+            animator_wheels_right = helicopter_setup_gear_or_skids_right_instance.gameObject.GetComponent<Animator>();
+        }
+
+
+        // load specific heilcopter setup's missile
+        helicopter_setup_missile_gameobject = Resources.Load(setup_foldername + "Prefabs/" + helicopter_name + "_setup_00" + helicopter_canopy_material_ID + "_Missile Variant", typeof(GameObject)) as GameObject;
+
+    }
+    // ##################################################################################
+
+
+
+
+    // ##################################################################################
+    // Destroy all debug lines gameobjects 
+    // ##################################################################################
+    // destroy all debug lines
+    public void Destroy_Debug_Line_GameObjects()
+    {
+        Helper.Destroy_Lines(ui_debug_lines);
+    }
+    // ##################################################################################
+
+
+
+
+    // ##################################################################################
+    // Create new line gameobjects
+    // ##################################################################################
+    public void Create_Debug_Line_GameObjects()
+    {
+        // create new one
+        //UnityEngine.Debug.Log(" helicopter_ODE.ODEDebug.contact_forceR.Count " + helicopter_ODE.ODEDebug.contact_forceR.Count);
+        for (var i = 0; i < helicopter_ODE.ODEDebug.contact_forceR.Count; i++)
+        {
+            helicopter_ODE.ODEDebug.line_object_contact_forceR[i] = Helper.Create_Line(ui_debug_lines, Color.green);
+        }
+
+        helicopter_ODE.ODEDebug.line_object_mainrotor_forceO = Helper.Create_Line(ui_debug_lines, Color.yellow);
+        helicopter_ODE.ODEDebug.line_object_mainrotor_torqueO = Helper.Create_Line(ui_debug_lines, Color.blue);
+        helicopter_ODE.ODEDebug.line_object_mainrotor_flapping_stiffness_torqueO = Helper.Create_Line(ui_debug_lines, Color.blue);
+
+        helicopter_ODE.ODEDebug.line_object_tailrotor_forceO = Helper.Create_Line(ui_debug_lines, Color.yellow);
+        helicopter_ODE.ODEDebug.line_object_tailrotor_torqueO = Helper.Create_Line(ui_debug_lines, Color.blue);
+        helicopter_ODE.ODEDebug.line_object_tailrotor_flapping_stiffness_torqueO = Helper.Create_Line(ui_debug_lines, Color.blue);
+
+        helicopter_ODE.ODEDebug.line_object_propeller_forceO = Helper.Create_Line(ui_debug_lines, Color.yellow);
+        helicopter_ODE.ODEDebug.line_object_propeller_torqueO = Helper.Create_Line(ui_debug_lines, Color.blue);
+
+        helicopter_ODE.ODEDebug.line_object_drag_on_fuselage_drag_on_fuselage_forceO = Helper.Create_Line(ui_debug_lines, Color.red);
+        helicopter_ODE.ODEDebug.line_object_force_on_horizontal_fin_forceO = Helper.Create_Line(ui_debug_lines, Color.red);
+        helicopter_ODE.ODEDebug.line_object_force_on_vertical_fin_forceO = Helper.Create_Line(ui_debug_lines, Color.red);
+        helicopter_ODE.ODEDebug.line_object_force_on_horizontal_wing_left_forceO = Helper.Create_Line(ui_debug_lines, Color.red);
+        helicopter_ODE.ODEDebug.line_object_force_on_horizontal_wing_right_forceO = Helper.Create_Line(ui_debug_lines, Color.red);
+    }
+    // ##################################################################################
+
+
+
+
+    // ##################################################################################
+    // In options menu parameter can be saved with unique names, given by user. While user enters text, disable the other key actions.
+    // ##################################################################################
+    public static bool Is_Text_Input_Field_Focused()
+    {
+        GameObject obj = EventSystem.current.currentSelectedGameObject;
+        return (obj != null && obj.GetComponent<InputField>() != null);
+    }
+    // ##################################################################################
+
+
+
+
+    // ##################################################################################
+    // setup pilot scale to match camera with pilot's head/eyes position
+    // ##################################################################################
+    void Scale_Pilot_To_Match_Camera_Height()
+    {
+        var scale = helicopter_ODE.par.scenery.camera_height.val / 1.7000f; // todo not scale but move vertically
+        pilot.transform.localScale = new Vector3(scale, scale, scale);
+    }
+    // ##################################################################################
+
+
+
+
+    // ############################################################################
+    // play transmitter countdown and speach audio files  
+    // ############################################################################
+    private void Transmitter_Play_Audio(string fullpath_transmitter_audio_file)
+    {
+        transmitter_audio_source.volume = (helicopter_ODE.par.transmitter_and_helicopter.transmitter.countdown_volume.val / 100f) * (helicopter_ODE.par.simulation.master_sound_volume.val / 100f);
+
+        Play_Audio(transmitter_audio_source, fullpath_transmitter_audio_file);
+    }
+    // ############################################################################
+
+
+
+
+    // ############################################################################
+    // play commentator's audio files  https://spik.ai/
+    // ############################################################################
+    private void Commentator_Play_Audio(string fullpath_commentator_audio_file)
+    {
+        commentator_audio_source.volume = (helicopter_ODE.par.simulation.commentator_audio_source_volume.val / 100f) * (helicopter_ODE.par.simulation.master_sound_volume.val / 100f);
+
+        Play_Audio(commentator_audio_source, fullpath_commentator_audio_file);
+    }
+    // ############################################################################
+
+
+
+
+    // ############################################################################
+    // play commentator's audio files 
+    // ############################################################################
+    public void Crash_Play_Audio(string fullpath_audio_file)
+    {
+        // set crash sound volume at distance, where crash happened. 
+        crash_audio_source.volume = (1.0f / (Mathf.Pow(Vector3.Distance(Vector3.zero, helicopters_available.transform.position), 0.7f))) *
+            (helicopter_ODE.par.simulation.crash_audio_source_volume.val / 100f) *
+            (helicopter_ODE.par.simulation.master_sound_volume.val / 100f);
+
+        Play_Audio(crash_audio_source, fullpath_audio_file);
+    }
+    // ############################################################################
+
+
+
+
+    // ############################################################################
+    // play audio files 
+    // ############################################################################
+    private void Play_Audio(AudioSource audio_source, string fullpath_transmitter_audio_file)
+    {
+        if (audio_source.clip != null)
+        {
+            audio_source.Stop();
+            AudioClip clip = audio_source.clip;
+            audio_source.clip = null;
+            clip.UnloadAudioData();
+            DestroyImmediate(clip, false); // This is important to avoid memory leak
+        }
+
+        // import audio file
+        // https://docs.unity3d.com/ScriptReference/Networking.UnityWebRequestMultimedia.GetAudioClip.html?_ga=2.120261704.1701772512.1582723368-2133810121.1564613509
+        //UnityEngine.Debug.Log(fullpath_transmitter_audio_file); 
+        if (File.Exists(fullpath_transmitter_audio_file))
+        {
+            if (Path.GetExtension(fullpath_transmitter_audio_file).Equals(".wav"))
+                StartCoroutine(GetAudioClip(audio_source, fullpath_transmitter_audio_file, AudioType.WAV));
+            if (Path.GetExtension(fullpath_transmitter_audio_file).Equals(".ogg"))
+                StartCoroutine(GetAudioClip(audio_source, fullpath_transmitter_audio_file, AudioType.OGGVORBIS));
+        }
+    }
+    // ############################################################################
+
+
+
+
+    // ############################################################################
+    // update transmitter time counter numbers on display
+    // ############################################################################
+    void Transmitter_Update_Time_Digits_On_Display(float time_seconds)
+    {
+        string str = TimeSpan.FromSeconds(time_seconds).ToString(@"mm\:ss\:f"); // 00:00:0
+
+        transmitter_display_digits_material[0].SetTexture("_MainTex", transmitter_display_numbers_texture2D[str[0] - '0']); // Digit1 - minutes
+        transmitter_display_digits_material[1].SetTexture("_MainTex", transmitter_display_numbers_texture2D[str[1] - '0']); // Digit2 - minutes
+        transmitter_display_digits_material[2].SetTexture("_MainTex", transmitter_display_numbers_texture2D[str[3] - '0']); // Digit3 - seconds
+        transmitter_display_digits_material[3].SetTexture("_MainTex", transmitter_display_numbers_texture2D[str[4] - '0']); // Digit4 - seconds
+        transmitter_display_digits_material[4].SetTexture("_MainTex", transmitter_display_numbers_texture2D[str[6] - '0']); // Digit5 - milliseconds
+    }
+    // ############################################################################
+
+
+
+
+    // ##################################################################################
+    // wheel animation
+    // ##################################################################################
+    void Reset_Animation_Wheels()
+    {
+        // reset wheel animation to lowered wheels
+        if (animator_wheels_left != null && animator_wheels_right != null)
+        {
+            wheels_status = Wheels_Status_Variants.lowered;
+            wheels_status_old = Wheels_Status_Variants.lowered;
+
+            if (System.Array.Exists(animator_wheels_left.parameters, p => p.name == "Wheel_Status"))
+            {
+                animator_wheels_left.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
+                animator_wheels_left.Play("Transition.wheels_lowered", -1, 0.0f);
+            }
+
+            if (System.Array.Exists(animator_wheels_right.parameters, p => p.name == "Wheel_Status"))
+            {
+                animator_wheels_right.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
+                animator_wheels_right.Play("Transition.wheels_lowered", -1, 0.0f);
+            }
+
+            if (animator_wheels_steering_center != null)
+            {
+                if (System.Array.Exists(animator_wheels_steering_center.parameters, p => p.name == "Wheel_Status"))
+                {
+                    animator_wheels_steering_center.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
+                    animator_wheels_steering_center.Play("Transition.wheels_lowered", -1, 0.0f);
+                }
+            }
+
+            if (animator_wheels_steering_left != null)
+            {
+                if (System.Array.Exists(animator_wheels_steering_left.parameters, p => p.name == "Wheel_Status"))
+                {
+                    animator_wheels_steering_left.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
+                    animator_wheels_steering_left.Play("Transition.wheels_lowered", -1, 0.0f);
+                }
+            }
+
+            if (animator_wheels_steering_right != null)
+            {
+                if (System.Array.Exists(animator_wheels_steering_right.parameters, p => p.name == "Wheel_Status"))
+                {
+                    animator_wheels_steering_right.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
+                    animator_wheels_steering_right.Play("Transition.wheels_lowered", -1, 0.0f);
+                }
+            }
+            collision_positions_landing_gear_left_rising_offset_target = 0; // [0...1]
+            collision_positions_landing_gear_right_rising_offset_target = 0; // [0...1]
+            collision_positions_landing_gear_steering_center_rising_offset_target = 0; // [0...1]
+            collision_positions_landing_gear_steering_left_rising_offset_target = 0; // [0...1]
+            collision_positions_landing_gear_steering_right_rising_offset_target = 0; // [0...1]
+            helicopter_ODE.collision_positions_landing_gear_left_rising_offset = 0; // [0...1]
+            helicopter_ODE.collision_positions_landing_gear_right_rising_offset = 0; // [0...1]
+            helicopter_ODE.collision_positions_landing_gear_steering_center_rising_offset = 0; // [0...1]
+            helicopter_ODE.collision_positions_landing_gear_steering_center_rising_offset = 0; // [0...1]
+            collision_positions_landing_gear_left_rising_offset_velocity = 0.0f;  // [0...1/s]
+            collision_positions_landing_gear_right_rising_offset_velocity = 0.0f;  // [0...1/s]
+            collision_positions_landing_gear_steering_center_rising_offset_velocity = 0.0f;  // [0...1/s]
+        }
+    }
+    // ##################################################################################
+
+
+#if DEBUG_LOG
+    // ##################################################################################
+    // debug
+    // ##################################################################################
+    void Debug_Collect_Time_Ticks(enum_ID type, long value)
+    {
+        // debug time ticks to file
+        if (my_debug_time_array_ID_cntr < range)
+        {
+            my_debug_time_array_VALUE[my_debug_time_array_ID_cntr] = value; //  stopwatch_debug.Elapsed.Ticks;
+            my_debug_time_array_ID[my_debug_time_array_ID_cntr++] = type;
+        }
+    }
+
+    void Debug_Save_Time_Ticks()
+    {
+        using (StreamWriter sr = new StreamWriter(Application.dataPath + "/../debug_file.txt")) // https://answers.unity.com/questions/13072/how-do-i-get-the-application-path.html
+        {
+            for (int i = 0; i < my_debug_time_array_VALUE.Length; i++)
+            {
+                sr.WriteLine((int)my_debug_time_array_ID[i] + " " + my_debug_time_array_VALUE[i]);
+            }
+        }
+    }
+    // ##################################################################################
+#endif
+    #endregion
+
+
+
+
+
+
+
+
+
+
+    // ##################################################################################
+    //                   AAA                                                             kkkkkkkk                            
+    //                  A:::A                                                            k::::::k                            
+    //                 A:::::A                                                           k::::::k                            
+    //                A:::::::A                                                          k::::::k                            
+    //               A:::::::::Awwwwwww           wwwww           wwwwwwwaaaaaaaaaaaaa    k:::::k    kkkkkkk eeeeeeeeeeee    
+    //              A:::::A:::::Aw:::::w         w:::::w         w:::::w a::::::::::::a   k:::::k   k:::::kee::::::::::::ee  
+    //             A:::::A A:::::Aw:::::w       w:::::::w       w:::::w  aaaaaaaaa:::::a  k:::::k  k:::::ke::::::eeeee:::::ee
+    //            A:::::A   A:::::Aw:::::w     w:::::::::w     w:::::w            a::::a  k:::::k k:::::ke::::::e     e:::::e
+    //           A:::::A     A:::::Aw:::::w   w:::::w:::::w   w:::::w      aaaaaaa:::::a  k::::::k:::::k e:::::::eeeee::::::e
+    //          A:::::AAAAAAAAA:::::Aw:::::w w:::::w w:::::w w:::::w     aa::::::::::::a  k:::::::::::k  e:::::::::::::::::e 
+    //         A:::::::::::::::::::::Aw:::::w:::::w   w:::::w:::::w     a::::aaaa::::::a  k:::::::::::k  e::::::eeeeeeeeeee  
+    //        A:::::AAAAAAAAAAAAA:::::Aw:::::::::w     w:::::::::w     a::::a    a:::::a  k::::::k:::::k e:::::::e           
+    //       A:::::A             A:::::Aw:::::::w       w:::::::w      a::::a    a:::::a k::::::k k:::::ke::::::::e          
+    //      A:::::A               A:::::Aw:::::w         w:::::w       a:::::aaaa::::::a k::::::k  k:::::ke::::::::eeeeeeee  
+    //     A:::::A                 A:::::Aw:::w           w:::w         a::::::::::aa:::ak::::::k   k:::::kee:::::::::::::e  
+    //    AAAAAAA                   AAAAAAAwww             www           aaaaaaaaaa  aaaakkkkkkkk    kkkkkkk eeeeeeeeeeeeee                                               
+    // ##################################################################################
+    //  Here you setup the component you are on right now (the "this" object)
+    #region awake
+    void Awake()
+    {
+        //Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Highest;
+
+
+        // ##################################################################################
+        // Init: clear UNITY console  
+        // ##################################################################################
+#if UNITY_EDITOR
+        var assembly = Assembly.GetAssembly(typeof(SceneView));
+        var type = assembly.GetType("UnityEditor.LogEntries");
+        var method = type.GetMethod("Clear");
+        method.Invoke(new object(), null);
+#endif
+        // ##################################################################################
+
+
+
+
+
+
+
+
+        // #############################################################################2#####
+        // PlayerPrefs
+        // ##################################################################################
+        //UnitySelectMonitor = PlayerPrefs.GetInt("UnitySelectMonitor", 0);
+
+        version_number = PlayerPrefs.GetString("version_number", "0");  // triggers first_start_flag
+        active_helicopter_id = PlayerPrefs.GetInt("active_helicopter_id", 0);
+        active_scenery_id = PlayerPrefs.GetInt("active_scenery_id", 3);
+        //ui_dropdown_actual_selected_scenery_xml_filename = PlayerPrefs.GetString("ui_dropdown_actual_selected_scenery_xml_filename", null);
+        //ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename = PlayerPrefs.GetString("ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename", null);
+
+        //ui_dropdown_actual_selected_scenery_xml_filename = PlayerPrefs.GetString("SavedSetting____" + scenery_name + "____actual_selected_xml_filename", null);
+        //ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename = PlayerPrefs.GetString("SavedSetting____" + helicopter_name + "____actual_selected_xml_filename", null);
+
+        // reset some of the PlayerPrefs after version changes
+        if (version_number != Application.version)
+        {
+            // deleting the key leads later to set to default values
+            //PlayerPrefs.DeleteKey("active_helicopter_id");
+            //PlayerPrefs.DeleteKey("active_scenery_id");
+            PlayerPrefs.DeleteKey("__simulation_" + "delta_t");
+            PlayerPrefs.DeleteKey("__simulation_" + "ui_show_fps");
+            PlayerPrefs.DeleteKey("__simulation_" + "v_sync");
+        }
+        // ##################################################################################
+
+
+
+
+
+        // ##################################################################################
+        // declaring the main object of type Helicopter_ODE().
+        // ##################################################################################
+        helicopter_ODE = new Helisimulator.Helicopter_ODE();
+
+        // call the IO_Initialize() from the partial class file UI_Scipts.cs
+        IO_Initialize();
+
+        // call the UI_Initialize() from the partial class file UI_Scipts.cs
+        UI_Initialize();
+
+        // call the initilaization of the new Input System
+        IO_InputSystem_Initialize();
+
+        // initialize game controller memory
+        Init_Controller();
+
+        // get connected controller
+        Get_Connected_Controller();
+
+        all_textures = Resources.LoadAll("", typeof(Texture)).Cast<Texture>().ToArray(); // TODO: It is not good to load EVERY texture!!!!
+        // ##################################################################################
+
+
+
+        // ##################################################################################
+        // init filter for find the exact monitor refreshrate
+        // ##################################################################################
+        exponential_moving_average_filter_for_refresh_rate_sec.Init_Mean_Value(1.0f / Screen.currentResolution.refreshRate);
+        // ##################################################################################
+
+
+
+        // ##################################################################################
+        /// <summary> 
+        /// Prepare default parameter
+        /// Merge scenery's (optionaly)reduced-parameter set with scenery default-full-paremeter set and copy all merged parameter files into "folder_saved_parameter_for_sceneries" folder 
+        /// </summary> 
+        // ##################################################################################
+        // Save helicopter_ODE.par.transmitter_and_helicopter to c:\Users\ .... \AppData\LocalLow\Free RC Helicopter Simulator\Free RC Helicopter Simulator\Resources\SavedHelicopterParametersets\
+        IO_Save_Parameter(helicopter_ODE.par.scenery, folder_saved_parameter_for_sceneries, "default_parameter.xml"); // save to folder "folder_saved_parameter_for_transmitter_and_helicopter"
+        string fullpath_default_full_scenery_xml_file = System.IO.Path.Combine(folder_saved_parameter_for_sceneries, "default_parameter.xml");
+
+        XmlDocument xmldoc = new XmlDocument();
+
+        Check_Skymaps(ref active_scenery_id, ref list_skymap_paths);
+        // UnityEngine.Debug.Log("reduced_skymap_xml_file " + list_skymap_paths.Count());
+
+        foreach (stru_skymap_paths each_skymap in list_skymap_paths)
+        {
+            //UnityEngine.Debug.Log("each_skymap " + each_skymap.name);
+
+            // get the current skymap's reduced parameterset from  
+            string reduced_skymap_xml_file = each_skymap.name + "_parameter_file";
+            // get the current skymap's reduced parameterset from 
+            string fullpath_reduced_skymap_xml_file_copy = System.IO.Path.Combine(folder_saved_parameter_for_sceneries, each_skymap.name + "_parameter_file_temporary_copy.xml"); // to c:\Users\ .... \AppData\LocalLow\Free RC Helicopter Simulator\Free RC Helicopter Simulator\Resources\SavedSceneriesParametersets\
+            // the reduced parameterset has to be merged with the full .._default_parameter.xml to get a full xml file
+            string fullpath_full_skymap_xml_file = System.IO.Path.Combine(folder_saved_parameter_for_sceneries, each_skymap.name + "_default_parameter.xml"); // to c:\Users\ .... \AppData\LocalLow\Free RC Helicopter Simulator\Free RC Helicopter Simulator\Resources\SavedSceneriesParametersets\
+
+            // get the current skymap's reduces parameterset from i.e. ...\Free-RC-Helicopter-Simulator\Assets\StreamingAssets\Skymaps\MFC-Ulm_Neu-Ulm_001\
+            // and save a copy to "folder_saved_parameter_for_sceneries" c:\Users\ .... \AppData\LocalLow\Free RC Helicopter Simulator\Free RC Helicopter Simulator\Resources\SavedSceneriesParametersets\
+            xmldoc.Load(each_skymap.fullpath_skymap_folder + "/" + reduced_skymap_xml_file + ".xml");
+            xmldoc.Save(fullpath_reduced_skymap_xml_file_copy);
+
+            // merge xml files, merge individual reduced-parameters of selected scenery over default-full-parameter set   
+            Helper.XmlMerging.TryMergeXmlFiles(fullpath_reduced_skymap_xml_file_copy, fullpath_default_full_scenery_xml_file, fullpath_full_skymap_xml_file);
+
+            // set path to be loaded initially
+            each_skymap.fullpath_parameter_file_used = fullpath_full_skymap_xml_file;
+
+            // clean up
+            File.Delete(fullpath_reduced_skymap_xml_file_copy);
+        }
+        // clean up
+        File.Delete(fullpath_default_full_scenery_xml_file);
+        // ##################################################################################
+
+
+
+        // ##################################################################################
+        // load skybox
+        // ##################################################################################
+        Skybox_Initialize();
+
+        Load_Skymap(list_skymap_paths, active_scenery_id);
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        /// <summary> 
+        /// Prepare default parameter
+        /// Merge helicoper- and transmitters's (optionaly)reduced-parameter set with default-full-paremeter set and copy all merged parameter files into "folder_saved_parameter_for_transmitter_and_helicopter" folder 
+        /// </summary> 
+        // ##################################################################################
+        // save helicopter_ODE.par.transmitter_and_helicopter to c:\Users\ .... \AppData\LocalLow\Free RC Helicopter Simulator\Free RC Helicopter Simulator\Resources\SavedHelicopterAndTransmitterParametersets\
+        IO_Save_Parameter(helicopter_ODE.par.transmitter_and_helicopter, folder_saved_parameter_for_transmitter_and_helicopter, "default_parameter.xml"); // save to folder "folder_saved_parameter_for_transmitter_and_helicopter"
+        string fullpath_default_full_parameter_xml_file = System.IO.Path.Combine(folder_saved_parameter_for_transmitter_and_helicopter, "default_parameter.xml");
+
+        //XmlDocument xmldoc = new XmlDocument();
+
+        foreach (Transform each_helicopter in helicopters_available.transform)
+        {
+            // get the current helicoper- and transmitters's reduces parameterset name from e.g. Asset/Helicopters_Available/Logo600SE_V3/Resources/ 
+            string reduced_parameter_xml_file = each_helicopter.name + "_parameter_file"; // from e.g. Asset/Helicopters_Available/Logo600SE_V3/Resources/
+            // get the current helicoper- and transmitters's reduces parameterset fullpath from e.g. Asset/Helicopters_Available/Logo600SE_V3/Resources/ 
+            string fullpath_reduced_parameter_xml_file_copy = System.IO.Path.Combine(folder_saved_parameter_for_transmitter_and_helicopter, each_helicopter.name + "_parameter_file_temporary_copy.xml"); // to c:\Users\ .... \AppData\LocalLow\Free RC Helicopter Simulator\Free RC Helicopter Simulator\Resources\SavedHelicopterAndTransmitterParametersets\
+            // the reduced parameterset has to be merged with the full default_parameter.xml to get a full xml file
+            string fullpath_full_parameter_xml_file = System.IO.Path.Combine(folder_saved_parameter_for_transmitter_and_helicopter, each_helicopter.name + "_default_parameter.xml"); // to c:\Users\ .... \AppData\LocalLow\Free RC Helicopter Simulator\Free RC Helicopter Simulator\Resources\SavedHelicopterAndTransmitterParametersets\
+
+            // get the current helicoper- and transmitters's reduces parameterset from Asset/Helicopters_Available/Logo600SE_V3/Resources/ 
+            // and save a copy to "folder_saved_parameter_for_transmitter_and_helicopter" c:\Users\ .... \AppData\LocalLow\Free RC Helicopter Simulator\Free RC Helicopter Simulator\Resources\SavedHelicopterAndTransmitterParametersets\
+            xmldoc.LoadXml(Resources.Load<TextAsset>(reduced_parameter_xml_file).text);
+            xmldoc.Save(fullpath_reduced_parameter_xml_file_copy);
+
+            // merge xml files, merge individual reduced-parameters of selected helicoper and transmitter over default-full-parameter set   
+            Helper.XmlMerging.TryMergeXmlFiles(fullpath_reduced_parameter_xml_file_copy, fullpath_default_full_parameter_xml_file, fullpath_full_parameter_xml_file);
+
+            // clean up
+            File.Delete(fullpath_reduced_parameter_xml_file_copy);
+        }
+        // clean up
+        File.Delete(fullpath_default_full_parameter_xml_file);
+        // ##################################################################################
+
+
+
+        // ##################################################################################
+        /// <summary> start simulation thread </summary> 
+        // ##################################################################################
+        // Simulation_Thread_Start();
+        // ##################################################################################
+
+
+
+        // ##################################################################################
+        // load helicopter
+        // ##################################################################################
+        // get objects in Helicopters_Available object (get active Helicopter model)
+        Load_Helicopter(active_helicopter_id);
+
+        // reset model to initial position
+        Reset_Simulation_States();
+
+        // needed if no joystick is connected and then give the camera a target // TODO maybe better 
+        helicopter_ODE.Initial_Position_And_Orientation(out position, out rotation); // righthanded, [m], []
+        position = Helper.ConvertRightHandedToLeftHandedVector(position); // left handed, [m]
+        rotation = Helper.ConvertRightHandedToLeftHandedQuaternion(rotation); // left handed, []
+        velocity = Vector3.zero;
+
+        Pause_ODE(gl_pause_flag = true);
+        //ui_pause_flag = true;
+        // ##################################################################################
+
+
+
+        // ##################################################################################
+        /// <summary> Init: UI Tabs </summary> 
+        // ##################################################################################
+        Manage_Tab_Button_Logic(Available_Tabs.simulation);
+        // ##################################################################################
+
+
+
+        // ##################################################################################
+        /// <summary> get main camera </summary> 
+        // ##################################################################################
+        main_camera = GameObject.Find("Main Camera").gameObject.GetComponent<Camera>();
+        //sub_camera = main_camera.transform.Find("Sub Camera").gameObject.GetComponent<Camera>();
+        //var test = main_camera.GetComponent<PostProcessVolume>(); // access bloom... http://synersteel.com/blog/2019/1/28/unity3d-bloom-animation-script
+        //UnityEngine.XR.InputTracking.disablePositionalTracking = true;
+        // ##################################################################################
+
+        // ##################################################################################
+        // sun / eye adaption
+        // ##################################################################################
+        // get sun's instance
+        directional_light = GameObject.Find("Sun").gameObject.GetComponent<Light>();
+        // get camerea's postprocess volume
+        UnityEngine.Rendering.PostProcessing.PostProcessVolume post_processing_volume = main_camera.GetComponent<PostProcessVolume>();
+        // get bloom
+        if (post_processing_volume != null)
+            post_processing_volume.profile.TryGetSettings(out bloom_layer);
+        // ##################################################################################
+
+
+
+        // ##################################################################################
+        // Camera post-processing effects
+        // ##################################################################################
+        // motion blur
+        if (post_processing_volume != null)
+            post_processing_volume.profile.TryGetSettings(out motion_blur_layer);
+        // ##################################################################################
+
+
+
+        // ##################################################################################
+        // pilot
+        // ##################################################################################
+        // get pilot
+        pilot = GameObject.Find("Pilot/Pilot").gameObject;
+        // setup pilot scale to match camera with pilot's head/eyes position
+        Scale_Pilot_To_Match_Camera_Height();
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // pilots' transmitter timer digits
+        // ##################################################################################
+        Sprite[] transmitter_display_numbers_sprite = Resources.LoadAll<Sprite>("Transmitter_Futaba_T18SZ_numbers");
+        transmitter_display_numbers_texture2D = new Texture2D[transmitter_display_numbers_sprite.Count()];
+        transmitter_display_digits_material = new Material[5]; // material in 3d modell - each digit has its own amterial Digit1, Digit2,... Digit5
+
+        Material[] materialsArray = pilot.transform.Find("Armature/ribs.001/shoulder.R/upper_arm.R/forearm.R/hand.R/hand.R.002/Transmitter_Antenna").GetComponent<MeshRenderer>().materials;
+        foreach (Material material in materialsArray)
+        {
+            //UnityEngine.Debug.Log("material.name " + material.name);
+            for (int i = 0; i < 5; i++)
+            {
+                if (material.name == "Digit" + (i + 1).ToString() + " (Instance)")
+                {
+                    // get material of digit
+                    transmitter_display_digits_material[i] = material;
+
+                    // change material to "Fade" - to be able to use alpha
+                    transmitter_display_digits_material[i].SetFloat("_Mode", 2); // https://github.com/Unity-Technologies/UnityCsReference/blob/master/Editor/Mono/Inspector/StandardShaderGUI.cs
+                    transmitter_display_digits_material[i].SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                    transmitter_display_digits_material[i].SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                    transmitter_display_digits_material[i].SetInt("_ZWrite", 0);
+                    transmitter_display_digits_material[i].DisableKeyword("_ALPHATEST_ON");
+                    transmitter_display_digits_material[i].EnableKeyword("_ALPHABLEND_ON");
+                    transmitter_display_digits_material[i].DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                    transmitter_display_digits_material[i].renderQueue = 3000;
+
+                    // change material color to white
+                    transmitter_display_digits_material[i].SetColor("_Color", Color.white);
+                }
+            }
+        }
+
+        // convert sprite to texture2D
+        for (int i = 0; i < transmitter_display_numbers_sprite.Count(); i++)
+            transmitter_display_numbers_texture2D[i] = Common.Helper.Texture_From_Sprite(transmitter_display_numbers_sprite[i]);
+
+        // set default time 
+        transmitter_display_digits_material[0].SetTexture("_MainTex", transmitter_display_numbers_texture2D[0]);
+        transmitter_display_digits_material[1].SetTexture("_MainTex", transmitter_display_numbers_texture2D[7]);
+        transmitter_display_digits_material[2].SetTexture("_MainTex", transmitter_display_numbers_texture2D[3]);
+        transmitter_display_digits_material[3].SetTexture("_MainTex", transmitter_display_numbers_texture2D[1]);
+        transmitter_display_digits_material[4].SetTexture("_MainTex", transmitter_display_numbers_texture2D[2]);
+        // ##################################################################################
+
+
+
+        // ##################################################################################
+        /// <summary> / UI debug panel's GraphManager position setup </summary> 
+        // ##################################################################################
+        plot2D_graph_rect_1 = new Rect(0.01f * Screen.width, 0.3000f * Screen.height, 0.3f * Screen.width, 0.3f * Screen.height); // xPos, yPos, xSize, ySize
+        plot2D_graph_rect_2 = new Rect(0.01f * Screen.width, 0.6500f * Screen.height, 0.3f * Screen.width, 0.3f * Screen.height); // xPos, yPos, xSize, ySize
+        // ##################################################################################
+
+
+
+        // ##################################################################################
+        // set connected_input_devices_count_old value
+        // ##################################################################################
+        IO_Get_Connected_Gamepads_And_Joysticks();
+        connected_input_devices_count_old = connected_input_devices_count;
+        // ##################################################################################
+
+
+    }
+    // ##################################################################################
+    #endregion
+
+
+
+
+
+
+
+
+
+
+
+
+    // ##################################################################################
+    //      SSSSSSSSSSSSSSS      tttt                                                        tttt          
+    //    SS:::::::::::::::S  ttt:::t                                                     ttt:::t          
+    //   S:::::SSSSSS::::::S  t:::::t                                                     t:::::t          
+    //   S:::::S     SSSSSSS  t:::::t                                                     t:::::t          
+    //   S:::::S        ttttttt:::::ttttttt      aaaaaaaaaaaaa  rrrrr   rrrrrrrrr   ttttttt:::::ttttttt    
+    //   S:::::S        t:::::::::::::::::t      a::::::::::::a r::::rrr:::::::::r  t:::::::::::::::::t    
+    //    S::::SSSS     t:::::::::::::::::t      aaaaaaaaa:::::ar:::::::::::::::::r t:::::::::::::::::t    
+    //     SS::::::SSSSStttttt:::::::tttttt               a::::arr::::::rrrrr::::::rtttttt:::::::tttttt    
+    //       SSS::::::::SS    t:::::t              aaaaaaa:::::a r:::::r     r:::::r      t:::::t          
+    //          SSSSSS::::S   t:::::t            aa::::::::::::a r:::::r     rrrrrrr      t:::::t          
+    //               S:::::S  t:::::t           a::::aaaa::::::a r:::::r                  t:::::t          
+    //               S:::::S  t:::::t    tttttta::::a    a:::::a r:::::r                  t:::::t    tttttt
+    //   SSSSSSS     S:::::S  t::::::tttt:::::ta::::a    a:::::a r:::::r                  t::::::tttt:::::t
+    //   S::::::SSSSSS:::::S  tt::::::::::::::ta:::::aaaa::::::a r:::::r                  tt::::::::::::::t
+    //   S:::::::::::::::SS     tt:::::::::::tt a::::::::::aa:::ar:::::r                    tt:::::::::::tt
+    //    SSSSSSSSSSSSSSS         ttttttttttt    aaaaaaaaaa  aaaarrrrrrr                      ttttttttttt  
+    //                                                                                                                                         
+    // ##################################################################################
+    // ##################################################################################
+    /// <summary> Start is called on the frame when a script is enabled just before any of the Update methods are called the first time. </summary>
+    // ##################################################################################
+    #region start
+    void Start()
+    {
+        //XRSettings.enabled = false; 
+        //UnityEngine.Debug.Log("XR Enabled: " + XRSettings.enabled);
+
+        UnityEngine.Debug.Log("XR Device Present: " + XRDeviceIsPresent().ToString());
+        UnityEngine.Debug.Log("XR Device IsActive: " + IsActive()); // https://forum.unity.com/threads/deprecation-nightmare.812688/
+        UnityEngine.Debug.Log("XR Device IsVrRunning: " + IsVrRunning()); // https://forum.unity.com/threads/deprecation-nightmare.812688/
+
+
+        //UnityEngine.Debug.Log("XR User Presence: " + UnityEngine.InputSystem.CommonUsages.userPresence);
+
+
+        UnityEngine.XR.InputDevice headDevice = InputDevices.GetDeviceAtXRNode(XRNode.Head);
+        UnityEngine.Debug.Log("XR headDevice: " + headDevice);
+        //if (headDevice.isValid == false) return;
+        bool presenceFeatureSupported = headDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.userPresence, out bool userPresent);
+        UnityEngine.Debug.Log(headDevice.isValid + " ** " + presenceFeatureSupported + " ** " + userPresent);
+
+
+
+        //UnityEngine.Debug.Log("XR Model: " + UnityEngine.XR.InputDevice.....); // https://forum.unity.com/threads/detailed-xr-inputdevice-names.720614/
+        UnityEngine.Debug.Log("XR Device Active: " + XRSettings.isDeviceActive);
+        UnityEngine.Debug.Log("XR Enabled: " + XRSettings.enabled);
+        // OpenVR.System.IsTrackedDeviceConnected()
+
+
+
+
+        // during first start of the game a welcome message is shown by using "first_start_flag"
+        if (version_number == Application.version)
+        {
+            first_start_flag = 0;
+        }
+        else
+        {
+            PlayerPrefs.SetString("version_number", Application.version);
+            Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/female_voice_callibration_welcome.wav");
+        }
+
+
+        // get monitor timing
+        //Resolution[] resolutions = Screen.resolutions;
+        if (!XRSettings.enabled)
+        {
+            refresh_rate_hz = Screen.currentResolution.refreshRate; // [Hz]
+            refresh_rate_sec = 1.0f / refresh_rate_hz; // [sec]
+                                                       //refresh_rate_sec = Time.smoothDeltaTime; 
+        }
+        else
+        {
+            refresh_rate_hz = XRDevice.refreshRate; // [Hz]
+            if (refresh_rate_hz == 0) refresh_rate_hz = 90; // todo see https://docs.unity3d.com/ScriptReference/XR.XRDevice-refreshRate.html
+            refresh_rate_sec = 1.0f / refresh_rate_hz; // [sec]
+        }
+
+
+        // movement anti-stutter handling initialization
+        Start_IO_AntiStutter();
+
+        // reset stopwatch
+        stopwatch.Reset();
+
+        // 
+        if (first_start_flag == 1)
+            gl_pause_flag = true;
+
+        // show which controller is selected
+        if (first_start_flag != 1)
+            UI_show_new_controller_name_flag = true;
+
+
+
+        //// ##################################################################################
+        ///// <summary> start simulation thread </summary> 
+        //// ##################################################################################
+        Simulation_Thread_Start();
+        //// ##################################################################################
+
+        //gl_pause_flag = false;
+        //Pause_ODE(gl_pause_flag);
+        //ui_pause_flag = false;
+
+
+
+        //#if DEBUG_LOG  
+        //        // debug time ticks to file
+        //        //stopwatch_debug.Start();
+        //#endif
+    }
+    #endregion
+
+
+
+
+
+
+
+
+    // ##################################################################################
+    //
+    //                                                                          dddddddd                                                               
+    //    LLLLLLLLLLL                                                           d::::::d     HHHHHHHHH     HHHHHHHHH                   lllllll   iiii  
+    //    L:::::::::L                                                           d::::::d     H:::::::H     H:::::::H                   l:::::l  i::::i 
+    //    L:::::::::L                                                           d::::::d     H:::::::H     H:::::::H                   l:::::l   iiii  
+    //    LL:::::::LL                                                           d:::::d      HH::::::H     H::::::HH                   l:::::l         
+    //      L:::::L                  ooooooooooo     aaaaaaaaaaaaa      ddddddddd:::::d        H:::::H     H:::::H      eeeeeeeeeeee    l::::l iiiiiii 
+    //      L:::::L                oo:::::::::::oo   a::::::::::::a   dd::::::::::::::d        H:::::H     H:::::H    ee::::::::::::ee  l::::l i:::::i 
+    //      L:::::L               o:::::::::::::::o  aaaaaaaaa:::::a d::::::::::::::::d        H::::::HHHHH::::::H   e::::::eeeee:::::eel::::l  i::::i 
+    //      L:::::L               o:::::ooooo:::::o           a::::ad:::::::ddddd:::::d        H:::::::::::::::::H  e::::::e     e:::::el::::l  i::::i 
+    //      L:::::L               o::::o     o::::o    aaaaaaa:::::ad::::::d    d:::::d        H:::::::::::::::::H  e:::::::eeeee::::::el::::l  i::::i 
+    //      L:::::L               o::::o     o::::o  aa::::::::::::ad:::::d     d:::::d        H::::::HHHHH::::::H  e:::::::::::::::::e l::::l  i::::i 
+    //      L:::::L               o::::o     o::::o a::::aaaa::::::ad:::::d     d:::::d        H:::::H     H:::::H  e::::::eeeeeeeeeee  l::::l  i::::i 
+    //      L:::::L         LLLLLLo::::o     o::::oa::::a    a:::::ad:::::d     d:::::d        H:::::H     H:::::H  e:::::::e           l::::l  i::::i 
+    //    LL:::::::LLLLLLLLL:::::Lo:::::ooooo:::::oa::::a    a:::::ad::::::ddddd::::::dd     HH::::::H     H::::::HHe::::::::e         l::::::li::::::i
+    //    L::::::::::::::::::::::Lo:::::::::::::::oa:::::aaaa::::::a d:::::::::::::::::d     H:::::::H     H:::::::H e::::::::eeeeeeee l::::::li::::::i
+    //    L::::::::::::::::::::::L oo:::::::::::oo  a::::::::::aa:::a d:::::::::ddd::::d     H:::::::H     H:::::::H  ee:::::::::::::e l::::::li::::::i
+    //    LLLLLLLLLLLLLLLLLLLLLLLL   ooooooooooo     aaaaaaaaaa  aaaa  ddddddddd   ddddd     HHHHHHHHH     HHHHHHHHH    eeeeeeeeeeeeee lllllllliiiiiiii
+    //
+    // ##################################################################################
+    /// <summary> Init: get objects in Helicopter Object (get active Helicopter model)  </summary>
+    // ##################################################################################
+    #region Load_Helicopter
+    void Load_Helicopter(int helicopter_id)
+    {
+
+        // ##################################################################################
+        // find and activate selected helicopter and read its parameter
+        // ##################################################################################
+        int helicopter_count = 0;
+        foreach (Transform each_helicopter in helicopters_available.transform)
+        {
+            if (helicopter_count == helicopter_id)
+            {
+                // activate the selected helicopter
+                each_helicopter.gameObject.SetActive(true);
+
+                helicopter_name = each_helicopter.name;
+
+                // get parameter xml-file name
+                ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename = PlayerPrefs.GetString("SavedSetting____" + helicopter_name + "____actual_selected_xml_filename", null);
+                if (string.IsNullOrEmpty(ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename) ||
+                    !File.Exists(folder_saved_parameter_for_transmitter_and_helicopter + ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename))
+                {
+                    ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename = helicopter_name + "_default_parameter.xml";
+                    //PlayerPrefs.SetString("ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename", ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename);
+                    PlayerPrefs.SetString("SavedSetting____" + helicopter_name + "____actual_selected_xml_filename", ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename);
+                }
+
+                // load its parameter
+                string filename = folder_saved_parameter_for_transmitter_and_helicopter + ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename;
+                IO_Load_Transmitter_And_Helicopter_Parameter(filename);
+
+                // load governor rpm setting and change governor target rpm variable
+                int selected_governor_target_rpm_id = PlayerPrefs.GetInt("SavedSetting____" + helicopter_name + "____selected_governor_target_rpm_id", 2);
+                if (selected_governor_target_rpm_id == 1)
+                    helicopter_ODE.governor_target_rpm = helicopter_ODE.par.transmitter_and_helicopter.helicopter.governor.target_rpm_1.val;
+                if (selected_governor_target_rpm_id == 2)
+                    helicopter_ODE.governor_target_rpm = helicopter_ODE.par.transmitter_and_helicopter.helicopter.governor.target_rpm_2.val;
+
+                // setup pilot with transmitter animation
+                var temp = GameObject.Find("Pilot/Pilot");
+                if (temp != null) animator_pilot_with_transmitter = temp.gameObject.GetComponent<Animator>(); else animator_pilot_with_transmitter = null;
+
+                // setup wheel animation (animator can be owerwritten in Load_Helicopter_Different_Setups()-function, if setup specific gear or skids are available)
+                temp = GameObject.Find("Helicopters_Available/" + helicopter_name + "/Animation_Wheels/" + helicopter_name + "_Gear_Or_Skid_Animation_Left");
+                if (temp != null) animator_wheels_left = temp.gameObject.GetComponent<Animator>(); else animator_wheels_left = null;
+                temp = GameObject.Find("Helicopters_Available/" + helicopter_name + "/Animation_Wheels/" + helicopter_name + "_Gear_Or_Skid_Animation_Right");
+                if (temp != null) animator_wheels_right = temp.gameObject.GetComponent<Animator>(); else animator_wheels_right = null;
+                temp = GameObject.Find("Helicopters_Available/" + helicopter_name + "/Animation_Wheels/" + helicopter_name + "_Gear_Or_Support_Animation_Steering_Center");
+                if (temp != null) animator_wheels_steering_center = temp.gameObject.GetComponent<Animator>(); else animator_wheels_steering_center = null;
+                temp = GameObject.Find("Helicopters_Available/" + helicopter_name + "/Animation_Wheels/" + helicopter_name + "_Gear_Or_Support_Animation_Steering_Left");
+                if (temp != null) animator_wheels_steering_left = temp.gameObject.GetComponent<Animator>(); else animator_wheels_steering_left = null;
+                temp = GameObject.Find("Helicopters_Available/" + helicopter_name + "/Animation_Wheels/" + helicopter_name + "_Gear_Or_Support_Animation_Steering_Right");
+                if (temp != null) animator_wheels_steering_right = temp.gameObject.GetComponent<Animator>(); else animator_wheels_steering_right = null;
+
+                // setup pilot in helicopter animation
+                temp = GameObject.Find("Helicopters_Available/" + helicopter_name + "/Animation_Pilot/" + helicopter_name + "_Pilot_Animation");
+                if (temp != null) animator_pilot = temp.gameObject.GetComponent<Animator>(); else animator_pilot = null;
+
+                // setup doors animation
+                temp = GameObject.Find("Helicopters_Available/" + helicopter_name + "/Animation_Doors/" + helicopter_name + "_Doors_Animation");
+                if (temp != null) animator_doors = temp.gameObject.GetComponent<Animator>(); else animator_doors = null;
+
+                // setup air brake / speed brake animation
+                temp = GameObject.Find("Helicopters_Available/" + helicopter_name + "/Animation_Speed_Brake/" + helicopter_name + "_Speed_Brake_Animation");
+                if (temp != null) animator_speed_brake = temp.gameObject.GetComponent<Animator>(); else animator_speed_brake = null;
+
+
+
+                // enable wheel brake and speed brake, if helicopter has landing-gears to avoid rolling after startup
+                if (helicopter_ODE.par.transmitter_and_helicopter.helicopter.collision.positions_left_type.val == 1 ||
+                   helicopter_ODE.par.transmitter_and_helicopter.helicopter.collision.positions_right_type.val == 1) // 1:gear 0:skids
+                {
+                    // enable wheel brake
+                    helicopter_ODE.Wheel_Brake_Enable();
+                    wheel_brake_status = Wheel_Brake_Status_Variants.enabled;
+                    commentator_audio_source = GameObject.Find("Commentator/Commentator Sound").gameObject.GetComponent<AudioSource>();
+                    Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/female_voice_parking_brake_applied.wav");
+
+                    // enable air brake (on Sikorsky S67-wings)
+                    if (animator_speed_brake != null)
+                    {
+                        animator_speed_brake.SetTrigger("Speed_Brake_Status");
+                        speed_brake_status = Animator_Speed_Brake_Status_Variants.opened;
+                    }
+                }
+                else
+                {
+                    // disable wheel brake
+                    helicopter_ODE.Wheel_Brake_Disable();
+                    wheel_brake_status = Wheel_Brake_Status_Variants.disabled;
+                    //commentator_audio_source = GameObject.Find("Commentator/Commentator Sound").gameObject.GetComponent<AudioSource>();
+                    //Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/female_voice_parking_brake_released.wav");
+
+                    // disable air brake (on Sikorsky S67-wings)
+                    if (animator_speed_brake != null)
+                    {
+                        animator_speed_brake.ResetTrigger("Speed_Brake_Status");
+                        speed_brake_status = Animator_Speed_Brake_Status_Variants.closed;
+                    }
+                }
+
+
+
+                // update ui
+                if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter)
+                {
+                    UI_Dropdown_Update_Items(folder_saved_parameter_for_transmitter_and_helicopter);
+                    UI_Dropdown_Select_By_Name(ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename);
+                    UI_Update_Parameter_Settings_UI();
+                    ui_inputfield_save.text = helicopter_name;
+                }
+            }
+            else
+            {
+                // deactivate the other helicopters
+                each_helicopter.gameObject.SetActive(false);
+            }
+            helicopter_count++;
+        }
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // get model data
+        // ##################################################################################
+        ambient_audio_source = GameObject.Find("Ambient Sound").gameObject.GetComponent<AudioSource>();
+        transmitter_audio_source = GameObject.Find("Pilot/Transmitter Sound").gameObject.GetComponent<AudioSource>();
+        commentator_audio_source = GameObject.Find("Commentator/Commentator Sound").gameObject.GetComponent<AudioSource>();
+        crash_audio_source = GameObject.Find("Helicopters_Available").gameObject.GetComponent<AudioSource>();
+
+        GameObject Helicopter_Selected = helicopters_available.transform.Find(helicopter_name).gameObject;
+
+        helicopter_object = Helicopter_Selected.transform.Find("Helicopter_Model").gameObject.transform.GetChild(0).gameObject;
+        mainrotor_object.Init_Rotor_Data(ref helicopter_ODE, ref Helicopter_Selected, ref helicopter_name, helicopter_ODE.par.transmitter_and_helicopter.helicopter.mainrotor, "Mainrotor", helicopter_id);
+        tailrotor_object.Init_Rotor_Data(ref helicopter_ODE, ref Helicopter_Selected, ref helicopter_name, helicopter_ODE.par.transmitter_and_helicopter.helicopter.tailrotor, "Tailrotor", helicopter_id);
+        propeller_object.Init_Rotor_Data(ref helicopter_ODE, ref Helicopter_Selected, ref helicopter_name, helicopter_ODE.par.transmitter_and_helicopter.helicopter.propeller, "Propeller", helicopter_id);
+
+
+        // list of materials 
+        // (.sharedMaterial changes all this material in all other object instaces which use this material)
+        helicopter_canopy_material.Clear();
+        Transform go_A = helicopter_object.transform.Find("Canopy_A");
+        if (go_A)
+        {
+            helicopter_canopy_material.Add(go_A.gameObject.GetComponent<MeshRenderer>().sharedMaterial);
+            Transform go_B = helicopter_object.transform.Find("Canopy_B");
+            if (go_B)
+            {
+                helicopter_canopy_material.Add(go_B.gameObject.GetComponent<MeshRenderer>().sharedMaterial);
+                Transform go_C = helicopter_object.transform.Find("Canopy_C");
+                if (go_C)
+                {
+                    helicopter_canopy_material.Add(go_C.gameObject.GetComponent<MeshRenderer>().sharedMaterial);
+                    Transform go_D = helicopter_object.transform.Find("Canopy_D");
+                    if (go_D)
+                    {
+                        helicopter_canopy_material.Add(go_D.gameObject.GetComponent<MeshRenderer>().sharedMaterial);
+                        Transform go_E = helicopter_object.transform.Find("Canopy_E");
+                        if (go_E)
+                        {
+                            helicopter_canopy_material.Add(go_E.gameObject.GetComponent<MeshRenderer>().sharedMaterial);
+                            Transform go_F = helicopter_object.transform.Find("Canopy_F");
+                            if (go_F)
+                            {
+                                helicopter_canopy_material.Add(go_F.gameObject.GetComponent<MeshRenderer>().sharedMaterial);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        audio_source_motor = Helicopter_Selected.transform.Find("Audio Source Motor").gameObject.GetComponent<AudioSource>();
+        // ##################################################################################
+
+
+
+        // ##################################################################################
+        // select and load different helicopter setup (change texture, an minor 3d-objects)
+        // ##################################################################################
+        helicopter_canopy_material_ID = PlayerPrefs.GetInt("SavedSetting____" + helicopter_name + "____actual_selected_helicopter_canopy_material_ID", -1);
+        if (helicopter_canopy_material_ID == -1)
+        {
+            helicopter_canopy_material_ID = 0;
+            PlayerPrefs.SetInt("SavedSetting____" + helicopter_name + "____actual_selected_helicopter_canopy_material_ID", helicopter_canopy_material_ID);
+        }
+
+        Load_Helicopter_Different_Setups();
+
+        helicopter_ODE.Set_AABB_Helicopter_Collision_Points();
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // audio message
+        // ##################################################################################
+        // Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/female_voice_helicopter_loaded.wav");
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // dactivate heat blur effect - GrabPass in "Custom/GlassStainedBumpDistort" seams not to work in "single pass instenced" VR
+        // ##################################################################################
+        //UnityEngine.Debug.Log("XRSettings.stereoRenderingMode: " + XRSettings.stereoRenderingMode);
+        if (XRSettings.enabled && XRSettings.stereoRenderingMode == XRSettings.StereoRenderingMode.SinglePassInstanced)
+        {
+            Transform go;
+            go = Helicopter_Selected.transform.Find("Helicopter_Model").gameObject.transform.Find("Particle System");
+            if (go != null) go.gameObject.SetActive(false);
+            go = Helicopter_Selected.transform.Find("Helicopter_Model").gameObject.transform.Find("Particle System (1)");
+            if (go != null) go.gameObject.SetActive(false);
+            go = Helicopter_Selected.transform.Find("Helicopter_Model").gameObject.transform.Find("Particle System Left");
+            if (go != null) go.gameObject.SetActive(false);
+            go = Helicopter_Selected.transform.Find("Helicopter_Model").gameObject.transform.Find("Particle System Right");
+            if (go != null) go.gameObject.SetActive(false);
+        }
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // save helicopter_id under playeprefs 
+        // ##################################################################################
+        PlayerPrefs.SetInt("active_helicopter_id", active_helicopter_id);
+        // ##################################################################################
+
+
+        //helicopters_available.gameObject.SetActive(false);
+    }
+    #endregion
+
+
+
+
+
+
+
+
+
+
+    // ##################################################################################
+    //                                                                                 dddddddd                                                    dddddddd                                                            
+    //  FFFFFFFFFFFFFFFFFFFFFF  iiii                                                   d::::::dUUUUUUUU     UUUUUUUU                               d::::::d                          tttt                              
+    //  F::::::::::::::::::::F i::::i                                                  d::::::dU::::::U     U::::::U                               d::::::d                       ttt:::t                              
+    //  F::::::::::::::::::::F  iiii                                                   d::::::dU::::::U     U::::::U                               d::::::d                       t:::::t                              
+    //  FF::::::FFFFFFFFF::::F                                                         d:::::d UU:::::U     U:::::UU                               d:::::d                        t:::::t                              
+    //    F:::::F       FFFFFFiiiiiii xxxxxxx      xxxxxxx eeeeeeeeeeee        ddddddddd:::::d  U:::::U     U:::::Uppppp   ppppppppp       ddddddddd:::::d   aaaaaaaaaaaaa  ttttttt:::::ttttttt        eeeeeeeeeeee    
+    //    F:::::F             i:::::i  x:::::x    x:::::xee::::::::::::ee    dd::::::::::::::d  U:::::D     D:::::Up::::ppp:::::::::p    dd::::::::::::::d   a::::::::::::a t:::::::::::::::::t      ee::::::::::::ee  
+    //    F::::::FFFFFFFFFF    i::::i   x:::::x  x:::::xe::::::eeeee:::::ee d::::::::::::::::d  U:::::D     D:::::Up:::::::::::::::::p  d::::::::::::::::d   aaaaaaaaa:::::at:::::::::::::::::t     e::::::eeeee:::::ee
+    //    F:::::::::::::::F    i::::i    x:::::xx:::::xe::::::e     e:::::ed:::::::ddddd:::::d  U:::::D     D:::::Upp::::::ppppp::::::pd:::::::ddddd:::::d            a::::atttttt:::::::tttttt    e::::::e     e:::::e
+    //    F:::::::::::::::F    i::::i     x::::::::::x e:::::::eeeee::::::ed::::::d    d:::::d  U:::::D     D:::::U p:::::p     p:::::pd::::::d    d:::::d     aaaaaaa:::::a      t:::::t          e:::::::eeeee::::::e
+    //    F::::::FFFFFFFFFF    i::::i      x::::::::x  e:::::::::::::::::e d:::::d     d:::::d  U:::::D     D:::::U p:::::p     p:::::pd:::::d     d:::::d   aa::::::::::::a      t:::::t          e:::::::::::::::::e 
+    //    F:::::F              i::::i      x::::::::x  e::::::eeeeeeeeeee  d:::::d     d:::::d  U:::::D     D:::::U p:::::p     p:::::pd:::::d     d:::::d  a::::aaaa::::::a      t:::::t          e::::::eeeeeeeeeee  
+    //    F:::::F              i::::i     x::::::::::x e:::::::e           d:::::d     d:::::d  U::::::U   U::::::U p:::::p    p::::::pd:::::d     d:::::d a::::a    a:::::a      t:::::t    tttttte:::::::e           
+    //  FF:::::::FF           i::::::i   x:::::xx:::::xe::::::::e          d::::::ddddd::::::dd U:::::::UUU:::::::U p:::::ppppp:::::::pd::::::ddddd::::::dda::::a    a:::::a      t::::::tttt:::::te::::::::e          
+    //  F::::::::FF           i::::::i  x:::::x  x:::::xe::::::::eeeeeeee   d:::::::::::::::::d  UU:::::::::::::UU  p::::::::::::::::p  d:::::::::::::::::da:::::aaaa::::::a      tt::::::::::::::t e::::::::eeeeeeee  
+    //  F::::::::FF           i::::::i x:::::x    x:::::xee:::::::::::::e    d:::::::::ddd::::d    UU:::::::::UU    p::::::::::::::pp    d:::::::::ddd::::d a::::::::::aa:::a       tt:::::::::::tt  ee:::::::::::::e  
+    //  FFFFFFFFFFF           iiiiiiiixxxxxxx      xxxxxxx eeeeeeeeeeeeee     ddddddddd   ddddd      UUUUUUUUU      p::::::pppppppp       ddddddddd   ddddd  aaaaaaaaaa  aaaa         ttttttttttt      eeeeeeeeeeeeee  
+    //                                                                                                              p:::::p                                                                                            
+    //                                                                                                              p:::::p                                                                                            
+    //                                                                                                             p:::::::p                                                                                           
+    //                                                                                                             p:::::::p                                                                                           
+    //                                                                                                             p:::::::p                                                                                           
+    //                                                                                                             ppppppppp 
+    //  
+    // ##################################################################################
+    /// <summary>  </summary>
+    // ##################################################################################
+    #region FixedUpdate
+    //void FixedUpdate_TEST()
+
+    void FixedUpdate()
+    {
+
+        IO_AntiStutter__Get_FixedUpdate_TimeTick();
+
+    }
+    #endregion
+
+
+
+
+
+
+
+
+    // ##################################################################################
+    //                                                        dddddddd                                                            
+    //    UUUUUUUU     UUUUUUUU                               d::::::d                          tttt                              
+    //    U::::::U     U::::::U                               d::::::d                       ttt:::t                              
+    //    U::::::U     U::::::U                               d::::::d                       t:::::t                              
+    //    UU:::::U     U:::::UU                               d:::::d                        t:::::t                              
+    //     U:::::U     U:::::Uppppp   ppppppppp       ddddddddd:::::d   aaaaaaaaaaaaa  ttttttt:::::ttttttt        eeeeeeeeeeee    
+    //     U:::::D     D:::::Up::::ppp:::::::::p    dd::::::::::::::d   a::::::::::::a t:::::::::::::::::t      ee::::::::::::ee  
+    //     U:::::D     D:::::Up:::::::::::::::::p  d::::::::::::::::d   aaaaaaaaa:::::at:::::::::::::::::t     e::::::eeeee:::::ee
+    //     U:::::D     D:::::Upp::::::ppppp::::::pd:::::::ddddd:::::d            a::::atttttt:::::::tttttt    e::::::e     e:::::e
+    //     U:::::D     D:::::U p:::::p     p:::::pd::::::d    d:::::d     aaaaaaa:::::a      t:::::t          e:::::::eeeee::::::e
+    //     U:::::D     D:::::U p:::::p     p:::::pd:::::d     d:::::d   aa::::::::::::a      t:::::t          e:::::::::::::::::e 
+    //     U:::::D     D:::::U p:::::p     p:::::pd:::::d     d:::::d  a::::aaaa::::::a      t:::::t          e::::::eeeeeeeeeee  
+    //     U::::::U   U::::::U p:::::p    p::::::pd:::::d     d:::::d a::::a    a:::::a      t:::::t    tttttte:::::::e           
+    //     U:::::::UUU:::::::U p:::::ppppp:::::::pd::::::ddddd::::::dda::::a    a:::::a      t::::::tttt:::::te::::::::e          
+    //      UU:::::::::::::UU  p::::::::::::::::p  d:::::::::::::::::da:::::aaaa::::::a      tt::::::::::::::t e::::::::eeeeeeee  
+    //        UU:::::::::UU    p::::::::::::::pp    d:::::::::ddd::::d a::::::::::aa:::a       tt:::::::::::tt  ee:::::::::::::e  
+    //          UUUUUUUUU      p::::::pppppppp       ddddddddd   ddddd  aaaaaaaaaa  aaaa         ttttttttttt      eeeeeeeeeeeeee  
+    //                         p:::::p                                                                                            
+    //                         p:::::p                                                                                            
+    //                        p:::::::p                                                                                           
+    //                        p:::::::p                                                                                           
+    //                        p:::::::p                                                                                           
+    //                        ppppppppp    
+    // ##################################################################################
+    #region Update
+    // ##################################################################################
+    // Update
+    // ##################################################################################
+    // Update is called once per frame
+    void Update()
+    {
+
+
+        // ##################################################################################
+        // wait a moment after start - TODO remove this: unnecessary 
+        // ##################################################################################
+        update_called_cntr++;
+        //////if(Time.frameCount == 200)
+        if (update_called_cntr == 1) // TODO remove this complete if(...){}
+        {
+            helicopter_ODE.Set_Initial_Conditions();
+
+            position = helicopters_available.transform.position;
+            position.x = (float)helicopter_ODE.x_states[0]; // [m] x in reference frame
+            position.y = (float)helicopter_ODE.x_states[1]; // [m] y in reference frame
+            position.z = (float)helicopter_ODE.x_states[2]; // [m] z in reference frame
+            position = Helper.ConvertRightHandedToLeftHandedVector(position);
+            helicopters_available.transform.position = position;
+            rotation = helicopters_available.transform.rotation;
+            rotation.w = (float)helicopter_ODE.x_states[3]; // [-] w
+            rotation.x = (float)helicopter_ODE.x_states[4]; // [-] x
+            rotation.y = (float)helicopter_ODE.x_states[5]; // [-] y
+            rotation.z = (float)helicopter_ODE.x_states[6]; // [-] z
+            rotation = Helper.ConvertRightHandedToLeftHandedQuaternion(rotation);
+            helicopters_available.transform.rotation = rotation;
+        }
+        if (update_called_cntr == 60) // TODO remove this complete if(...){}
+        {
+            //Simulation_Thread_Start();
+            Pause_ODE(gl_pause_flag = false);
+            ui_pause_flag = false;
+        }
+        // ##################################################################################
+
+
+
+
+        //if (Time.frameCount > 200)
+        if (update_called_cntr > 300)
+        {
+            // find the exact referesharte
+            Find_Exact_Monitor_Refreshrate();
+        }
+
+
+
+
+#if DEBUG_LOG
+            // debug time ticks to file
+            Debug_Collect_Time_Ticks(enum_ID.t_update, stopwatch_antistutter.Elapsed.Ticks);
+#endif
+        // ##################################################################################
+        // 
+        // ##################################################################################
+        // game timescale,... (ODE has its independent calculation)
+        Time.timeScale = helicopter_ODE.par.simulation.timescale.val;
+
+        //int v_sync = Helper.Clamp(helicopter_ODE.par.simulation.v_sync);
+        //if (v_sync != v_sync_old)
+        //{
+        //    QualitySettings.vSyncCount = v_sync;
+        //    // make the target_frame_rate variable not accessible, if v_sync > 0
+        //    if (v_sync > 0)
+        //        helicopter_ODE.par_temp.simulation.target_frame_rate.calculated = true;
+        //    else
+        //        helicopter_ODE.par_temp.simulation.target_frame_rate.calculated = false;
+        //    helicopter_ODE.flag_load_new_parameter_in_ODE_thread = true;
+        //    UI_Update_Parameter_Settings_UI();
+        //    v_sync_old = v_sync;
+        //}
+
+        //int target_frame_rate = helicopter_ODE.par.simulation.target_frame_rate.val;
+        //if (target_frame_rate != target_frame_rate_old)
+        //{
+        //    Application.targetFrameRate = Helper.Clamp(helicopter_ODE.par.simulation.target_frame_rate);
+        //    target_frame_rate_old = target_frame_rate;
+        //}
+
+        bool motion_blur = helicopter_ODE.par_temp.simulation.motion_blur.val;
+        if (motion_blur != motion_blur_old)
+        {
+            if (motion_blur_layer != null)
+                motion_blur_layer.enabled.value = motion_blur;
+            motion_blur_old = motion_blur;
+        }
+
+        bool bloom = helicopter_ODE.par_temp.simulation.bloom.val;
+        if (bloom != bloom_old)
+        {
+            if (bloom_layer != null)
+                bloom_layer.enabled.value = bloom;
+            bloom_old = bloom;
+        }
+
+        int quality_setting = Helper.Clamp(helicopter_ODE.par_temp.simulation.quality_setting);
+        if (quality_setting != quality_setting_old)
+        {
+            QualitySettings.SetQualityLevel(quality_setting, true);
+            quality_setting_old = quality_setting;
+        }
+
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // deactivate UI-input if not needed
+        // ##################################################################################
+        if (calibration_with_timer_old != (helicopter_ODE.par_temp.simulation.calibration_with_timer.val == true ? 1 : 0))
+        {
+            if (helicopter_ODE.par_temp.simulation.calibration_with_timer.val)
+                helicopter_ODE.par_temp.simulation.calibration_duration.calculated = false;
+            else
+                helicopter_ODE.par_temp.simulation.calibration_duration.calculated = true;
+            UI_Update_Parameter_Settings_UI();
+            calibration_with_timer_old = (helicopter_ODE.par_temp.simulation.calibration_with_timer.val == true ? 1 : 0);
+        }
+        // ##################################################################################
+
+
+
+
+
+        // ##################################################################################
+        // anti stutter
+        // ##################################################################################
+        // setup physics update freqency to be as high as fps, so FixedUpdate() is in every 
+        // frame FixedUpdate() is called. 
+        if (QualitySettings.vSyncCount > 0) // if V_sync on
+        {
+            Time.fixedDeltaTime = refresh_rate_sec * 0.98f * helicopter_ODE.par.simulation.timescale.val;
+        }
+        else
+        {
+            Time.fixedDeltaTime = 0.01f;
+        }
+        // ##################################################################################
+
+
+
+
+
+        // ##################################################################################
+        // new input system
+        // ##################################################################################
+        for (int i = 0; i < 8; i++)
+            input_channel_used_in_game[i] = input_channel_from_event_proccessing[i];
+
+        //UnityEngine.Debug.Log("AXIS CHANNELS  C0: " + Helper.FormatNumber(input_channel_used_in_game[0], "0.000") +
+        //                                    " C1: " + Helper.FormatNumber(input_channel_used_in_game[1], "0.000") +
+        //                                    " C2: " + Helper.FormatNumber(input_channel_used_in_game[2], "0.000") +
+        //                                    " C3: " + Helper.FormatNumber(input_channel_used_in_game[3], "0.000") +
+        //                                    " C4: " + Helper.FormatNumber(input_channel_used_in_game[4], "0.000") +
+        //                                    " C5: " + Helper.FormatNumber(input_channel_used_in_game[5], "0.000") +
+        //                                    " C6: " + Helper.FormatNumber(input_channel_used_in_game[6], "0.000") +
+        //                                    " C7: " + Helper.FormatNumber(input_channel_used_in_game[7], "0.000"));
+        //UnityEngine.Debug.Log("   Gamepad.current " + Gamepad.current.name + "   Joystick.current " + Joystick.current.name);
+        // ##################################################################################
+
+
+
+
+
+
+
+
+
+        // ##################################################################################
+        // Get Keys
+        // ##################################################################################
+        if (first_start_flag == 1)
+        {
+            ui_welcome_panel_flag = true;
+
+            ui_info_panel_flag = false;
+            ui_debug_panel_state = 0;
+            ui_exit_panel_flag = false;
+            ui_pause_flag = false;
+            ui_parameter_panel_flag = false;
+            ui_helicopter_selection_menu_flag = false;
+            ui_scenery_selection_menu_flag = false;
+
+            gl_pause_flag = true;
+        }
+
+
+
+        if (UnityEngine.InputSystem.Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            if (ui_welcome_panel_flag == true || ui_info_panel_flag == true || ui_parameter_panel_flag == true ||
+                ui_pause_flag == true || ui_exit_panel_flag == true || ui_helicopter_selection_menu_flag == true ||
+                ui_scenery_selection_menu_flag == true) // || ui_debug_panel_state > 0
+            {
+                ui_welcome_panel_flag = false;
+                ui_info_panel_flag = false;
+                ui_debug_panel_state = 0;
+                ui_exit_panel_flag = false;
+                ui_pause_flag = false;
+                ui_parameter_panel_flag = false;
+                ui_helicopter_selection_menu_flag = false;
+                ui_scenery_selection_menu_flag = false;
+
+                gl_pause_flag = false;
+            }
+            else
+            {
+                ui_exit_panel_flag = true;
+
+                gl_pause_flag = true;
+            }
+
+
+            if (first_start_flag == 1)
+            {
+                first_start_flag = 0;
+            }
+        }
+
+
+        if (first_start_flag == 0)
+        {
+            if ((UnityEngine.InputSystem.Keyboard.current.wKey.wasPressedThisFrame && !Is_Text_Input_Field_Focused()))
+            {
+                if (ui_welcome_panel_flag ^= true)
+                {
+                    ui_info_panel_flag = false;
+                    //ui_debug_panel_state = 0;
+                    ui_exit_panel_flag = false;
+                    ui_pause_flag = false;
+                    ui_parameter_panel_flag = false;
+                    ui_helicopter_selection_menu_flag = false;
+                    ui_scenery_selection_menu_flag = false;
+
+                    gl_pause_flag = true;
+                }
+                else
+                {
+                    gl_pause_flag = false;
+                }
+            }
+
+
+            // in options menu parameter can be saved with unique names, given by user. While user enters text, disable the other key actions.
+            if (!Is_Text_Input_Field_Focused() && !ui_controller_calibration_flag)
+            {
+                // ##################################################################################
+                // Get Keys
+                // ##################################################################################
+                if (UnityEngine.InputSystem.Keyboard.current.pKey.wasPressedThisFrame)
+                {
+                    if (ui_pause_flag ^= true)
+                    {
+                        ui_welcome_panel_flag = false;
+                        ui_info_panel_flag = false;
+                        //ui_debug_panel_state = 0;
+                        ui_exit_panel_flag = false;
+                        ui_parameter_panel_flag = false;
+                        ui_helicopter_selection_menu_flag = false;
+                        ui_scenery_selection_menu_flag = false;
+
+                        gl_pause_flag = true;
+                    }
+                    else
+                    {
+                        gl_pause_flag = false;
+                    }
+                }
+
+                if (UnityEngine.InputSystem.Keyboard.current.oKey.wasPressedThisFrame)
+                {
+                    if (ui_parameter_panel_flag ^= true)
+                    {
+                        ui_welcome_panel_flag = false;
+                        ui_info_panel_flag = false;
+                        //ui_debug_panel_state = 0;
+                        ui_exit_panel_flag = false;
+                        ui_pause_flag = false;
+                        ui_helicopter_selection_menu_flag = false;
+                        ui_scenery_selection_menu_flag = false;
+
+                        gl_pause_flag = true;
+                    }
+                    else
+                    {
+                        gl_pause_flag = false;
+                    }
+                }
+
+                if (UnityEngine.InputSystem.Keyboard.current.f1Key.wasPressedThisFrame)
+                {
+                    if (ui_info_panel_flag ^= true)
+                    {
+                        ui_welcome_panel_flag = false;
+                        //ui_debug_panel_state = 0;
+                        ui_exit_panel_flag = false;
+                        ui_pause_flag = false;
+                        ui_parameter_panel_flag = false;
+                        ui_helicopter_selection_menu_flag = false;
+                        ui_scenery_selection_menu_flag = false;
+
+                        gl_pause_flag = true;
+                    }
+                    else
+                    {
+                        gl_pause_flag = false;
+                    }
+                }
+
+
+
+                if (UnityEngine.InputSystem.Keyboard.current.f12Key.wasPressedThisFrame)
+                {
+                    string date = System.DateTime.Now.ToString();
+                    date = date.Replace("/", "-"); date = date.Replace(" ", "_"); date = date.Replace(":", "_"); date = date.Replace(".", "_");
+                    ScreenCapture.CaptureScreenshot(Path.Combine(Application.persistentDataPath, "screenshot_" + date + ".png"));
+                    //ScreenCapture.CaptureScreenshot(Application.dataPath + "/ScreenShots/screenshot_" + date + ".png");
+
+                    Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/female_voice_screenshot_saved.wav");
+                }
+
+
+                // h-key has two functions: pressing and release fast triggers first function. Holding longer than 0.3 sec triggers second function
+                if (ui_scenery_selection_menu_flag == false)
+                {
+                    if (UnityEngine.InputSystem.Keyboard.current.hKey.wasPressedThisFrame)
+                    {
+                        if (ui_helicopter_selection_menu_flag == false)
+                        {
+                            // start timer to detect later, if first or second function is triggered
+                            helicopter_selection_key_delay_timer = Time.time;
+                            helicopter_selection_key_delay_flag = true;
+                        }
+                        else
+                        {
+                            // deactivate helicopter selection panel
+                            ui_helicopter_selection_menu_flag = false;
+                            helicopter_selection_key_delay_flag = false;
+                            gl_pause_flag = false;
+                        }
+                    }
+                    // first function: short pressing (during release) changes helicopter directly
+                    if (UnityEngine.InputSystem.Keyboard.current.hKey.wasReleasedThisFrame && (helicopter_selection_key_delay_flag == true))
+                    {
+                        if ((Time.time - helicopter_selection_key_delay_timer) < 0.3f)
+                        {
+                            if (UnityEngine.InputSystem.Keyboard.current.leftShiftKey.isPressed || UnityEngine.InputSystem.Keyboard.current.rightShiftKey.isPressed)
+                                active_helicopter_id--;
+                            else
+                                active_helicopter_id++;
+
+                            // clamp helicopter id to number of availabe helicopters 
+                            active_helicopter_id = (active_helicopter_id < 0) ? helicopters_available.transform.childCount - 1 : (active_helicopter_id > helicopters_available.transform.childCount - 1) ? 0 : active_helicopter_id;
+
+                            Pause_ODE(gl_pause_flag = true);
+
+                            Load_Helicopter(active_helicopter_id);
+
+                            UI_Update_Parameter_Settings_UI();
+
+                            // reset model to initial position
+                            Reset_Simulation_States();
+                            Pause_ODE(gl_pause_flag = false);
+
+                            Reset_Animation_Wheels();
+
+                            helicopter_selection_key_delay_timer = 0;
+                            helicopter_selection_key_delay_flag = false;
+                        }
+                    }
+                    // second function: long pressing triggers opens helicopter selection menu
+                    if ((helicopter_selection_key_delay_flag == true) && (Time.time >= (helicopter_selection_key_delay_timer + 0.3f)))
+                    {
+                        ui_welcome_panel_flag = false;
+                        //ui_debug_panel_state = 0;
+                        ui_exit_panel_flag = false;
+                        ui_pause_flag = false;
+                        ui_parameter_panel_flag = false;
+                        ui_helicopter_selection_menu_flag = true; // <==
+                        ui_scenery_selection_menu_flag = false;
+
+                        helicopter_selection_key_delay_flag = false;
+
+                        UI_Update_Helicopter_Or_Scenery_Selection_Panel_UI(Ui_Selection_Type.helicopter, ui_helicopter_selection);
+
+                        gl_pause_flag = true;
+                    }
+                }
+
+
+
+
+
+
+                // s-key has two functions: pressing and release fast triggers first function. Holding longer than 0.3 sec triggers second function
+                if (ui_helicopter_selection_menu_flag == false)
+                {
+                    if (UnityEngine.InputSystem.Keyboard.current.sKey.wasPressedThisFrame)
+                    {
+                        Check_Skymaps(ref active_scenery_id, ref list_skymap_paths);
+
+                        if (ui_scenery_selection_menu_flag == false)
+                        {
+                            // start timer to detect later, if first or second function is triggered
+                            scenery_selection_key_delay_timer = Time.time;
+                            scenery_selection_key_delay_flag = true;
+                        }
+                        else
+                        {
+                            // deactivate scenery selection panel
+                            ui_scenery_selection_menu_flag = false;
+                            scenery_selection_key_delay_flag = false;
+                            gl_pause_flag = false;
+                        }
+
+                        //ui_scenery_selection_menu_flag = false;
+                    }
+                    // first function: short pressing (during release) changes scenery directly
+                    if (UnityEngine.InputSystem.Keyboard.current.sKey.wasReleasedThisFrame && scenery_selection_key_delay_flag == true)
+                    {
+                        if ((Time.time - scenery_selection_key_delay_timer) < 0.3f)
+                        {
+                            if (UnityEngine.InputSystem.Keyboard.current.leftShiftKey.isPressed || UnityEngine.InputSystem.Keyboard.current.rightShiftKey.isPressed)
+                                active_scenery_id--;
+                            else
+                                active_scenery_id++;
+
+                            load_skymap_state = State_Load_Skymap.prepare_starting;
+
+                            scenery_selection_key_delay_timer = 0;
+                            scenery_selection_key_delay_flag = false;
+                        }
+                    }
+                    // second function: long pressing triggers opens scenery selection menu
+                    if (scenery_selection_key_delay_flag && Time.time >= (scenery_selection_key_delay_timer + 0.3f))
+                    {
+                        ui_welcome_panel_flag = false;
+                        //ui_debug_panel_state = 0;
+                        ui_exit_panel_flag = false;
+                        ui_pause_flag = false;
+                        ui_parameter_panel_flag = false;
+                        ui_helicopter_selection_menu_flag = false;
+                        ui_scenery_selection_menu_flag = true; // <==
+
+                        scenery_selection_key_delay_flag = false;
+
+                        UI_Update_Helicopter_Or_Scenery_Selection_Panel_UI(Ui_Selection_Type.scenery, ui_scenery_selection);
+
+                        gl_pause_flag = true;
+                    }
+                }
+
+
+
+
+
+
+
+
+
+
+                if (!ui_parameter_panel_flag && !gl_pause_flag)
+                {
+
+                    if (UnityEngine.InputSystem.Keyboard.current.digit1Key.wasPressedThisFrame)
+                    {
+                        helicopter_ODE.governor_target_rpm = helicopter_ODE.par.transmitter_and_helicopter.helicopter.governor.target_rpm_1.val;
+                        PlayerPrefs.SetInt("SavedSetting____" + helicopter_name + "____selected_governor_target_rpm_id", 1);
+                    }
+                    if (UnityEngine.InputSystem.Keyboard.current.digit2Key.wasPressedThisFrame)
+                    {
+                        helicopter_ODE.governor_target_rpm = helicopter_ODE.par.transmitter_and_helicopter.helicopter.governor.target_rpm_2.val;
+                        PlayerPrefs.SetInt("SavedSetting____" + helicopter_name + "____selected_governor_target_rpm_id", 2);
+                    }
+
+
+                    if (UnityEngine.InputSystem.Keyboard.current.bKey.wasPressedThisFrame)
+                    {
+                        if (helicopter_ODE.par.transmitter_and_helicopter.helicopter.collision.positions_left_type.val == 1)  // 1:gear  0: skids
+                        {
+                            // wheel brake
+                            if (wheel_brake_status == Wheel_Brake_Status_Variants.disabled)
+                            {
+                                helicopter_ODE.Wheel_Brake_Enable();
+                                wheel_brake_status = Wheel_Brake_Status_Variants.enabled;
+                                Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/female_voice_parking_brake_applied.wav");
+                            }
+                            else
+                            {
+                                helicopter_ODE.Wheel_Brake_Disable();
+                                wheel_brake_status = Wheel_Brake_Status_Variants.disabled;
+                                Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/female_voice_parking_brake_released.wav");
+                            }
+
+                            // air brake / speed brake animation     TODO add air resistance effect to simulation
+                            if (animator_speed_brake != null)
+                            {
+                                if (speed_brake_status == Animator_Speed_Brake_Status_Variants.closed)
+                                {
+                                    animator_speed_brake.SetTrigger("Speed_Brake_Status");
+                                    speed_brake_status = Animator_Speed_Brake_Status_Variants.opened;
+                                }
+                                else
+                                {
+                                    animator_speed_brake.ResetTrigger("Speed_Brake_Status");
+                                    speed_brake_status = Animator_Speed_Brake_Status_Variants.closed;
+                                }
+                            }
+                        }
+                    }
+
+
+                    if (UnityEngine.InputSystem.Keyboard.current.dKey.wasPressedThisFrame)
+                    {
+                        if (UnityEngine.InputSystem.Keyboard.current.leftShiftKey.isPressed || UnityEngine.InputSystem.Keyboard.current.rightShiftKey.isPressed)
+                            ui_debug_panel_state--;
+                        else
+                            ui_debug_panel_state++;
+
+                        ui_debug_panel_state = (ui_debug_panel_state < 0) ? 0 : (ui_debug_panel_state > 3) ? 0 : ui_debug_panel_state;
+                    }
+
+                    if (UnityEngine.InputSystem.Keyboard.current.rKey.wasPressedThisFrame)
+                    {
+                        Pause_ODE(gl_pause_flag = true);
+                        Reset_Simulation_States();
+                        Pause_ODE(gl_pause_flag = false);
+                    }
+
+                    if (UnityEngine.InputSystem.Keyboard.current.mKey.wasPressedThisFrame)
+                    {
+                        helicopter_ODE.Toggle_Start_Motor();
+                    }
+
+                    if (UnityEngine.InputSystem.Keyboard.current.cKey.wasPressedThisFrame && calibration_state == State_Calibration.not_running && !ui_parameter_panel_flag && first_start_flag == 0)
+                    {
+                        calibration_state = State_Calibration.starting;
+                    }
+
+                    if (UnityEngine.InputSystem.Keyboard.current.tKey.wasPressedThisFrame)
+                    {
+                        if (UnityEngine.InputSystem.Keyboard.current.leftShiftKey.isPressed || UnityEngine.InputSystem.Keyboard.current.rightShiftKey.isPressed)
+                            helicopter_canopy_material_ID--;
+                        else
+                            helicopter_canopy_material_ID++;
+
+                        int number_of_available_textures = 0;
+                        foreach (var t in all_textures)
+                        {
+                            if (t.name.Contains(helicopter_name + "_Canopy_0") && t.name.Substring(t.name.Length - 2).Contains("_A"))
+                                number_of_available_textures++;
+                        }
+
+                        // clamp canopy texture number to number of availabe textures for selected helicopter
+                        helicopter_canopy_material_ID = (helicopter_canopy_material_ID < 0) ? number_of_available_textures - 1 : (helicopter_canopy_material_ID > number_of_available_textures - 1) ? 0 : helicopter_canopy_material_ID;
+                        PlayerPrefs.SetInt("SavedSetting____" + helicopter_name + "____actual_selected_helicopter_canopy_material_ID", helicopter_canopy_material_ID);
+
+                        Load_Helicopter_Different_Setups();
+                    }
+
+
+
+                    if (UnityEngine.InputSystem.Keyboard.current.gKey.wasPressedThisFrame)
+                    {
+                        if (animator_wheels_left != null && animator_wheels_right != null) wheels_status ^= Wheels_Status_Variants.raised;
+                    }
+
+                    if (UnityEngine.InputSystem.Keyboard.current.aKey.wasPressedThisFrame)
+                    {
+                        if (animator_doors != null) doors_status ^= Doors_Status_Variants.opened;
+                    }
+
+                    // pusher propeller
+                    if (UnityEngine.InputSystem.Keyboard.current.numpad8Key.wasPressedThisFrame)
+                    {
+                        u_inputs[4] = 1;
+                    }
+                    if (UnityEngine.InputSystem.Keyboard.current.numpad5Key.wasPressedThisFrame)
+                    {
+                        u_inputs[4] = 0;
+                    }
+                    if (UnityEngine.InputSystem.Keyboard.current.numpad2Key.wasPressedThisFrame)
+                    {
+                        u_inputs[4] = -1;
+                    }
+
+
+                }
+            }
+        }
+
+        if (calibration_state != State_Calibration.not_running && first_start_flag == 0 && !ui_welcome_panel_flag)
+        {
+            gl_pause_flag = true;
+            Set_Controller_Calibration();
+        }
+
+
+
+        if (UnityEngine.InputSystem.Keyboard.current.jKey.wasPressedThisFrame && !Is_Text_Input_Field_Focused() && !ui_parameter_panel_flag)
+        {
+            if (connected_input_devices_count > 0)
+            {
+                if (UnityEngine.InputSystem.Keyboard.current.leftShiftKey.isPressed || UnityEngine.InputSystem.Keyboard.current.rightShiftKey.isPressed)
+                    selected_input_device_id--;
+                else
+                    selected_input_device_id++;
+
+                // clamp controller id to number of availabe controllers 
+                selected_input_device_id = (selected_input_device_id < 0) ? connected_input_devices_count - 1 : (selected_input_device_id > connected_input_devices_count - 1) ? 0 : selected_input_device_id;
+
+                Get_Connected_Controller();
+
+                UI_show_new_controller_name_flag = true;
+                //connected_input_devices_names[selected_input_device_id];
+            }
+        }
+        //UnityEngine.Debug.Log("selected_input_device_id " + selected_input_device_id + "    " + connected_input_devices_count);
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // handling of loading skymap (takes several frames)
+        // ##################################################################################
+        // 3.)
+        if (load_skymap_state == State_Load_Skymap.finising)
+        {
+            ui_loading_panel_flag = false;
+
+            Reset_Simulation_States();
+
+            Pause_ODE(gl_pause_flag = false);
+
+            // setup pilot scale to match camera with pilot's head/eyes position
+            Scale_Pilot_To_Match_Camera_Height();
+
+            load_skymap_state = State_Load_Skymap.not_running;
+        }
+        // 2.)
+        if (load_skymap_state == State_Load_Skymap.running)
+        {
+            Load_Skymap(list_skymap_paths, active_scenery_id);
+
+            load_skymap_state = State_Load_Skymap.finising;
+        }
+        // 1.)
+        if (load_skymap_state == State_Load_Skymap.starting)
+        {
+            Pause_ODE(gl_pause_flag = true);
+
+            //ui_dropdown_actual_selected_scenery_xml_filename = null; // use dafault value, is done in Check_Skymaps()
+            Check_Skymaps(ref active_scenery_id, ref list_skymap_paths);
+
+            // ui setup
+            ui_loading_panel_flag = true;
+            ui_loading_panel.transform.Find("Text Header").GetComponent<Text>().text = "Loading Skymap " + scenery_name + ".";
+
+            //ui_loading_panel.transform.Find("Image").GetComponent<Image>()= "Loading Skymap " + list_skymap_paths[active_scenery_id].name + ".";
+            Texture2D texture2D = Load_Image(list_skymap_paths[active_scenery_id].fullpath_preview_image);
+            ui_loading_panel.transform.Find("Image").GetComponent<Image>().sprite = Sprite.Create(texture2D, new Rect(0, 0, texture2D.width, texture2D.height), new Vector2(0, 0), 1);
+
+            load_skymap_state = State_Load_Skymap.running;
+        }
+        // 0.)
+        if (load_skymap_state == State_Load_Skymap.prepare_starting)
+        {
+            Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/female_voice_callibration_loading_scenery.wav");
+
+            load_skymap_state = State_Load_Skymap.starting;
+        }
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // show / hide ui elemets
+        // ##################################################################################
+        ui_welcome_panel.gameObject.SetActive(ui_welcome_panel_flag);
+        ui_info_panel.gameObject.SetActive(ui_info_panel_flag);
+        ui_loading_panel.gameObject.SetActive(ui_loading_panel_flag);
+        ui_debug_lines.gameObject.SetActive(ui_debug_panel_state > 0);
+        ui_debug_panel.gameObject.SetActive(ui_debug_panel_state > 1);
+        ui_exit_menu.gameObject.SetActive(ui_exit_panel_flag);
+        ui_pause_menu.gameObject.SetActive(ui_pause_flag);
+        ui_parameter_panel.gameObject.SetActive(ui_parameter_panel_flag);
+        ui_controller_calibration_panel.gameObject.SetActive(ui_controller_calibration_flag);
+        ui_no_controller_panel.gameObject.SetActive(ui_no_controller_panel_flag);
+        ui_helicopter_selection_panel.gameObject.SetActive(ui_helicopter_selection_menu_flag);
+        ui_scenery_selection_panel.gameObject.SetActive(ui_scenery_selection_menu_flag);
+
+
+        if (helicopter_ODE.par_temp.simulation.ui_show_fps.val == true && coroutine_frames_per_second_running == null)
+        {
+            ui_frames_per_sec_text.gameObject.SetActive(true);
+            coroutine_frames_per_second_running = StartCoroutine(FramesPerSecond());
+        }
+        if (helicopter_ODE.par_temp.simulation.ui_show_fps.val == false)
+        {
+            ui_frames_per_sec_text.gameObject.SetActive(false);
+            if (coroutine_frames_per_second_running != null)
+            {
+                StopCoroutine(coroutine_frames_per_second_running);
+                coroutine_frames_per_second_running = null;
+            }
+        }
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // show / hide pilot
+        // ##################################################################################
+        pilot.SetActive(helicopter_ODE.par_temp.simulation.show_pilot.val);
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // pause game if requested
+        // ##################################################################################
+        Pause_ODE(gl_pause_flag);
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // hide mouse cursor
+        // ##################################################################################
+        // https://stackoverflow.com/questions/37618140/how-to-make-cursor-dissapear-after-inactivity-in-unity
+        if ((UnityEngine.InputSystem.Mouse.current.delta.ReadValue().x == 0 &&
+            (UnityEngine.InputSystem.Mouse.current.delta.ReadValue().y == 0)) ||
+            (UnityEngine.InputSystem.Mouse.current.middleButton.isPressed == true) ||
+            (UnityEngine.InputSystem.Mouse.current.rightButton.isPressed == true))
+        {
+            if (co_hide_cursor == null)
+                co_hide_cursor = StartCoroutine(Hide_Cursor());
+        }
+        else
+        {
+            if (co_hide_cursor != null)
+            {
+                StopCoroutine(co_hide_cursor);
+                co_hide_cursor = null;
+                Cursor.visible = true;
+            }
+        }
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // check if a joystick is still connected
+        // ##################################################################################
+        if (calibration_state == State_Calibration.not_running)
+        {
+            // get names of connected joysticks
+            IO_Get_Connected_Gamepads_And_Joysticks();
+
+            // UI setup
+            if (connected_input_devices_count == 0)
+            {
+                gl_pause_flag = true;
+                ui_no_controller_panel_flag = true;
+            }
+            else
+            {
+                // if number of "connected input devices" has changed from zero to >zero --> hide "no_controller_panel"
+                if ((connected_input_devices_count != connected_input_devices_count_old) && connected_input_devices_count_old == 0)
+                {
+                    ui_no_controller_panel_flag = false;
+                    if (ui_welcome_panel_flag == false &&
+                        ui_info_panel_flag == false &&
+                        ui_exit_panel_flag == false &&
+                        ui_pause_flag == false &&
+                        ui_parameter_panel_flag == false &&
+                        ui_helicopter_selection_menu_flag == false &&
+                        ui_scenery_selection_menu_flag == false)
+                    {
+                        gl_pause_flag = false;
+                    }
+                }
+            }
+
+            // if number of connected joysticks changed
+            if (connected_input_devices_count != connected_input_devices_count_old)
+            {
+                //Init_Controller();
+                Get_Connected_Controller();
+            }
+
+            // nedded to detect change in variable
+            connected_input_devices_count_old = connected_input_devices_count;
+        }
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // set inputs u[] and get outputs x[] from ODE-thread
+        // ##################################################################################
+        if (gl_controller_connected_flag && calibration_state == State_Calibration.not_running && gl_pause_flag == false)
+        {
+
+            // ##################################################################################
+            // get controller input axes and apply scaling, expo and dualrate 
+            // ##################################################################################
+            u_inputs[0] = Expo_and_Dualrate(input_channel_used_in_game[stru_controller_settings.channel_collective], stru_controller_settings.list_channel_settings[stru_controller_settings.channel_collective].axis_settings);
+            u_inputs[1] = Expo_and_Dualrate(input_channel_used_in_game[stru_controller_settings.channel_yaw], stru_controller_settings.list_channel_settings[stru_controller_settings.channel_yaw].axis_settings);
+            u_inputs[2] = Expo_and_Dualrate(input_channel_used_in_game[stru_controller_settings.channel_pitch], stru_controller_settings.list_channel_settings[stru_controller_settings.channel_pitch].axis_settings);
+            u_inputs[3] = Expo_and_Dualrate(input_channel_used_in_game[stru_controller_settings.channel_roll], stru_controller_settings.list_channel_settings[stru_controller_settings.channel_roll].axis_settings);
+
+            // u_inputs[4] = 0;  pusher propeller set by keys
+            u_inputs[5] = 0;
+            u_inputs[6] = 0;
+            u_inputs[7] = 0;
+            // ##################################################################################
+
+
+            // ##################################################################################
+            // get controller input switches
+            // ##################################################################################
+            if (stru_controller_settings.channel_switch0 != -12345)
+            {
+                float switch_value = input_channel_used_in_game[stru_controller_settings.channel_switch0];
+                float switch_state0 = stru_controller_settings.list_channel_settings[stru_controller_settings.channel_switch0].switch_settings.state0;
+                float switch_state1 = stru_controller_settings.list_channel_settings[stru_controller_settings.channel_switch0].switch_settings.state1;
+                int switch0_status = 0;
+
+                if (switch_value > (switch_state0 - 0.05f) && switch_value < (switch_state0 + 0.05f))
+                    switch0_status = 0;
+
+                if (switch_value > (switch_state1 - 0.05f) && switch_value < (switch_state1 + 0.05f))
+                    switch0_status = 1;
+
+                if (helicopter_ODE.par.transmitter_and_helicopter.transmitter.switch0.type.val == 0) // 0=>switch
+                {
+                    //UnityEngine.Debug.Log("aa switch0_status " + switch0_status);
+                    if (switch0_status == 0) { helicopter_ODE.Stop_Motor(); }
+                    if (switch0_status == 1) { helicopter_ODE.Start_Motor(); }
+                }
+                if (helicopter_ODE.par.transmitter_and_helicopter.transmitter.switch0.type.val == 1) // 1=>rising flank trigger
+                {
+                    //UnityEngine.Debug.Log("bb switch0_status " + switch0_status);
+                    if (switch0_status > switch0_status_old) // detect rising flank
+                        helicopter_ODE.Toggle_Start_Motor();
+                }
+
+                switch0_status_old = switch0_status;
+            }
+
+
+            if (stru_controller_settings.channel_switch1 != -12345)
+            {
+                float switch_value = input_channel_used_in_game[stru_controller_settings.channel_switch1];
+                float switch_state0 = stru_controller_settings.list_channel_settings[stru_controller_settings.channel_switch1].switch_settings.state0;
+                float switch_state1 = stru_controller_settings.list_channel_settings[stru_controller_settings.channel_switch1].switch_settings.state1;
+                int switch1_status = 0;
+
+                if (switch_value > (switch_state0 - 0.05f) && switch_value < (switch_state0 + 0.05f))
+                    switch1_status = 0;
+
+                if (switch_value > (switch_state1 - 0.05f) && switch_value < (switch_state1 + 0.05f))
+                    switch1_status = 1;
+
+                if (helicopter_ODE.par.transmitter_and_helicopter.transmitter.switch1.type.val == 0) // 0=>switch, 1=>rising flank trigger
+                {
+                    if (switch1_status == 0)
+                    {
+                        // if two animations are available for selected helicopter, then use this key for the wheels, else for opening/closing doors
+                        if (animator_wheels_left != null && animator_wheels_right != null)
+                        {
+                            if (System.Array.Exists(animator_wheels_left.parameters, p => p.name == "Wheel_Status") &&
+                                System.Array.Exists(animator_wheels_right.parameters, p => p.name == "Wheel_Status"))
+                            {
+                                wheels_status = Wheels_Status_Variants.lowered;
+                            }
+                            else if (animator_doors != null)
+                            {
+                                doors_status = Doors_Status_Variants.opened;
+                            }
+                        }
+                        else if (animator_doors != null)
+                        {
+                            doors_status = Doors_Status_Variants.opened;
+                        }
+                    }
+                    if (switch1_status == 1)
+                    {
+                        // if two animations are available for selected helicopter, then use this key for the wheels, else for opening/closing doors
+                        if (animator_wheels_left != null && animator_wheels_right != null)
+                        {
+                            if (System.Array.Exists(animator_wheels_left.parameters, p => p.name == "Wheel_Status") &&
+                                System.Array.Exists(animator_wheels_right.parameters, p => p.name == "Wheel_Status"))
+                            {
+                                wheels_status = Wheels_Status_Variants.raised;
+                            }
+                            else if (animator_doors != null)
+                            {
+                                doors_status = Doors_Status_Variants.closed;
+                            }
+                        }
+                        else if (animator_doors != null)
+                        {
+                            doors_status = Doors_Status_Variants.closed;
+                        }
+                    }
+                }
+                if (helicopter_ODE.par.transmitter_and_helicopter.transmitter.switch1.type.val == 1) // 0=>switch, 1=>rising flank trigger
+                {
+                    if (switch1_status > switch1_status_old) // detect rising flank
+                    {
+                        // if two animations are available for selected helicopter, then use this key for the wheels, else for opening/closing doors
+                        if (animator_wheels_left != null && animator_wheels_right != null)
+                        {
+                            if (System.Array.Exists(animator_wheels_left.parameters, p => p.name == "Wheel_Status") &&
+                                System.Array.Exists(animator_wheels_right.parameters, p => p.name == "Wheel_Status"))
+                            {
+                                wheels_status ^= Wheels_Status_Variants.raised;
+                            }
+                            else if (animator_doors != null)
+                            {
+                                doors_status ^= Doors_Status_Variants.opened;
+                            }
+                        }
+                        else if (animator_doors != null)
+                        {
+                            doors_status ^= Doors_Status_Variants.opened;
+                        }
+                    }
+                }
+
+                switch1_status_old = switch1_status;
+            }
+            // ##################################################################################
+
+
+
+
+            // ##################################################################################
+            // wheel animation 
+            // ##################################################################################
+            if (animator_wheels_left != null && animator_wheels_right != null)
+            {
+                // lowering or rising landing gear
+                if (wheels_status == Wheels_Status_Variants.raised && wheels_status_old == Wheels_Status_Variants.lowered) // rising flank
+                {
+                    if (System.Array.Exists(animator_wheels_left.parameters, p => p.name == "Wheel_Status"))
+                    {
+                        animator_wheels_left.ResetTrigger("Wheel_Status"); // 0 triggers transition up -> rised
+                        collision_positions_landing_gear_left_rising_offset_target = 1.0f; // helicopter_ODE.par.transmitter_and_helicopter.helicopter.collision.positions_left_rised_offset.val; //[0...1]    
+                    }
+                    if (System.Array.Exists(animator_wheels_right.parameters, p => p.name == "Wheel_Status"))
+                    {
+                        animator_wheels_right.ResetTrigger("Wheel_Status"); // 0 triggers transition up -> rised
+                        collision_positions_landing_gear_right_rising_offset_target = 1.0f; //helicopter_ODE.par.transmitter_and_helicopter.helicopter.collision.positions_right_rised_offset.val; //[0...1]    
+                    }
+                    if (animator_wheels_steering_center != null && System.Array.Exists(animator_wheels_steering_center.parameters, p => p.name == "Wheel_Status"))
+                    {
+                        animator_wheels_steering_center.ResetTrigger("Wheel_Status"); // 0 triggers transition up -> rised
+                        collision_positions_landing_gear_steering_center_rising_offset_target = 1.0f; // helicopter_ODE.par.transmitter_and_helicopter.helicopter.collision.positions_steering_center_rised_offset.val; //[0...1] 
+                    }
+                    if (animator_wheels_steering_left != null && System.Array.Exists(animator_wheels_steering_left.parameters, p => p.name == "Wheel_Status"))
+                    {
+                        animator_wheels_steering_left.ResetTrigger("Wheel_Status"); // 0 triggers transition up -> rised
+                        collision_positions_landing_gear_steering_left_rising_offset_target = 1.0f; // helicopter_ODE.par.transmitter_and_helicopter.helicopter.collision.positions_steering_left_rised_offset.val; //[0...1] 
+                    }
+                    if (animator_wheels_steering_right != null && System.Array.Exists(animator_wheels_steering_right.parameters, p => p.name == "Wheel_Status"))
+                    {
+                        animator_wheels_steering_right.ResetTrigger("Wheel_Status"); // 0 triggers transition up -> rised
+                        collision_positions_landing_gear_steering_right_rising_offset_target = 1.0f; // helicopter_ODE.par.transmitter_and_helicopter.helicopter.collision.positions_steering_left_rised_offset.val; //[0...1] 
+                    }
+                }
+                if (wheels_status == Wheels_Status_Variants.lowered && wheels_status_old == Wheels_Status_Variants.raised) // falling flank
+                {
+                    if (System.Array.Exists(animator_wheels_left.parameters, p => p.name == "Wheel_Status"))
+                    {
+                        animator_wheels_left.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
+                        collision_positions_landing_gear_left_rising_offset_target = 0.0f; //[0...1]
+                    }
+                    if (System.Array.Exists(animator_wheels_right.parameters, p => p.name == "Wheel_Status"))
+                    {
+                        animator_wheels_right.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
+                        collision_positions_landing_gear_right_rising_offset_target = 0.0f; //[0...1]
+                    }
+                    if (animator_wheels_steering_center != null && System.Array.Exists(animator_wheels_steering_center.parameters, p => p.name == "Wheel_Status"))
+                    {
+                        animator_wheels_steering_center.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
+                        collision_positions_landing_gear_steering_center_rising_offset_target = 0.0f; //[0...1]
+                    }
+                    if (animator_wheels_steering_left != null && System.Array.Exists(animator_wheels_steering_left.parameters, p => p.name == "Wheel_Status"))
+                    {
+                        animator_wheels_steering_left.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
+                        collision_positions_landing_gear_steering_left_rising_offset_target = 0.0f; //[0...1]
+                    }
+                    if (animator_wheels_steering_right != null && System.Array.Exists(animator_wheels_steering_right.parameters, p => p.name == "Wheel_Status"))
+                    {
+                        animator_wheels_steering_right.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
+                        collision_positions_landing_gear_steering_right_rising_offset_target = 0.0f; //[0...1]
+                    }
+                }
+                wheels_status_old = wheels_status;
+
+                // add an y-offset to the collision points for the landing gear collision detection, if the landing gear gets raised.
+                float smoothTime; // [s]
+                smoothTime = helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.landing_gear_main_transition_time_gear.val + helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.landing_gear_main_transition_time_bay.val;
+                helicopter_ODE.collision_positions_landing_gear_left_rising_offset = Mathf.SmoothDamp(helicopter_ODE.collision_positions_landing_gear_left_rising_offset, collision_positions_landing_gear_left_rising_offset_target, ref collision_positions_landing_gear_left_rising_offset_velocity, smoothTime);
+                smoothTime = helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.landing_gear_main_transition_time_gear.val + helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.landing_gear_main_transition_time_bay.val;
+                helicopter_ODE.collision_positions_landing_gear_right_rising_offset = Mathf.SmoothDamp(helicopter_ODE.collision_positions_landing_gear_right_rising_offset, collision_positions_landing_gear_right_rising_offset_target, ref collision_positions_landing_gear_right_rising_offset_velocity, smoothTime);
+                smoothTime = helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.landing_gear_main_transition_time_gear.val + helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.landing_gear_main_transition_time_bay.val; // todo TAIL-wheel
+                helicopter_ODE.collision_positions_landing_gear_steering_center_rising_offset = Mathf.SmoothDamp(helicopter_ODE.collision_positions_landing_gear_steering_center_rising_offset, collision_positions_landing_gear_steering_center_rising_offset_target, ref collision_positions_landing_gear_steering_center_rising_offset_velocity, smoothTime);
+                smoothTime = helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.landing_gear_main_transition_time_gear.val + helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.landing_gear_main_transition_time_bay.val; // todo TAIL-wheel
+                helicopter_ODE.collision_positions_landing_gear_steering_left_rising_offset = Mathf.SmoothDamp(helicopter_ODE.collision_positions_landing_gear_steering_left_rising_offset, collision_positions_landing_gear_steering_left_rising_offset_target, ref collision_positions_landing_gear_steering_left_rising_offset_velocity, smoothTime);
+                smoothTime = helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.landing_gear_main_transition_time_gear.val + helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.landing_gear_main_transition_time_bay.val; // todo TAIL-wheel
+                helicopter_ODE.collision_positions_landing_gear_steering_right_rising_offset = Mathf.SmoothDamp(helicopter_ODE.collision_positions_landing_gear_steering_right_rising_offset, collision_positions_landing_gear_steering_right_rising_offset_target, ref collision_positions_landing_gear_steering_right_rising_offset_velocity, smoothTime);
+
+
+                // elastic deflection of the landing gears or the skids on left or right side
+                float stiffness_normalized = helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.landing_gear_or_skids_deflection_stiffness.val;
+                if (stiffness_normalized > 0)
+                {
+                    animator_wheels_left.SetFloat("Wheel_Deflection", Mathf.Abs(helicopter_ODE.force_y_gear_or_skid_leftLH / stiffness_normalized));
+                    animator_wheels_right.SetFloat("Wheel_Deflection", Mathf.Abs(helicopter_ODE.force_y_gear_or_skid_rightLH / stiffness_normalized));
+                    if (animator_wheels_steering_center != null)
+                        animator_wheels_steering_center.SetFloat("Wheel_Deflection", Mathf.Abs(helicopter_ODE.force_y_gear_or_support_steering_centerLH / stiffness_normalized));
+                    if (animator_wheels_steering_left != null)
+                        animator_wheels_steering_left.SetFloat("Wheel_Deflection", Mathf.Abs(helicopter_ODE.force_y_gear_or_support_steering_leftLH / stiffness_normalized));
+                    if (animator_wheels_steering_right != null)
+                        animator_wheels_steering_right.SetFloat("Wheel_Deflection", Mathf.Abs(helicopter_ODE.force_y_gear_or_support_steering_rightLH / stiffness_normalized));
+                }
+
+                // wheel/gear rotation
+                float wheel_radius = helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.landing_gear_main_radius.val; //[m] TODO seams that diameter has to be entered here, but why???
+                if (wheel_radius > 0)
+                {
+                    animator_wheels_left.SetFloat("Wheel_Rolling", Mathf.Abs(((helicopter_ODE.wheel_rolling_distance_left - 10000) / ((2 * wheel_radius * Mathf.PI)))) % 1.0f);
+                    animator_wheels_right.SetFloat("Wheel_Rolling", Mathf.Abs(((helicopter_ODE.wheel_rolling_distance_right - 10000) / ((2 * wheel_radius * Mathf.PI)))) % 1.0f);
+                    if (animator_wheels_steering_center != null)
+                        animator_wheels_steering_center.SetFloat("Wheel_Rolling", Mathf.Abs(((helicopter_ODE.wheel_rolling_distance_steering_center - 10000) / ((2 * wheel_radius * Mathf.PI)))) % 1.0f);
+                    if (animator_wheels_steering_left != null)
+                        animator_wheels_steering_left.SetFloat("Wheel_Rolling", Mathf.Abs(((helicopter_ODE.wheel_rolling_distance_steering_left - 10000) / ((2 * wheel_radius * Mathf.PI)))) % 1.0f);
+                    if (animator_wheels_steering_right != null)
+                        animator_wheels_steering_right.SetFloat("Wheel_Rolling", Mathf.Abs(((helicopter_ODE.wheel_rolling_distance_steering_right - 10000) / ((2 * wheel_radius * Mathf.PI)))) % 1.0f);
+                }
+
+                // center wheel/gear automatic steering
+                //UnityEngine.Debug.Log("wheel_steering_center" + helicopter_ODE.wheel_steering_center);
+                if (animator_wheels_steering_center != null)
+                {
+                    float steering_direction = (1 - (helicopter_ODE.wheel_steering_center - 0.25f)) % 1; // [0..1]  // 0.25 bacause of 90° offset, 1- because of steering direction 
+                    float steering_direction_filtered = (float)exponential_moving_average_filter_for_roations_for_steering_wheel_center.Calculate(30, (double)steering_direction * 360) / 360;
+                    animator_wheels_steering_center.SetFloat("Wheel_Steering", steering_direction_filtered);
+                }
+                // left wheel/gear automatic steering
+                //UnityEngine.Debug.Log("wheel_steering_left" + helicopter_ODE.wheel_steering_left);
+                if (animator_wheels_steering_left != null)
+                {
+                    float steering_direction = (1 - (helicopter_ODE.wheel_steering_left - 0.25f)) % 1; // [0..1]  // 0.25 bacause of 90° offset, 1- because of steering direction 
+                    float steering_direction_filtered = (float)exponential_moving_average_filter_for_roations_for_steering_wheel_left.Calculate(30, (double)steering_direction * 360) / 360;
+                    animator_wheels_steering_left.SetFloat("Wheel_Steering", steering_direction_filtered);
+                }
+                // right wheel/gear automatic steering
+                //UnityEngine.Debug.Log("wheel_steering_right" + helicopter_ODE.wheel_steering_right);
+                if (animator_wheels_steering_right != null)
+                {
+                    float steering_direction = (1 - (helicopter_ODE.wheel_steering_right - 0.25f)) % 1; // [0..1]  // 0.25 bacause of 90° offset, 1- because of steering direction 
+                    float steering_direction_filtered = (float)exponential_moving_average_filter_for_roations_for_steering_wheel_right.Calculate(30, (double)steering_direction * 360) / 360;
+                    animator_wheels_steering_right.SetFloat("Wheel_Steering", steering_direction_filtered);
+                }
+
+            }
+            // ##################################################################################
+
+
+
+            // ##################################################################################
+            // doors animation 
+            // ##################################################################################
+            if (animator_doors != null)
+            {
+                if (doors_status == Doors_Status_Variants.closed && doors_status_old == Doors_Status_Variants.opened) // rising flank
+                {
+                    animator_doors.ResetTrigger("DoorsStatus"); // 0 triggers transittion up -> rised
+                }
+                if (doors_status == Doors_Status_Variants.opened && doors_status_old == Doors_Status_Variants.closed) // falling flank
+                {
+                    animator_doors.SetTrigger("DoorsStatus"); // 1 triggers transittion down -> lowered
+                }
+                doors_status_old = doors_status;
+            }
+            // ##################################################################################
+
+
+
+            // ##################################################################################
+            // Missile https://roystanross.wordpress.com/beginnertutorialpart9/
+            // ##################################################################################
+            if (helicopter_setup_missile_gameobject != null && (UnityEngine.InputSystem.Keyboard.current.spaceKey.wasPressedThisFrame && !Is_Text_Input_Field_Focused() && !ui_parameter_panel_flag))
+            {
+                list_helicopter_setup_missile_pylon_localposition_current_active++;
+                list_helicopter_setup_missile_pylon_localposition_current_active %= list_helicopter_setup_missile_pylon_localposition.Count();
+
+                Vector3 pylon_localposition = list_helicopter_setup_missile_pylon_localposition[list_helicopter_setup_missile_pylon_localposition_current_active].localPosition;
+                //UnityEngine.Debug.Log(" p : " + Quaternion.Euler(0, 90, 0) * pylon_localposition);
+
+                GameObject go = (GameObject)Instantiate(helicopter_setup_missile_gameobject,
+                    (helicopters_available.transform.TransformPoint(Quaternion.Euler(0, 0, 0) * pylon_localposition)),
+                    Quaternion.LookRotation(helicopters_available.transform.right));
+
+                Rigidbody rb = go.transform.Find("Missile_HOT3").gameObject.GetComponent<Rigidbody>();
+
+                rb.velocity = Helper.ConvertRightHandedToLeftHandedVector(helicopter_ODE.Translational_Velocity_At_Local_Point_Expressed_In_Global_Frame_RightHanded(Helper.ConvertLeftHandedToRightHandedVector(Quaternion.Euler(0, 0, 0) * pylon_localposition)));
+                rb.angularVelocity = Helper.ConvertRightHandedToLeftHandedVector(helicopter_ODE.Rotational_Velocity_Expressed_In_Global_Frame_RightHanded());
+                rb.angularVelocity = new Vector3(-rb.angularVelocity.x, -rb.angularVelocity.y, -rb.angularVelocity.z); // TODO Why??? maybe Lefthanded vs Righthanded velocity     ???
+                //rb.AddRelativeForce(Vector3.right * 5f, ForceMode.Force);
+
+                //Physics.IgnoreCollision(GetComponent<Collider>(), go.GetComponent<Collider>());
+
+                Destroy(go, 6.0f);
+            }
+            // ##################################################################################
+
+
+
+            // ##################################################################################
+            // map values from ODE to Unity (ODE:right handed, Unity:left handed)
+            // ##################################################################################
+            if (QualitySettings.vSyncCount == 0)
+            {
+                // <==== moved to FixedUpdate()
+                position = helicopters_available.transform.position;
+                position.x = (float)helicopter_ODE.x_states[0]; // [m] x in reference frame
+                position.y = (float)helicopter_ODE.x_states[1]; // [m] y in reference frame
+                position.z = (float)helicopter_ODE.x_states[2]; // [m] z in reference frame
+                position = Helper.ConvertRightHandedToLeftHandedVector(position);
+                helicopters_available.transform.position = position;
+
+                rotation = helicopters_available.transform.rotation;
+                rotation.w = (float)helicopter_ODE.x_states[3]; // [-] w
+                rotation.x = (float)helicopter_ODE.x_states[4]; // [-] x
+                rotation.y = (float)helicopter_ODE.x_states[5]; // [-] y
+                rotation.z = (float)helicopter_ODE.x_states[6]; // [-] z
+                rotation = Helper.ConvertRightHandedToLeftHandedQuaternion(rotation);
+                helicopters_available.transform.rotation = rotation;
+                // <==== moved to FixedUpdate() 
+            }
+            else
+            {
+                IO_AntiStutter__Set_Transform();
+            }
+
+            velocity = new Vector3
+            {
+                x = (float)helicopter_ODE.x_states[7], // [m] dxdt in reference frame
+                y = (float)helicopter_ODE.x_states[8], // [m] dydt in reference frame
+                z = (float)helicopter_ODE.x_states[9] // [m] dzdt in reference frame
+            };
+            velocity = Helper.ConvertRightHandedToLeftHandedVector(velocity);
+
+            // mainrotor flapping
+            flapping_a_s_mr_L = (float)helicopter_ODE.x_states[13];  // [rad] mainrotor pitch flapping angle a_s (longitudial direction)
+            flapping_b_s_mr_L = (float)helicopter_ODE.x_states[14];  // [rad] mainrotor roll flapping angle b_s (lateral direction)
+
+            // tailrotor flapping
+            flapping_a_s_tr_L = (float)helicopter_ODE.x_states[15];  // [rad] tailrotor pitch flapping angle a_s (longitudial direction) - used for tandem rotor setup
+            flapping_b_s_tr_L = (float)helicopter_ODE.x_states[16];  // [rad] tailrotor roll flapping angle b_s (lateral direction) - used for tandem rotor setup
+
+            // drivetrain
+            //speed_mo = (float)helicopter_ODE.x_states[15] * RIGHT2LEFT_HANDED; // [rad/sec] mainrotor speed
+            omega_mr = (float)helicopter_ODE.x_states[19] * RIGHT2LEFT_HANDED; // [rad/sec] mainrotor speed 
+            omega_tr = ((float)helicopter_ODE.x_states[19] / helicopter_ODE.par.transmitter_and_helicopter.helicopter.transmission.n_mr2tr.val) * RIGHT2LEFT_HANDED; // [rad/sec] tailrotor speed 
+            omega_pr = ((float)helicopter_ODE.x_states[19] / helicopter_ODE.par.transmitter_and_helicopter.helicopter.transmission.n_mr2pr.val) * RIGHT2LEFT_HANDED; // [rad/sec] propeller speed 
+
+            Omega_mr = (float)helicopter_ODE.x_states[20] * RIGHT2LEFT_HANDED; // [rad] mainrotor rotation angle
+            Omega_tr = ((float)helicopter_ODE.x_states[20] / helicopter_ODE.par.transmitter_and_helicopter.helicopter.transmission.n_mr2tr.val) * RIGHT2LEFT_HANDED; // [rad] tailrotor rotation angle 
+            Omega_pr = ((float)helicopter_ODE.x_states[20] / helicopter_ODE.par.transmitter_and_helicopter.helicopter.transmission.n_mr2pr.val) * RIGHT2LEFT_HANDED; // [rad] propeller rotation angle 
+            // ##################################################################################
+        }
+        else
+        {
+            u_inputs[0] = 0; u_inputs[1] = 0; u_inputs[2] = 0; u_inputs[3] = 0; u_inputs[4] = 0; u_inputs[5] = 0; u_inputs[6] = 0; u_inputs[7] = 0;
+            omega_mr = 0;  omega_tr = 0;  omega_pr = 0;
+            //Omega_mr = 0;  Omega_tr = 0;  Omega_pr = 0;
+            flapping_a_s_mr_L = 0; flapping_b_s_mr_L = 0; flapping_a_s_tr_L = 0; flapping_b_s_tr_L = 0;
+        }
+        // ##################################################################################
+
+
+
+
+
+        // ##################################################################################
+        // pilot with rc transmitter - cahnge orientation
+        // ##################################################################################
+        float pilot_rotation_angle_around_y = pilot.transform.eulerAngles.y; // [deg]
+        float camera_rotation_angle_around_y = main_camera.transform.eulerAngles.y; // [deg]
+        float pilot_follow_angle_rotation_speed = 5f;
+        float pilot_follow_angle = 80f;  // [deg]
+
+        // if camera rotates around y-axis too much, then let the pilots's body follow the camera/head.
+        if ((camera_rotation_angle_around_y < pilot_follow_angle && camera_rotation_angle_around_y >= 0) || (camera_rotation_angle_around_y > (360f - pilot_follow_angle) && camera_rotation_angle_around_y <= 360f))
+        {
+            pilot_follow_angle_rotation_speed = 0.5f;
+            pilot.transform.rotation = Quaternion.Slerp(pilot.transform.rotation, Quaternion.AngleAxis(0, Vector3.up), Time.deltaTime * pilot_follow_angle_rotation_speed);
+        }
+        else
+        {
+            pilot_follow_angle_rotation_speed = 3f;
+            pilot.transform.rotation = Quaternion.Slerp(pilot.transform.rotation, main_camera.transform.rotation, Time.deltaTime * pilot_follow_angle_rotation_speed);
+        }
+        pilot.transform.eulerAngles = new Vector3(0, pilot.transform.eulerAngles.y, 0);
+
+        // center the pilot's head at camera position 
+        pilot.transform.position = new Vector3(main_camera.transform.position.x, main_camera.transform.position.y - helicopter_ODE.par.scenery.camera_height.val, main_camera.transform.position.z);
+        // ##################################################################################
+
+
+
+
+
+        // ##################################################################################
+        // animation of small pilot-figure, sitting in helicopter 
+        // ##################################################################################
+        if (animator_pilot != null)
+        {
+            const float increase_movement = 1.5f;
+            float collective = Mathf.Clamp((float)u_inputs[0] * increase_movement, -0.99f, 0.99f); // u[0] collective
+            float yaw_left_right = Mathf.Clamp((float)u_inputs[1] * increase_movement, -0.99f, 0.99f); // u[1] channel_yaw
+            float stick_axis_forward_backward = Mathf.Clamp((float)u_inputs[2] * increase_movement, -0.99f, 0.99f); // u[2] channel_pitch
+            float stick_axis_left_right = Mathf.Clamp((float)u_inputs[3] * increase_movement, -0.99f, 0.99f); // u[3] channel_roll
+
+            // stick - cross movements are mixed in Unity's "Animator" by using layers, setting weight to 1 and blending to additive 
+            if (stick_axis_forward_backward >= 0)
+            {
+                animator_pilot.SetFloat("stick_backward", Mathf.Abs(stick_axis_forward_backward));
+                animator_pilot.SetFloat("stick_forward", 0);
+            }
+            if (stick_axis_forward_backward < 0)
+            {
+                animator_pilot.SetFloat("stick_backward", 0);
+                animator_pilot.SetFloat("stick_forward", Mathf.Abs(stick_axis_forward_backward));
+            }
+            if (stick_axis_left_right >= 0)
+            {
+                animator_pilot.SetFloat("stick_right", Mathf.Abs(stick_axis_left_right));
+                animator_pilot.SetFloat("stick_left", 0);
+            }
+            if (stick_axis_left_right < 0)
+            {
+                animator_pilot.SetFloat("stick_right", 0);
+                animator_pilot.SetFloat("stick_left", Mathf.Abs(stick_axis_left_right));
+            }
+
+            // pedals
+            if (yaw_left_right >= 0)
+            {
+                animator_pilot.SetFloat("yaw_left", Mathf.Abs(yaw_left_right));
+                animator_pilot.SetFloat("yaw_right", 0);
+            }
+            if (yaw_left_right < 0)
+            {
+                animator_pilot.SetFloat("yaw_left", 0);
+                animator_pilot.SetFloat("yaw_right", Mathf.Abs(yaw_left_right));
+            }
+
+            // collective 
+            animator_pilot.SetFloat("collective", Mathf.Abs((collective / 2.0f) + 0.5f));
+        }
+        // ##################################################################################
+
+
+
+
+
+
+        // ##################################################################################
+        // sun / eye adaption (faked by bloom effect)
+        // ##################################################################################
+        // is camera looking into sun ? --> value goes --> 1.0
+        float scalarproduct = Vector3.Dot(main_camera.transform.forward.normalized, directional_light.transform.position.normalized); // (dot product, projection of main rotor axis to global y ) * velocity in y direction
+        // handling and changing
+        float bloom_layer_intensity = Common.Helper.Step(scalarproduct, 0.95f, helicopter_ODE.par.scenery.lighting.sun_bloom_intensity.val, 0.98f, helicopter_ODE.par.scenery.lighting.sun_bloom_blinded_by_sun_intensity.val);
+        // change bloom
+        if (bloom_layer_intensity != bloom_layer_intensity_old)
+        {
+            if (bloom_layer != null)
+            {
+                bloom_layer.enabled.value = true;
+                bloom_layer.threshold.value = 1f;
+                bloom_layer.intensity.value = bloom_layer_intensity;
+                bloom_layer_intensity_old = bloom_layer_intensity;
+            }
+        }
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // rotate rotor model (shaft with blades)
+        // ##################################################################################
+        mainrotor_object.Update_Rotor_Rotation(helicopter_ODE.par.transmitter_and_helicopter.helicopter.mainrotor, ref Omega_mr);
+        tailrotor_object.Update_Rotor_Rotation(helicopter_ODE.par.transmitter_and_helicopter.helicopter.tailrotor, ref Omega_tr);
+        propeller_object.Update_Rotor_Rotation(helicopter_ODE.par.transmitter_and_helicopter.helicopter.propeller, ref Omega_pr);
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // change rotor visiblitiy as a function of rotation velocity
+        // ##################################################################################
+        mainrotor_object.Update_Rotor_Visiblitiy(ref helicopter_ODE, helicopter_ODE.par.transmitter_and_helicopter.helicopter.mainrotor, (float)helicopter_ODE.Theta_col_mr, ref omega_mr);
+        tailrotor_object.Update_Rotor_Visiblitiy(ref helicopter_ODE, helicopter_ODE.par.transmitter_and_helicopter.helicopter.tailrotor, (float)helicopter_ODE.Theta_col_tr, ref omega_tr);
+        propeller_object.Update_Rotor_Visiblitiy(ref helicopter_ODE, helicopter_ODE.par.transmitter_and_helicopter.helicopter.propeller, (float)helicopter_ODE.Theta_col_pr, ref omega_pr);
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // heli- and stall sound 
+        // ##################################################################################
+        mainrotor_object.Update_Rotor_Audio(ref helicopter_ODE, ref Omega_mr, ref omega_mr, position, velocity, gl_pause_flag);
+        //tailrotor_object.Update_Rotor_Audio(ref helicopter_ODE, ref Omega_tr, ref omega_tr, position, velocity, gl_pause_flag);
+        //propeller_object.Update_Rotor_Audio(ref helicopter_ODE, ref Omega_pr, ref omega_pr, position, velocity, gl_pause_flag);
+
+        // unity's doppler effect 
+        audio_source_motor.velocityUpdateMode = AudioVelocityUpdateMode.Dynamic;
+
+        audio_source_motor.pitch = Mathf.Abs(omega_mr / (helicopter_ODE.par.transmitter_and_helicopter.helicopter.rotor_sound_recorded_rpm.val * 6 * Mathf.PI / 180f)); // sound recorded at ~ 1280 rpm
+        audio_source_motor.volume = Mathf.Abs(omega_mr / (helicopter_ODE.par.transmitter_and_helicopter.helicopter.rotor_sound_recorded_rpm.val * 6 * Mathf.PI / 180f)); // sound recorded at ~ 1280 rpm
+
+        // unity's doppler effect still sounds weird in build therefore a custum equation is implemented here (doppler effect has to be set to 0 in unity)
+        float velocity_for_doppler_effect = Vector3.Dot(-position.normalized, velocity); // helicopters velocity vector component pointing to camera
+        const float speed_of_sound = 343; // [m / s]
+        audio_source_motor.pitch *= (speed_of_sound + 0f) / (speed_of_sound - velocity_for_doppler_effect);
+
+        // conical volume control
+        Vector3 audio_cone_direction_motor_L = new Vector3(1f, 0.2f, 0f); // in heli's local coordinate system - L  TODO into paramerter
+        var audio_cone_direction_motor_R = helicopters_available.transform.TransformDirection(audio_cone_direction_motor_L); // world coordiante system - R
+        float audio_cone_angle = Vector3.Angle(-helicopters_available.transform.position, audio_cone_direction_motor_R); // angle between two vector
+        float audio_volume = Helper.Step(audio_cone_angle, 25f, 0.5f, 65f, 1.0f); // smooth transition  TODO into paramerter
+        audio_source_motor.volume *= audio_volume;
+
+        // reduce motor volume if motor is turned off
+        if (helicopter_ODE.flag_motor_enabled)
+        {
+            if (audio_source_motor_smooth_transition < 1.0f)
+                audio_source_motor_smooth_transition += 0.05f;  // smooth transition between on and off state (here on)
+        }
+        else
+        {
+            if (audio_source_motor_smooth_transition > 0.4f)
+                audio_source_motor_smooth_transition -= 0.005f;  // smooth transition between on and off state (here off)  
+        }
+        audio_source_motor.volume *= audio_source_motor_smooth_transition;
+        
+        // limit sound by master volume settings
+        float pause_activated_reduces_audio_volume = gl_pause_flag ? 0.2f : 1.0f;
+        audio_source_motor.volume *= (helicopter_ODE.par.transmitter_and_helicopter.helicopter.sound_volume.val / 100f) * pause_activated_reduces_audio_volume * (helicopter_ODE.par.simulation.master_sound_volume.val / 100f);
+        ambient_audio_source.volume = (helicopter_ODE.par.scenery.ambient_sound_volume.val / 100f) * (helicopter_ODE.par.simulation.master_sound_volume.val / 100f);  //  * opened_parameter_menu_reduced_audio_volume
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // mainrotorblades deformation 
+        // ##################################################################################
+        mainrotor_object.Update_Rotor_Deformation(ref helicopter_ODE, (stru_rotor)helicopter_ODE.par.transmitter_and_helicopter.helicopter.mainrotor, flapping_a_s_mr_L, flapping_b_s_mr_L, omega_mr, Omega_mr);
+        tailrotor_object.Update_Rotor_Deformation(ref helicopter_ODE, (stru_rotor)helicopter_ODE.par.transmitter_and_helicopter.helicopter.tailrotor, flapping_a_s_tr_L, flapping_b_s_tr_L, omega_tr, Omega_tr);
+        propeller_object.Update_Rotor_Deformation(ref helicopter_ODE, (stru_rotor)helicopter_ODE.par.transmitter_and_helicopter.helicopter.propeller, flapping_a_s_pr_L, flapping_b_s_pr_L, omega_pr, Omega_pr);
+        // ##################################################################################         
+
+
+
+
+        // ##################################################################################
+        // transmitter countdown timer
+        // ##################################################################################
+        if (gl_pause_flag == false)
+            transmitter_countdown_minutes_timer -= Time.deltaTime;
+
+        float timer_limit_in_seconds = helicopter_ODE.par.transmitter_and_helicopter.transmitter.countdown_minutes.val * 60.0f;
+
+        int rounded_rest_seconds = Mathf.CeilToInt(transmitter_countdown_minutes_timer);
+        int display_seconds_rest = rounded_rest_seconds % 60;
+        int display_minutes_rest = rounded_rest_seconds / 60;
+        int rounded_spent_seconds = Mathf.CeilToInt(timer_limit_in_seconds) - rounded_rest_seconds;
+        int display_seconds_spent = rounded_spent_seconds % 60;
+        int display_minutes_spent = rounded_spent_seconds / 60;
+
+        if (display_seconds_spent != display_seconds_spent_old) // flank  detection
+        {
+            if (rounded_rest_seconds > 20 && display_seconds_spent == 0) // minute changes when second is zero
+                Transmitter_Play_Audio(Application.streamingAssetsPath + "/Audio/Futaba_T18SZ_Sounds/Futaba_T18SZ_Minutes_" + display_minutes_spent.ToString("000") + ".wav");
+
+            if (rounded_rest_seconds == 20) // remainder for last 20 seconds
+                Transmitter_Play_Audio(Application.streamingAssetsPath + "/Audio/Futaba_T18SZ_Sounds/Futaba_T18SZ_20_Seconds_Remaining.wav");
+
+            if (rounded_rest_seconds == 10) // countdown for last 10 seconds   
+                Transmitter_Play_Audio(Application.streamingAssetsPath + "/Audio/Futaba_T18SZ_Sounds/Futaba_T18SZ_Countdown.wav");
+
+            // update digits on transmitter display
+            Transmitter_Update_Time_Digits_On_Display(rounded_rest_seconds);
+        }
+        display_seconds_spent_old = display_seconds_spent;
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // bird and insects flock target update
+        // ##################################################################################
+        Flocks_Change_Target_Positions(ref all_animal_flocks, false);
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // debug
+        // ##################################################################################
+        double msec_per_thread_call = (stopwatch.Elapsed.TotalMilliseconds) / counter;
+        stopwatch.Reset(); counter = 0;
+
+        // plot forces and torques
+        if (ui_debug_panel_state > 0)
+        {
+            const float FORCE_SCALE = 0.005f;
+            const float TORQUE_SCALE = 0.05f;
+
+            for (var i = 0; i < helicopter_ODE.ODEDebug.contact_forceR.Count; i++)
+            {
+                Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_contact_forceR[i], helicopter_ODE.ODEDebug.contact_positionR[i], helicopter_ODE.ODEDebug.contact_positionR[i] + helicopter_ODE.ODEDebug.contact_forceR[i] * FORCE_SCALE);
+            }
+
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_mainrotor_forceO, helicopter_ODE.ODEDebug.mainrotor_positionO, helicopter_ODE.ODEDebug.mainrotor_positionO + helicopter_ODE.ODEDebug.mainrotor_forceO * FORCE_SCALE);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_mainrotor_torqueO, helicopter_ODE.ODEDebug.mainrotor_positionO, helicopter_ODE.ODEDebug.mainrotor_positionO + helicopter_ODE.ODEDebug.mainrotor_torqueO * TORQUE_SCALE);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_mainrotor_flapping_stiffness_torqueO, helicopter_ODE.ODEDebug.mainrotor_positionO, helicopter_ODE.ODEDebug.mainrotor_positionO + helicopter_ODE.ODEDebug.mainrotor_flapping_stiffness_torqueO * TORQUE_SCALE);
+
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_tailrotor_forceO, helicopter_ODE.ODEDebug.tailrotor_positionO, helicopter_ODE.ODEDebug.tailrotor_positionO + helicopter_ODE.ODEDebug.tailrotor_forceO * FORCE_SCALE);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_tailrotor_torqueO, helicopter_ODE.ODEDebug.tailrotor_positionO, helicopter_ODE.ODEDebug.tailrotor_positionO + helicopter_ODE.ODEDebug.tailrotor_torqueO * TORQUE_SCALE);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_tailrotor_flapping_stiffness_torqueO, helicopter_ODE.ODEDebug.tailrotor_positionO, helicopter_ODE.ODEDebug.tailrotor_positionO + helicopter_ODE.ODEDebug.tailrotor_flapping_stiffness_torqueO * TORQUE_SCALE);
+
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_propeller_forceO, helicopter_ODE.ODEDebug.propeller_positionO, helicopter_ODE.ODEDebug.propeller_positionO + helicopter_ODE.ODEDebug.propeller_forceO * FORCE_SCALE * 1);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_propeller_torqueO, helicopter_ODE.ODEDebug.propeller_positionO, helicopter_ODE.ODEDebug.propeller_positionO + helicopter_ODE.ODEDebug.propeller_torqueO * TORQUE_SCALE);
+
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_drag_on_fuselage_drag_on_fuselage_forceO, helicopter_ODE.ODEDebug.drag_on_fuselage_positionO, helicopter_ODE.ODEDebug.drag_on_fuselage_positionO + helicopter_ODE.ODEDebug.drag_on_fuselage_drag_on_fuselage_forceO * FORCE_SCALE * 1);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_force_on_horizontal_fin_forceO, helicopter_ODE.ODEDebug.force_on_horizontal_fin_positionO, helicopter_ODE.ODEDebug.force_on_horizontal_fin_positionO + helicopter_ODE.ODEDebug.force_on_horizontal_fin_forceO * FORCE_SCALE * 1);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_force_on_vertical_fin_forceO, helicopter_ODE.ODEDebug.force_on_vertical_fin_positionO, helicopter_ODE.ODEDebug.force_on_vertical_fin_positionO + helicopter_ODE.ODEDebug.force_on_vertical_fin_forceO * FORCE_SCALE * 1);
+
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_force_on_horizontal_wing_left_forceO, helicopter_ODE.ODEDebug.force_on_horizontal_wing_left_positionO, helicopter_ODE.ODEDebug.force_on_horizontal_wing_left_positionO + helicopter_ODE.ODEDebug.force_on_horizontal_wing_left_forceO * FORCE_SCALE * 1);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_force_on_horizontal_wing_right_forceO, helicopter_ODE.ODEDebug.force_on_horizontal_wing_right_positionO, helicopter_ODE.ODEDebug.force_on_horizontal_wing_right_positionO + helicopter_ODE.ODEDebug.force_on_horizontal_wing_right_forceO * FORCE_SCALE * 1);
+
+        }
+
+        // update debug text
+        if (ui_debug_panel_state > 1)
+        {
+            ui_debug_text.text = ui_string_connected_input_devices_names + "\n" +
+                "thread_ODE_deltat = " + thread_ODE_deltat.ToString() +
+                "   msec_per_thread_call = " + Helper.FormatNumber(msec_per_thread_call, "0.000") +
+                "   monitor_frequency = " + Helper.FormatNumber(refresh_rate_hz, "0.000") + (refresh_rate_sec_found_flag ? "*" : "") + "\n" +
+                helicopter_ODE.ODEDebug.debug_text;
+        }
+
+
+        // plot 2d graph
+        if (ui_debug_panel_state > 2 && GraphManager.Graph != null)
+        {
+            GraphManager.Graph.Plot("Test_ScreenSpace1", helicopter_ODE.ODEDebug.mainrotor_forceLH.y, Color.yellow, plot2D_graph_rect_1);
+            //GraphManager.Graph.Plot("Test_ScreenSpace1", helicopter_ODE.ODEDebug.mainrotor_torqueLH.y, Color.yellow, plot2D_graph_rect_1);
+            GraphManager.Graph.Plot("Test_ScreenSpace2", helicopter_ODE.ODEDebug.tailrotor_forceLH.y, Color.yellow, plot2D_graph_rect_2);
+            //GraphManager.Graph.Plot("Test_ScreenSpace2", (float)msec_per_thread_call, Color.yellow, plot2D_graph_rect_2);
+
+        }
+        else
+        {
+            if (ui_debug_panel_state_old != ui_debug_panel_state)
+            {
+                GraphManager.Graph.Reset("Test_ScreenSpace1");
+                GraphManager.Graph.Reset("Test_ScreenSpace2");
+            }
+        }
+        ui_debug_panel_state_old = ui_debug_panel_state;
+        // ##################################################################################
+
+
+
+
+        //// ##################################################################################
+        ////
+        //// ##################################################################################
+        //if (first_start_flag == 1)
+        //{
+        //    first_start_flag = 0;
+        //    PlayerPrefs.SetInt("first_start_flag", first_start_flag);
+        //}
+        //// ##################################################################################
+
+
+
+        // ##################################################################################
+        // anti stuttering
+        // ##################################################################################
+        // Multiple FixedUpdate() calls may arise at beginning of frame and we only want to update once per frame
+        io_antistutter__fixedupdate_calls_in_this_frame_counter = 0;
+        // ##################################################################################
+    }
+    // ##################################################################################
+    #endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // ##################################################################################
+    //                                                                                                                                                 dddddddd                                                            
+    //    LLLLLLLLLLL                                       tttt                              UUUUUUUU     UUUUUUUU                               d::::::d                          tttt                              
+    //    L:::::::::L                                    ttt:::t                              U::::::U     U::::::U                               d::::::d                       ttt:::t                              
+    //    L:::::::::L                                    t:::::t                              U::::::U     U::::::U                               d::::::d                       t:::::t                              
+    //    LL:::::::LL                                    t:::::t                              UU:::::U     U:::::UU                               d:::::d                        t:::::t                              
+    //      L:::::L                 aaaaaaaaaaaaa  ttttttt:::::ttttttt        eeeeeeeeeeee     U:::::U     U:::::Uppppp   ppppppppp       ddddddddd:::::d   aaaaaaaaaaaaa  ttttttt:::::ttttttt        eeeeeeeeeeee    
+    //      L:::::L                 a::::::::::::a t:::::::::::::::::t      ee::::::::::::ee   U:::::D     D:::::Up::::ppp:::::::::p    dd::::::::::::::d   a::::::::::::a t:::::::::::::::::t      ee::::::::::::ee  
+    //      L:::::L                 aaaaaaaaa:::::at:::::::::::::::::t     e::::::eeeee:::::ee U:::::D     D:::::Up:::::::::::::::::p  d::::::::::::::::d   aaaaaaaaa:::::at:::::::::::::::::t     e::::::eeeee:::::ee
+    //      L:::::L                          a::::atttttt:::::::tttttt    e::::::e     e:::::e U:::::D     D:::::Upp::::::ppppp::::::pd:::::::ddddd:::::d            a::::atttttt:::::::tttttt    e::::::e     e:::::e
+    //      L:::::L                   aaaaaaa:::::a      t:::::t          e:::::::eeeee::::::e U:::::D     D:::::U p:::::p     p:::::pd::::::d    d:::::d     aaaaaaa:::::a      t:::::t          e:::::::eeeee::::::e
+    //      L:::::L                 aa::::::::::::a      t:::::t          e:::::::::::::::::e  U:::::D     D:::::U p:::::p     p:::::pd:::::d     d:::::d   aa::::::::::::a      t:::::t          e:::::::::::::::::e 
+    //      L:::::L                a::::aaaa::::::a      t:::::t          e::::::eeeeeeeeeee   U:::::D     D:::::U p:::::p     p:::::pd:::::d     d:::::d  a::::aaaa::::::a      t:::::t          e::::::eeeeeeeeeee  
+    //      L:::::L         LLLLLLa::::a    a:::::a      t:::::t    tttttte:::::::e            U::::::U   U::::::U p:::::p    p::::::pd:::::d     d:::::d a::::a    a:::::a      t:::::t    tttttte:::::::e           
+    //    LL:::::::LLLLLLLLL:::::La::::a    a:::::a      t::::::tttt:::::te::::::::e           U:::::::UUU:::::::U p:::::ppppp:::::::pd::::::ddddd::::::dda::::a    a:::::a      t::::::tttt:::::te::::::::e          
+    //    L::::::::::::::::::::::La:::::aaaa::::::a      tt::::::::::::::t e::::::::eeeeeeee    UU:::::::::::::UU  p::::::::::::::::p  d:::::::::::::::::da:::::aaaa::::::a      tt::::::::::::::t e::::::::eeeeeeee  
+    //    L::::::::::::::::::::::L a::::::::::aa:::a       tt:::::::::::tt  ee:::::::::::::e      UU:::::::::UU    p::::::::::::::pp    d:::::::::ddd::::d a::::::::::aa:::a       tt:::::::::::tt  ee:::::::::::::e  
+    //    LLLLLLLLLLLLLLLLLLLLLLLL  aaaaaaaaaa  aaaa         ttttttttttt      eeeeeeeeeeeeee        UUUUUUUUU      p::::::pppppppp       ddddddddd   ddddd  aaaaaaaaaa  aaaa         ttttttttttt      eeeeeeeeeeeeee  
+    //                                                                                                              p:::::p                                                                                            
+    //                                                                                                              p:::::p                                                                                            
+    //                                                                                                             p:::::::p                                                                                           
+    //                                                                                                             p:::::::p                                                                                           
+    //                                                                                                             p:::::::p                                                                                           
+    //                                                                                                             ppppppppp 
+    // ##################################################################################
+    #region LateUpdate
+    // ##################################################################################
+    // LateUpdate
+    // ##################################################################################
+    // Update is called once per frame
+    void LateUpdate()
+    {
+
+
+        // ##################################################################################
+        // zoom with mouse wheel
+        // ##################################################################################
+        if (UnityEngine.InputSystem.Mouse.current.scroll.ReadValue().y != 0f &&
+            ui_parameter_panel_flag == false && ui_welcome_panel_flag == false && ui_info_panel_flag == false &&
+            ui_helicopter_selection_menu_flag == false && ui_scenery_selection_menu_flag == false)
+        {
+            mouse_camera_fov += UnityEngine.InputSystem.Mouse.current.scroll.ReadValue().y * mouse_scroll_fov_increment;
+            mouse_camera_fov = Mathf.Clamp(mouse_camera_fov, -mouse_camera_fov_limit, +mouse_camera_fov_limit);
+        }
+        // ##################################################################################
+
+
+        // ##################################################################################
+        // look around with mouse while holding middle mouse wheel or right mouse button
+        // ##################################################################################
+        if (UnityEngine.InputSystem.Mouse.current.middleButton.isPressed ||
+            UnityEngine.InputSystem.Mouse.current.rightButton.isPressed ||
+            UnityEngine.InputSystem.Keyboard.current.leftAltKey.isPressed)
+        {
+            // rotate camera
+            mouse_camera_yaw += (mouse_camera_speed_horizontaly * Time.deltaTime) * UnityEngine.InputSystem.Mouse.current.delta.ReadValue().x;
+            mouse_camera_pitch -= (mouse_camera_speed_verticaly * Time.deltaTime) * UnityEngine.InputSystem.Mouse.current.delta.ReadValue().y;
+        }
+        else
+        {
+            // get view override back to zero (look again at helicopter)
+            mouse_camera_yaw = 0;
+            mouse_camera_pitch = 0;
+        }
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // update camera position and view
+        // ##################################################################################
+        if (XRSettings.enabled)
+        {
+            XRDevice.fovZoomFactor = Helper.Clamp(helicopter_ODE.par.simulation.camera_xr_zoom_factor);
+        }
+        else
+        {
+            if (helicopter_ODE.par.simulation.camera_shaking.val > 0)
+            {
+                // camera shaking
+                //Vector3 localPosition = UnityEngine.Random.insideUnitSphere * 0.05f;
+                //float x = (float)exponential_moving_average_filter_for_camera_position_x.Calculate(100000, (double)localPosition.x) * 2000;
+                //float y = (float)exponential_moving_average_filter_for_camera_position_y.Calculate(100000, (double)localPosition.y) * 2000;
+                //float z = (float)exponential_moving_average_filter_for_camera_position_z.Calculate(100000, (double)localPosition.z) * 2000;
+
+                float factor = Helper.Clamp(helicopter_ODE.par.simulation.camera_shaking) / 100f; // [%]->[0...1]
+                float camera_shaking_factor = 0.03f * factor;
+                float x = Mathf.PerlinNoise(Time.timeSinceLevelLoad / 4.0f + 1, Time.timeSinceLevelLoad / 2f + 100) * camera_shaking_factor;
+                float y = Mathf.PerlinNoise(Time.timeSinceLevelLoad / 3.0f + 10, 0) * camera_shaking_factor * 3;
+                float z = Mathf.PerlinNoise(Time.timeSinceLevelLoad / 2.0f + 100, 0) * camera_shaking_factor;
+
+                main_camera.transform.position = new Vector3(x, helicopter_ODE.par.scenery.camera_height.val + y, z);
+            }
+            else
+            {
+                main_camera.transform.position = new Vector3(0, helicopter_ODE.par.scenery.camera_height.val, 0);
+            }
+            //main_camera.transform.position = new Vector3(0, helicopter_ODE.par.scenery.camera_height.val, 0);
+            float fieldOfView = Mathf.Clamp(helicopter_ODE.par.simulation.camera_fov.val + mouse_camera_fov, 10, 60);
+            main_camera.fieldOfView = fieldOfView;
+            //sub_camera.fieldOfView = fieldOfView;
+
+            var camera_rotation = Quaternion.LookRotation(helicopters_available.transform.position - main_camera.transform.position);
+            // rotation.x = 0; This is for limiting the rotation to the y axis. I needed this for my project so just
+            // rotation.z = 0; delete or add the lines you need to have it behave the way you want.
+            if (!UnityEngine.InputSystem.Mouse.current.middleButton.isPressed && !UnityEngine.InputSystem.Mouse.current.rightButton.isPressed && !UnityEngine.InputSystem.Keyboard.current.leftAltKey.isPressed)
+                main_camera.transform.rotation = Quaternion.Slerp(main_camera.transform.rotation, camera_rotation, Time.deltaTime * helicopter_ODE.par.simulation.camera_stiffness.val);
+            else
+                main_camera.transform.eulerAngles += new Vector3(mouse_camera_pitch, mouse_camera_yaw, 0.0f);
+
+            // limit down view
+            if (main_camera.transform.eulerAngles.x > 50f && main_camera.transform.eulerAngles.x < 90)
+            {
+                main_camera.transform.eulerAngles = new Vector3(50f, main_camera.transform.eulerAngles.y, main_camera.transform.eulerAngles.z);
+                mouse_camera_pitch = 0;
+            }
+        }
+
+        // lifting the transmitter
+        if (main_camera.transform.eulerAngles.x > 45f && main_camera.transform.eulerAngles.x < 90)
+        {
+            animator_pilot_with_transmitter.SetTrigger("lifting_arm");
+            animator_pilot_with_transmitter.ResetTrigger("lowering_arm");
+        }
+        if (main_camera.transform.eulerAngles.x < 360f && main_camera.transform.eulerAngles.x > 270)
+        {
+            animator_pilot_with_transmitter.SetTrigger("lowering_arm");
+            animator_pilot_with_transmitter.ResetTrigger("lifting_arm");
+        }
+        // ##################################################################################
+
+    }
+    #endregion
+
+
+
+
+
+
+    // ##################################################################################
+    //        CCCCCCCCCCCCC                                                                               tttt            iiii                                                        
+    //     CCC::::::::::::C                                                                            ttt:::t           i::::i                                                       
+    //   CC:::::::::::::::C                                                                            t:::::t            iiii                                                        
+    //  C:::::CCCCCCCC::::C                                                                            t:::::t                                                                        
+    // C:::::C       CCCCCC   ooooooooooo   rrrrr   rrrrrrrrr      ooooooooooo   uuuuuu    uuuuuuttttttt:::::ttttttt    iiiiiiinnnn  nnnnnnnn        eeeeeeeeeeee        ssssssssss   
+    //C:::::C               oo:::::::::::oo r::::rrr:::::::::r   oo:::::::::::oo u::::u    u::::ut:::::::::::::::::t    i:::::in:::nn::::::::nn    ee::::::::::::ee    ss::::::::::s  
+    //C:::::C              o:::::::::::::::or:::::::::::::::::r o:::::::::::::::ou::::u    u::::ut:::::::::::::::::t     i::::in::::::::::::::nn  e::::::eeeee:::::eess:::::::::::::s 
+    //C:::::C              o:::::ooooo:::::orr::::::rrrrr::::::ro:::::ooooo:::::ou::::u    u::::utttttt:::::::tttttt     i::::inn:::::::::::::::ne::::::e     e:::::es::::::ssss:::::s
+    //C:::::C              o::::o     o::::o r:::::r     r:::::ro::::o     o::::ou::::u    u::::u      t:::::t           i::::i  n:::::nnnn:::::ne:::::::eeeee::::::e s:::::s  ssssss 
+    //C:::::C              o::::o     o::::o r:::::r     rrrrrrro::::o     o::::ou::::u    u::::u      t:::::t           i::::i  n::::n    n::::ne:::::::::::::::::e    s::::::s      
+    //C:::::C              o::::o     o::::o r:::::r            o::::o     o::::ou::::u    u::::u      t:::::t           i::::i  n::::n    n::::ne::::::eeeeeeeeeee        s::::::s   
+    // C:::::C       CCCCCCo::::o     o::::o r:::::r            o::::o     o::::ou:::::uuuu:::::u      t:::::t    tttttt i::::i  n::::n    n::::ne:::::::e           ssssss   s:::::s 
+    //  C:::::CCCCCCCC::::Co:::::ooooo:::::o r:::::r            o:::::ooooo:::::ou:::::::::::::::uu    t::::::tttt:::::ti::::::i n::::n    n::::ne::::::::e          s:::::ssss::::::s
+    //   CC:::::::::::::::Co:::::::::::::::o r:::::r            o:::::::::::::::o u:::::::::::::::u    tt::::::::::::::ti::::::i n::::n    n::::n e::::::::eeeeeeee  s::::::::::::::s 
+    //     CCC::::::::::::C oo:::::::::::oo  r:::::r             oo:::::::::::oo   uu::::::::uu:::u      tt:::::::::::tti::::::i n::::n    n::::n  ee:::::::::::::e   s:::::::::::ss  
+    //        CCCCCCCCCCCCC   ooooooooooo    rrrrrrr               ooooooooooo       uuuuuuuu  uuuu        ttttttttttt  iiiiiiii nnnnnn    nnnnnn    eeeeeeeeeeeeee    sssssssssss  
+    // ##################################################################################
+    #region Coroutines
+    // ##################################################################################
+    // Coroutines
+    // ##################################################################################
+
+
+    // ##################################################################################
+    // Hide mouse cursor
+    // ##################################################################################
+    private IEnumerator Hide_Cursor()
+    {
+        yield return new WaitForSeconds(2);
+        Cursor.visible = false;
+    }
+    // ##################################################################################
+    #endregion
+
+
+
+
+
+
+
+    // ##################################################################################   
+    //         QQQQQQQQQ                         iiii          tttt          
+    //       QQ:::::::::QQ                      i::::i      ttt:::t          
+    //     QQ:::::::::::::QQ                     iiii       t:::::t          
+    //    Q:::::::QQQ:::::::Q                               t:::::t          
+    //    Q::::::O   Q::::::Quuuuuu    uuuuuu  iiiiiiittttttt:::::ttttttt    
+    //    Q:::::O     Q:::::Qu::::u    u::::u  i:::::it:::::::::::::::::t    
+    //    Q:::::O     Q:::::Qu::::u    u::::u   i::::it:::::::::::::::::t    
+    //    Q:::::O     Q:::::Qu::::u    u::::u   i::::itttttt:::::::tttttt    
+    //    Q:::::O     Q:::::Qu::::u    u::::u   i::::i      t:::::t          
+    //    Q:::::O     Q:::::Qu::::u    u::::u   i::::i      t:::::t          
+    //    Q:::::O  QQQQ:::::Qu::::u    u::::u   i::::i      t:::::t          
+    //    Q::::::O Q::::::::Qu:::::uuuu:::::u   i::::i      t:::::t    tttttt
+    //    Q:::::::QQ::::::::Qu:::::::::::::::uui::::::i     t::::::tttt:::::t
+    //     QQ::::::::::::::Q  u:::::::::::::::ui::::::i     tt::::::::::::::t
+    //       QQ:::::::::::Q    uu::::::::uu:::ui::::::i       tt:::::::::::tt
+    //         QQQQQQQQ::::QQ    uuuuuuuu  uuuuiiiiiiii         ttttttttttt  
+    //                 Q:::::Q                                               
+    //                  QQQQQQ  
+    // ##################################################################################
+    // Quit
+    // ##################################################################################
+    #region Quit
+    void OnApplicationQuit()
+    {
+        //UnityEngine.Debug.Log("Application ending after " + Time.time + " seconds");
+#if UNITY_EDITOR
+        Thread.Sleep(0);
+        if (thread_ODE != null)
+            thread_ODE.Abort();
+#endif
+
+#if DEBUG_LOG  
+        // debug time ticks to file
+        Debug_Save_Time_Ticks();
+#endif
+    }
+    // ##################################################################################
+    #endregion
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
