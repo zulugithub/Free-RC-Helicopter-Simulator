@@ -2,7 +2,7 @@
 
 # Free RC Helicopter Simulator
 
-![Alt text](https://github.com/zulugithub/Free-RC-Helicopter-Simulator/blob/Develop/Assets/Images/SikorskyS61_3.jpg?raw=true "Title")
+![Alt text](https://media.githubusercontent.com/media/zulugithub/Free-RC-Helicopter-Simulator/master/Free-RC-Helicopter-Simulator/Assets/Images/SikorskyS61_3.jpg?raw=true "Title")
 
 ## Introduction
 
