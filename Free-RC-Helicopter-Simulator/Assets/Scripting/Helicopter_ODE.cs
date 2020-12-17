@@ -1722,13 +1722,14 @@ namespace Helisimulator
                         if (controller_z_pitch > 1) { controller_z_pitch = 1; dDELTA_z_pitch__int_dt = 0; };
                         if (controller_z_pitch < -1) { controller_z_pitch = -1; dDELTA_z_pitch__int_dt = 0; };
 
+                        // 
+                        delta_lat_mr = controller_x_roll * 0.60f - controller_y_yaw * 0.40f;
+                        delta_lat_tr = controller_x_roll * 0.60f + controller_y_yaw * 0.40f;
 
-                        delta_lat_mr = controller_x_roll * 0.50f - controller_y_yaw * 0.50f;
-                        delta_lat_tr = controller_x_roll * 0.50f + controller_y_yaw * 0.50f;
+                        delta_col_mr = +controller_z_pitch * 0.20f + input_y_col * 0.80f;
+                        delta_col_tr = -controller_z_pitch * 0.20f + input_y_col * 0.80f;
 
-                        delta_col_mr = +controller_z_pitch * 0.25f + input_y_col * 0.75f;
-                        delta_col_tr = -controller_z_pitch * 0.25f + input_y_col * 0.75f;
-
+                        // handle deactivation of controller
                         if (par.transmitter_and_helicopter.helicopter.flybarless.direct_feadtrough_flybareless.val == true)
                         {
                             delta_lat_mr = input_x_roll * 0.50f - controller_y_yaw * 0.50f;
@@ -1736,7 +1737,6 @@ namespace Helisimulator
 
                             delta_col_mr = +input_z_pitch * 0.25f + input_y_col * 0.75f;
                             delta_col_tr = -input_z_pitch * 0.25f + input_y_col * 0.75f;
-
                         }
                         if (par.transmitter_and_helicopter.helicopter.gyro.direct_feadtrough_gyroscope.val == true)
                         {
