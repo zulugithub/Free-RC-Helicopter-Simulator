@@ -1722,7 +1722,7 @@ namespace Helisimulator
                         if (controller_z_pitch > 1) { controller_z_pitch = 1; dDELTA_z_pitch__int_dt = 0; };
                         if (controller_z_pitch < -1) { controller_z_pitch = -1; dDELTA_z_pitch__int_dt = 0; };
 
-                        // 
+                        // weight of different control signals   TODO better: let each signal use the complete range, if other signal is small 
                         delta_lat_mr = controller_x_roll * 0.60f - controller_y_yaw * 0.40f;
                         delta_lat_tr = controller_x_roll * 0.60f + controller_y_yaw * 0.40f;
 
