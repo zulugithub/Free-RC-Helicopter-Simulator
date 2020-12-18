@@ -291,6 +291,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     Light directional_light;
 
     Camera main_camera;
+    GameObject camera_offset;
+    float xr_camera_vertical_position_offset = 0f; // [m] offset value for xr-camera: at loading of the scenery this offset ensures, that the xr-camera is at the same height, as the panoramic photo was taken
     //Camera sub_camera; // needed for projecting skymap to mesh
     Bloom bloom_layer = null;
     float bloom_layer_intensity_old;
@@ -536,6 +538,10 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
         // reset wheel animation to lowered wheels
         Reset_Animation_Wheels();
+
+        // reset xr-camera height correction value
+        if (XRSettings.enabled)
+            xr_camera_vertical_position_offset = helicopter_ODE.par.scenery.camera_height.val - main_camera.transform.localPosition.y + 0.0f; // [m]
     }
     // ##################################################################################
 
@@ -877,6 +883,28 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     // ##################################################################################
 
 
+    // ##################################################################################
+    // limit the vertical position (height) of the camera, even if the headset moves up or down
+    // add also inital offset value "xr_camera_vertical_position_offset" to "camera_offset-object" 
+    // ##################################################################################
+    void Correct_And_Limit_XR_Camera_Vertical_Position()
+    {
+        // limit the vertical position (height) of the camera, even if the headset moves
+        Vector3 main_camera_localposition = main_camera.transform.localPosition;
+        Vector3 camera_limit = new Vector3(0, xr_camera_vertical_position_offset, 0); // [m]
+        const float camera_position_range_y = 0.10f; // [m]
+
+        if (main_camera_localposition.y > (helicopter_ODE.par.scenery.camera_height.val + camera_position_range_y - xr_camera_vertical_position_offset))
+            camera_limit.y = (helicopter_ODE.par.scenery.camera_height.val + camera_position_range_y) - main_camera_localposition.y;
+        if (main_camera_localposition.y < (helicopter_ODE.par.scenery.camera_height.val - camera_position_range_y - xr_camera_vertical_position_offset))
+            camera_limit.y = (helicopter_ODE.par.scenery.camera_height.val - camera_position_range_y) - main_camera_localposition.y;
+
+        // UnityEngine.Debug.Log("main_camera_position: " + main_camera_position + "   camera_limit: " + camera_limit);
+        camera_offset.transform.localPosition = camera_limit;
+    }
+    // ##################################################################################
+
+
 #if DEBUG_LOG
     // ##################################################################################
     // debug
@@ -1124,6 +1152,33 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
 
         // ##################################################################################
+        /// <summary> get main camera </summary> 
+        // ##################################################################################
+        main_camera = GameObject.Find("Main Camera").gameObject.GetComponent<Camera>();
+        camera_offset = GameObject.Find("Camera Offset");
+        //sub_camera = main_camera.transform.Find("Sub Camera").gameObject.GetComponent<Camera>();
+        //var test = main_camera.GetComponent<PostProcessVolume>(); // access bloom... http://synersteel.com/blog/2019/1/28/unity3d-bloom-animation-script
+        //UnityEngine.XR.InputTracking.disablePositionalTracking = true;
+        // ##################################################################################
+
+
+
+        // ##################################################################################
+        /// <summary> disable post_processing_layer if in vr mode (because disorts view if enabled) </summary> 
+        // ##################################################################################
+        if (XRSettings.enabled)
+        {
+            UnityEngine.Rendering.PostProcessing.PostProcessLayer post_processing_layer = main_camera.GetComponent<PostProcessLayer>();
+            if (post_processing_layer != null)
+            {
+                post_processing_layer.enabled = false;
+            }
+        }
+        // ##################################################################################
+
+
+
+        // ##################################################################################
         // load helicopter
         // ##################################################################################
         // get objects in Helicopters_Available object (get active Helicopter model)
@@ -1151,15 +1206,6 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // ##################################################################################
 
 
-
-        // ##################################################################################
-        /// <summary> get main camera </summary> 
-        // ##################################################################################
-        main_camera = GameObject.Find("Main Camera").gameObject.GetComponent<Camera>();
-        //sub_camera = main_camera.transform.Find("Sub Camera").gameObject.GetComponent<Camera>();
-        //var test = main_camera.GetComponent<PostProcessVolume>(); // access bloom... http://synersteel.com/blog/2019/1/28/unity3d-bloom-animation-script
-        //UnityEngine.XR.InputTracking.disablePositionalTracking = true;
-        // ##################################################################################
 
         // ##################################################################################
         // sun / eye adaption
@@ -1304,7 +1350,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     {
         //XRSettings.enabled = false; 
         //UnityEngine.Debug.Log("XR Enabled: " + XRSettings.enabled);
-
+/*
         UnityEngine.Debug.Log("XR Device Present: " + XRDeviceIsPresent().ToString());
         UnityEngine.Debug.Log("XR Device IsActive: " + IsActive()); // https://forum.unity.com/threads/deprecation-nightmare.812688/
         UnityEngine.Debug.Log("XR Device IsVrRunning: " + IsVrRunning()); // https://forum.unity.com/threads/deprecation-nightmare.812688/
@@ -1325,7 +1371,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         UnityEngine.Debug.Log("XR Device Active: " + XRSettings.isDeviceActive);
         UnityEngine.Debug.Log("XR Enabled: " + XRSettings.enabled);
         // OpenVR.System.IsTrackedDeviceConnected()
-
+*/
 
 
 
@@ -1747,6 +1793,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     // Update is called once per frame
     void Update()
     {
+        
+
+        Correct_And_Limit_XR_Camera_Vertical_Position();
 
 
         // ##################################################################################
@@ -1774,6 +1823,10 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         }
         if (update_called_cntr == 60) // TODO remove this complete if(...){}
         {
+            // reset xr-camera height correction value
+            if (XRSettings.enabled)
+                xr_camera_vertical_position_offset = helicopter_ODE.par.scenery.camera_height.val - main_camera.transform.localPosition.y + 0.0f; // [m]
+
             //Simulation_Thread_Start();
             Pause_ODE(gl_pause_flag = false);
             ui_pause_flag = false;
@@ -3355,6 +3408,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         if (XRSettings.enabled)
         {
             XRDevice.fovZoomFactor = Helper.Clamp(helicopter_ODE.par.simulation.camera_xr_zoom_factor);
+
+            Correct_And_Limit_XR_Camera_Vertical_Position();
         }
         else
         {

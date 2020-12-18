@@ -20,3 +20,4 @@ MonoBehaviour:
   LowOverheadMode: 0
   ProtectedContext: 0
   FocusAware: 1
+  OptimizeBufferDiscards: 1
