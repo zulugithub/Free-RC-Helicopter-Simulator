@@ -341,6 +341,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     readonly Helper.Exponential_Moving_Average_Filter_For_Rotations exponential_moving_average_filter_for_roations_for_steering_wheel_center = new Helper.Exponential_Moving_Average_Filter_For_Rotations();
     readonly Helper.Exponential_Moving_Average_Filter_For_Rotations exponential_moving_average_filter_for_roations_for_steering_wheel_left = new Helper.Exponential_Moving_Average_Filter_For_Rotations();
     readonly Helper.Exponential_Moving_Average_Filter_For_Rotations exponential_moving_average_filter_for_roations_for_steering_wheel_right = new Helper.Exponential_Moving_Average_Filter_For_Rotations();
+
+    // Brushless motor rotation
+    GameObject motor_to_rotate;
     // ##################################################################################
     #endregion
 
@@ -556,7 +559,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // textures
         string setup_foldername = helicopter_name + "_Setup_00" + helicopter_canopy_material_ID + "/";
 
-        // loop through A...E textures, and updat the materials
+        // loop through A...E textures, and update the materials
         int i = 0;
         for (char c = 'A'; c <= 'F'; c++)
         {
@@ -642,7 +645,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         }
 
 
-        // load specific heilcopter setup's missile
+        // load specific helicopters setup's missile
         helicopter_setup_missile_gameobject = Resources.Load(setup_foldername + "Prefabs/" + helicopter_name + "_setup_00" + helicopter_canopy_material_ID + "_Missile Variant", typeof(GameObject)) as GameObject;
 
     }
@@ -1689,6 +1692,23 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             if (go != null) go.gameObject.SetActive(false);
             go = Helicopter_Selected.transform.Find("Helicopter_Model").gameObject.transform.Find("Particle System Right");
             if (go != null) go.gameObject.SetActive(false);
+        }
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // brushless motor rotation
+        // ##################################################################################
+        if (Helicopter_Selected.transform.Find("Motor_Model") != null)
+        { 
+            motor_to_rotate = Helicopter_Selected.transform.Find("Motor_Model").gameObject;
+            //GameObject motor = Helicopter_Selected.transform.Find("Motor_Model/" + helicopter_name + "_Motor").gameObject;
+        }
+        else
+        {
+            motor_to_rotate = null;
         }
         // ##################################################################################
 
@@ -2998,7 +3018,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
 
         // ##################################################################################
-        // pilot with rc transmitter - cahnge orientation
+        // pilot with rc transmitter - change orientation
         // ##################################################################################
         float pilot_rotation_angle_around_y = pilot.transform.eulerAngles.y; // [deg]
         float camera_rotation_angle_around_y = main_camera.transform.eulerAngles.y; // [deg]
@@ -3121,6 +3141,20 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         mainrotor_object.Update_Rotor_Visiblitiy(ref helicopter_ODE, helicopter_ODE.par.transmitter_and_helicopter.helicopter.mainrotor, (float)helicopter_ODE.Theta_col_mr, ref omega_mr);
         tailrotor_object.Update_Rotor_Visiblitiy(ref helicopter_ODE, helicopter_ODE.par.transmitter_and_helicopter.helicopter.tailrotor, (float)helicopter_ODE.Theta_col_tr, ref omega_tr);
         propeller_object.Update_Rotor_Visiblitiy(ref helicopter_ODE, helicopter_ODE.par.transmitter_and_helicopter.helicopter.propeller, (float)helicopter_ODE.Theta_col_pr, ref omega_pr);
+        // ##################################################################################
+
+
+
+
+        // ##################################################################################
+        // brushless motor rotation
+        // ##################################################################################
+        if(motor_to_rotate != null)
+        {
+            float Omega_mo = Omega_mr * helicopter_ODE.par.transmitter_and_helicopter.helicopter.transmission.n_mo2mr.val; // [rad]
+            motor_to_rotate.transform.localRotation = Quaternion.AngleAxis(Omega_mo * 180f / Mathf.PI, Helper.ConvertRightHandedToLeftHandedVector(Vector3.up)) *
+                  (Helper.ConvertRightHandedToLeftHandedQuaternion(Helper.S123toQuat(new Vector3 (0,0,180) ))); // [deg]
+        }
         // ##################################################################################
 
 
