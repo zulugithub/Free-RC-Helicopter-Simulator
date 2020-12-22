@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd F:\\Helikopter\\UNITY\\Heli-x_model\\Logo600_Sikorsky_S48\\Ref01.jpg
+map_Kd Ref01.jpg
 
 newmtl BlackPlastic
 Ns 5.000001
@@ -31,7 +31,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd F:\\Helikopter\\UNITY\\GitHub\\Work\\Helicopter\\SikorskyS48\\SikorskyS48_Canopy_001_A.jpg
+map_Kd SikorskyS48_Canopy_001_A.jpg
 
 newmtl Glas
 Ns 810.696199
@@ -63,7 +63,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd D:\\Zoltan\\Heli-x_model\\Logo600_Sikorsky_S48\\pilot.png
+map_Kd pilot.png
 
 newmtl _15535_N2S_234_Stearman_Pilot_v1default
 Ns 225.000000
@@ -74,4 +74,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd F:\\Helikopter\\UNITY\\GitHub\\Work\\Helicopter\\SikorskyS48\\SikorskyS48_pilot.png
+map_Kd SikorskyS48_pilot.png

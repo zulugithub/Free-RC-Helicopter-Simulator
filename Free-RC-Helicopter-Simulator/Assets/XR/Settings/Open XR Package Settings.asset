@@ -190,7 +190,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   features:
   - {fileID: -1930043697076787992}
-  - {fileID: -7588505647044262024}
   - {fileID: -6714368501186227394}
   - {fileID: 1346037315009693640}
   - {fileID: 5190638092586344489}
@@ -198,6 +197,7 @@ MonoBehaviour:
   - {fileID: -4568705361215104875}
   - {fileID: -2781471566808499352}
   - {fileID: 8290731225682552064}
+  - {fileID: -7588505647044262024}
   - {fileID: 3597487112637325803}
   m_renderMode: 1
   m_depthSubmissionMode: 0

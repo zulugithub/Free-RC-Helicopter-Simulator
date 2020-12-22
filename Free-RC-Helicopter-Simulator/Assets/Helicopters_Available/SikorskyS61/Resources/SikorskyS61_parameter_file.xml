@@ -156,8 +156,7 @@
       <dirL>
         <vect3>  <x>0</x>  <y>0</y>  <z>0</z>  </vect3>
       </dirL>
-    
-  </propeller>
+    </propeller>
     <fuselage>
       <S_fxyz>
         <vect3>  <x>0.40</x>  <y>1.60</y>  <z>2.30</z>   </vect3>  <!--(2.2m*3.8m)*(0.2scale)^2   (16m*2.2m)*(0.2scale)^2   (16m*3.5m)*(0.2scale)^2 -->

@@ -24,7 +24,7 @@ PlayerSettings:
   m_SplashScreenLogoStyle: 1
   m_SplashScreenDrawMode: 1
   m_SplashScreenBackgroundAnimationZoom: 0
-  m_SplashScreenLogoAnimationZoom: 1
+  m_SplashScreenLogoAnimationZoom: 0
   m_SplashScreenBackgroundLandscapeAspect: 1
   m_SplashScreenBackgroundPortraitAspect: 1
   m_SplashScreenBackgroundLandscapeUvs:
@@ -42,7 +42,7 @@ PlayerSettings:
   m_SplashScreenLogos:
   - logo: {fileID: 10404, guid: 0000000000000000e000000000000000, type: 0}
     duration: 2
-  m_VirtualRealitySplashScreen: {fileID: 2800000, guid: 6bce72dd175109d46be19eb4545ecad0,
+  m_VirtualRealitySplashScreen: {fileID: 2800000, guid: 0d81ffe2a622c844586df8e2004a9dd4,
     type: 3}
   m_HolographicTrackingLossScreen: {fileID: 0}
   defaultScreenWidth: 1024
@@ -130,16 +130,16 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleVersion: 2020.12
+  bundleVersion: 2020.12.24
   preloadedAssets:
   - {fileID: 11400000, guid: 9421252be05165542af07fc20658e309, type: 2}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 4439649741576507148, guid: 22332041c0cb5114897f25cf3b6c9209, type: 2}
-  - {fileID: 11400000, guid: b5344e5b30f988541b00a2b25c6f96fe, type: 2}
-  - {fileID: -7338770229351286905, guid: 95362428aae2d254eb7dbae0fe5a46dc, type: 2}
   - {fileID: 11400000, guid: f0c49cd704716504cb02e1c1be6054bb, type: 2}
   - {fileID: 2431986733521862308, guid: b7877962a5573234e9bdfc6e32104e1c, type: 2}
+  - {fileID: 11400000, guid: b5344e5b30f988541b00a2b25c6f96fe, type: 2}
+  - {fileID: -7338770229351286905, guid: 95362428aae2d254eb7dbae0fe5a46dc, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
