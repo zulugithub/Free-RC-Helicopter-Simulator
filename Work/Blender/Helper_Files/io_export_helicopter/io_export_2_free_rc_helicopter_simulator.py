@@ -34,7 +34,7 @@
 ## 
 #################################################################################
 bl_info = {
-    "name": "Export blender model to 'Free-RC_Helicopter-Simulator.",
+    "name": "Export blender helicopter model to 'Free-RC_Helicopter-Simulator.",
     "author": "zulu",
     "version": (1, 1, 0),
     "blender": (2, 91, 00),
