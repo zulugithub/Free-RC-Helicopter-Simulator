@@ -357,50 +357,62 @@ namespace IO_Heli_X
 				{
 					if (element_1.Name.LocalName.Equals("Triangle"))
 					{
-						// get triangle attributes 
-						var heli_x_triangle = new Heli_X_Triangle();
-						foreach (var element_2 in element_1.Attributes())
-						{
-							if (element_2.Name == "FrictionFactor")
-								heli_x_triangle.attributes.FrictionFactor = float.Parse(element_2.Value, CultureInfo.InvariantCulture);
-							if (element_2.Name == "CrashSensitivityFactor")
-								heli_x_triangle.attributes.CrashSensitivityFactor = float.Parse(element_2.Value, CultureInfo.InvariantCulture);
-							if (element_2.Name == "CrashSensitiThicknessvityFactor")
-								heli_x_triangle.attributes.Thickness = float.Parse(element_2.Value, CultureInfo.InvariantCulture);
-							if (element_2.Name == "Alpha")
-								heli_x_triangle.attributes.Alpha = float.Parse(element_2.Value, CultureInfo.InvariantCulture);
-							if (element_2.Name == "MakeCrashObject")
-								heli_x_triangle.attributes.MakeCrashObject = bool.Parse(element_2.Value);
-							if (element_2.Name == "ShadowReceiver")
-								heli_x_triangle.attributes.ShadowReceiver = bool.Parse(element_2.Value);
-							if (element_2.Name == "CeilingType")
-								heli_x_triangle.attributes.CeilingType = int.Parse(element_2.Value, CultureInfo.InvariantCulture);
-							if (element_2.Name == "GroundType")
-								heli_x_triangle.attributes.GroundType = int.Parse(element_2.Value, CultureInfo.InvariantCulture);
-							//UnityEngine.Debug.Log("2 Name: " + element_2.Name + " Value: " + element_2.Value);
-						}
+                        try
+                        {
+                            // get triangle attributes 
+                            var heli_x_triangle = new Heli_X_Triangle();
+                            foreach (var element_2 in element_1.Attributes())
+                            {
+                                if (element_2.Name == "FrictionFactor")
+                                    heli_x_triangle.attributes.FrictionFactor = float.Parse(element_2.Value, CultureInfo.InvariantCulture);
+                                if (element_2.Name == "CrashSensitivityFactor")
+                                    heli_x_triangle.attributes.CrashSensitivityFactor = float.Parse(element_2.Value, CultureInfo.InvariantCulture);
+                                if (element_2.Name == "CrashSensitiThicknessvityFactor")
+                                    heli_x_triangle.attributes.Thickness = float.Parse(element_2.Value, CultureInfo.InvariantCulture);
+                                if (element_2.Name == "Alpha")
+                                    heli_x_triangle.attributes.Alpha = float.Parse(element_2.Value, CultureInfo.InvariantCulture);
+                                if (element_2.Name == "MakeCrashObject")
+                                    heli_x_triangle.attributes.MakeCrashObject = bool.Parse(element_2.Value);
+                                if (element_2.Name == "ShadowReceiver")
+                                    heli_x_triangle.attributes.ShadowReceiver = bool.Parse(element_2.Value);
+                                if (element_2.Name == "CeilingType")
+                                    heli_x_triangle.attributes.CeilingType = int.Parse(element_2.Value, CultureInfo.InvariantCulture);
+                                if (element_2.Name == "GroundType")
+                                {
+                                    if (element_2.Value == "true" || element_2.Value == "false")
+                                        heli_x_triangle.attributes.GroundType = bool.Parse(element_2.Value) ? 1 : 0;
+                                    else
+                                        heli_x_triangle.attributes.GroundType = int.Parse(element_2.Value, CultureInfo.InvariantCulture);
+                                }
+                                //UnityEngine.Debug.Log("2 Name: " + element_2.Name + " Value: " + element_2.Value);
+                            }
 
-						// get triangle points and normal
-						int i = 0;
-						foreach (var element_2 in element_1.Elements())
-						{
-                            //if (i == 0) heli_x_triangle.data.point0 = Parse_Heli_X_To_Vector3(element_2.Value);
-                            //if (i == 1) heli_x_triangle.data.point1 = Parse_Heli_X_To_Vector3(element_2.Value);
-                            //if (i == 2) heli_x_triangle.data.point2 = Parse_Heli_X_To_Vector3(element_2.Value);
-                            //if (i == 3) heli_x_triangle.data.normal = Vector3.Normalize(Parse_Heli_X_To_Vector3(element_2.Value));
+                            // get triangle points and normal
+                            int i = 0;
+                            foreach (var element_2 in element_1.Elements())
+                            {
+                                //if (i == 0) heli_x_triangle.data.point0 = Parse_Heli_X_To_Vector3(element_2.Value);
+                                //if (i == 1) heli_x_triangle.data.point1 = Parse_Heli_X_To_Vector3(element_2.Value);
+                                //if (i == 2) heli_x_triangle.data.point2 = Parse_Heli_X_To_Vector3(element_2.Value);
+                                //if (i == 3) heli_x_triangle.data.normal = Vector3.Normalize(Parse_Heli_X_To_Vector3(element_2.Value));
 
-                            // flip normal with changing the order of triangles (flipping normals itself didnt's show an effect)
-                            if (i == 0) heli_x_triangle.data.point2 = Parse_Heli_X_To_Vector3(element_2.Value);
-							if (i == 1) heli_x_triangle.data.point1 = Parse_Heli_X_To_Vector3(element_2.Value);
-							if (i == 2) heli_x_triangle.data.point0 = Parse_Heli_X_To_Vector3(element_2.Value);
-                            if (i == 3) heli_x_triangle.data.normal = Vector3.Normalize(Parse_Heli_X_To_Vector3(element_2.Value)) * -1.0f; // flip normal
+                                // flip normal with changing the order of triangles (flipping normals itself didnt's show an effect)
+                                if (i == 0) heli_x_triangle.data.point2 = Parse_Heli_X_To_Vector3(element_2.Value);
+                                if (i == 1) heli_x_triangle.data.point1 = Parse_Heli_X_To_Vector3(element_2.Value);
+                                if (i == 2) heli_x_triangle.data.point0 = Parse_Heli_X_To_Vector3(element_2.Value);
+                                if (i == 3) heli_x_triangle.data.normal = Vector3.Normalize(Parse_Heli_X_To_Vector3(element_2.Value)) * -1.0f; // flip normal
 
-							i++;
+                                i++;
 
-							//UnityEngine.Debug.Log("2 Name: " + element_2.Name + " Value: " + element_2.Value);
-						}
+                                //UnityEngine.Debug.Log("2 Name: " + element_2.Name + " Value: " + element_2.Value);
+                            }
 
-						heli_x_triangles.Add(heli_x_triangle);
+                            heli_x_triangles.Add(heli_x_triangle);
+                        }
+                        catch
+                        {
+                            UnityEngine.Debug.Log("error ");
+                        }
 					}
 				}
 

@@ -995,7 +995,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
         version_number = PlayerPrefs.GetString("version_number", "0");  // triggers first_start_flag
         active_helicopter_id = PlayerPrefs.GetInt("active_helicopter_id", 0);
-        active_scenery_id = PlayerPrefs.GetInt("active_scenery_id", 3);
+        active_scenery_id = PlayerPrefs.GetInt("active_scenery_id", 4);
         //ui_dropdown_actual_selected_scenery_xml_filename = PlayerPrefs.GetString("ui_dropdown_actual_selected_scenery_xml_filename", null);
         //ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename = PlayerPrefs.GetString("ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename", null);
 
