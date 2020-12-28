@@ -58,7 +58,7 @@ public abstract class Helicopter_TimestepModel : MonoBehaviour
             thread_ODE = new Thread(this.ThreadedActions);
 
             thread_ODE.Start();
-            thread_ODE.Priority = System.Threading.ThreadPriority.Lowest;
+            //thread_ODE.Priority = System.Threading.ThreadPriority.Lowest;
             sw.Start();
             //UnityEngine.Debug.Log("GetHashCode " + thread_ODE.GetHashCode() + "   ManagedThreadId " + thread_ODE.ManagedThreadId);
        // }

@@ -972,15 +972,23 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     // ##################################################################################
     void Listener_UI_Button_Open_Regedit()
     {
-        // open regedit where unity stores PlayerPrefs
+        if ((Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor))
+        {
+            // open regedit where unity stores PlayerPrefs
 #if UNITY_EDITOR
             string regedit_path_for_playerprefs = "Computer\\HKEY_CURRENT_USER\\Software\\Unity\\UnityEditor\\" + Application.companyName + "\\" + Application.productName;
 #else
             string regedit_path_for_playerprefs = "Computer\\HKEY_CURRENT_USER\\Software\\" + Application.companyName + "\\" + Application.productName;
 #endif
-        //UnityEngine.Debug.Log(regedit_path_for_playerprefs);
-        System.Diagnostics.Process.Start("cmd.exe", "/c REG ADD HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Applets\\Regedit /v LastKey /t REG_SZ /d \"" + regedit_path_for_playerprefs + "\" /f");
-        System.Diagnostics.Process.Start("regedit");
+            //UnityEngine.Debug.Log(regedit_path_for_playerprefs);
+            System.Diagnostics.Process.Start("cmd.exe", "/c REG ADD HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Applets\\Regedit /v LastKey /t REG_SZ /d \"" + regedit_path_for_playerprefs + "\" /f");
+            System.Diagnostics.Process.Start("regedit");
+        }
+        else
+        {
+            // MacOS
+
+        }
     }
     // ##################################################################################
 
@@ -992,8 +1000,17 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     // ##################################################################################
     void Listener_UI_Button_Open_Folder_Screenshots()
     {
-        //Process.Start(@ui_text_fullpath_echo.text);
-        System.Diagnostics.Process.Start(@Path.GetDirectoryName(Application.persistentDataPath + "/Free RC Helicopter Simulator"));
+        if ((Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor))
+        {
+            //Process.Start(@ui_text_fullpath_echo.text);
+            System.Diagnostics.Process.Start(@Path.GetDirectoryName(Application.persistentDataPath + "/Free RC Helicopter Simulator"));
+        }
+        else
+        {
+            // MacOS 
+            // TODO test???  https://answers.unity.com/questions/43422/how-to-implement-show-in-explorer.html
+            System.Diagnostics.Process.Start(@Path.GetDirectoryName(Application.persistentDataPath + "/Free RC Helicopter Simulator"));
+        }
     }
     // ##################################################################################
     
@@ -1414,7 +1431,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             }
 
 
-           
+            // type: bool
             if (prop.PropertyType == typeof(stru_bool))
             {
                 // instantiate prefab
@@ -1458,6 +1475,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                
             }
 
+
+            // type: float and int
             //UnityEngine.Debug.Log("uuuu: " + prop.Name + " " + prop.GetValue(par) + " " + prop.GetType() + " " + prop.FieldType);
             if ( prop.PropertyType == typeof(stru_int) || prop.PropertyType == typeof(stru_float) )
             {
@@ -1525,6 +1544,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 }
 
             }
+
+
+            // type: Vector3
             if (prop.PropertyType == typeof(stru_Vector3))
             {
                 // instantiate prefab
@@ -1578,6 +1600,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 }
                 toggle_show_in_sim_object.onValueChanged.AddListener(delegate { Listener_Toggle_Show_In_Simulation_As_Overlay(text_object_name, toggle_show_in_sim_object, prop_value); });
             }
+
+
+            // type: Vector3-list
             if (prop.PropertyType == typeof(stru_Vector3_list))
             {
                 // instantiate prefab
@@ -1777,7 +1802,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 ((stru_int)prop_value).val = Int32.Parse(input.text.Replace(",", "."));
 
                 if (((stru_int)prop_value).save_under_player_prefs)
-                    PlayerPrefs.SetFloat("__simulation_" + text_object_name.text, ((stru_int)prop_value).val); 
+                    PlayerPrefs.SetInt("__simulation_" + text_object_name.text, ((stru_int)prop_value).val); 
             }
 
             UI_Update_Parameter_Settings_UI();
@@ -1797,7 +1822,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         ((stru_bool)prop_value).val = input.isOn;
 
         if (((stru_bool)prop_value).save_under_player_prefs)
-            PlayerPrefs.SetFloat("__simulation_" + text_object_name.text, (((stru_bool)prop_value).val) ? 1.0f : 0.0f ) ;  
+            PlayerPrefs.SetInt("__simulation_" + text_object_name.text, (((stru_bool)prop_value).val) ? 1 : 0 );  // no SetBool exists, so use SetInt
 
         UI_Update_Parameter_Settings_UI();
     }

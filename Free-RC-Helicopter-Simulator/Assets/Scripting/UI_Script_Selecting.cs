@@ -438,7 +438,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
             active_helicopter_id = selection_id;
 
-            Load_Helicopter(active_helicopter_id);
+            Load_Helicopter(ref active_helicopter_id);
 
             // reset model to initial position
             Reset_Simulation_States();

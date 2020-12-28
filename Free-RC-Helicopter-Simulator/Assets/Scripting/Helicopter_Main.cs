@@ -1185,7 +1185,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // load helicopter
         // ##################################################################################
         // get objects in Helicopters_Available object (get active Helicopter model)
-        Load_Helicopter(active_helicopter_id);
+        Load_Helicopter(ref active_helicopter_id);
 
         // reset model to initial position
         Reset_Simulation_States();
@@ -1375,7 +1375,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         UnityEngine.Debug.Log("XR Enabled: " + XRSettings.enabled);
         // OpenVR.System.IsTrackedDeviceConnected()
 */
+       
 
+        
 
 
         // during first start of the game a welcome message is shown by using "first_start_flag"
@@ -1472,8 +1474,13 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     /// <summary> Init: get objects in Helicopter Object (get active Helicopter model)  </summary>
     // ##################################################################################
     #region Load_Helicopter
-    void Load_Helicopter(int helicopter_id)
+    void Load_Helicopter(ref int helicopter_id)
     {
+        // ##################################################################################
+        // clamp helicopter id to number of availabe helicopters 
+        // ##################################################################################
+        active_helicopter_id = (active_helicopter_id < 0) ? helicopters_available.transform.childCount - 1 : (active_helicopter_id > helicopters_available.transform.childCount - 1) ? 0 : active_helicopter_id;
+
 
         // ##################################################################################
         // find and activate selected helicopter and read its parameter
@@ -2142,7 +2149,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
 
                 // h-key has two functions: pressing and release fast triggers first function. Holding longer than 0.3 sec triggers second function
-                if (ui_scenery_selection_menu_flag == false)
+                if (ui_scenery_selection_menu_flag == false && !gl_pause_flag)
                 {
                     if (UnityEngine.InputSystem.Keyboard.current.hKey.wasPressedThisFrame)
                     {
@@ -2170,12 +2177,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                             else
                                 active_helicopter_id++;
 
-                            // clamp helicopter id to number of availabe helicopters 
-                            active_helicopter_id = (active_helicopter_id < 0) ? helicopters_available.transform.childCount - 1 : (active_helicopter_id > helicopters_available.transform.childCount - 1) ? 0 : active_helicopter_id;
-
                             Pause_ODE(gl_pause_flag = true);
 
-                            Load_Helicopter(active_helicopter_id);
+                            Load_Helicopter(ref active_helicopter_id);
 
                             UI_Update_Parameter_Settings_UI();
 
@@ -2214,7 +2218,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
 
                 // s-key has two functions: pressing and release fast triggers first function. Holding longer than 0.3 sec triggers second function
-                if (ui_helicopter_selection_menu_flag == false)
+                if (ui_helicopter_selection_menu_flag == false && !gl_pause_flag)
                 {
                     if (UnityEngine.InputSystem.Keyboard.current.sKey.wasPressedThisFrame)
                     {
@@ -2953,9 +2957,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             // ##################################################################################
             // map values from ODE to Unity (ODE:right handed, Unity:left handed)
             // ##################################################################################
-            if (QualitySettings.vSyncCount == 0)
+           /* if (QualitySettings.vSyncCount == 0)
             {
-                // <==== moved to FixedUpdate()
+                // <==== moved to IO_AntiStutter__Set_Transform()               
                 position = helicopters_available.transform.position;
                 position.x = (float)helicopter_ODE.x_states[0]; // [m] x in reference frame
                 position.y = (float)helicopter_ODE.x_states[1]; // [m] y in reference frame
@@ -2970,12 +2974,12 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 rotation.z = (float)helicopter_ODE.x_states[6]; // [-] z
                 rotation = Helper.ConvertRightHandedToLeftHandedQuaternion(rotation);
                 helicopters_available.transform.rotation = rotation;
-                // <==== moved to FixedUpdate() 
+                // <==== moved to IO_AntiStutter__Set_Transform() 
             }
             else
-            {
+            {*/
                 IO_AntiStutter__Set_Transform();
-            }
+           // }
 
             velocity = new Vector3
             {

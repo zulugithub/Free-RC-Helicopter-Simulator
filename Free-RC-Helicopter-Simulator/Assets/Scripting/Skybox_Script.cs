@@ -739,7 +739,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         {
             fullpath_skymap_folder = Path.Combine(Application.persistentDataPath, "Skymaps");  // MacIO, ...
 
-            // On other systems (MacIO, ...) copy everthing from Application.streamingAssetsPath to Application.persistentDataPath
+            // On other systems (MacOS, ...) copy everthing from Application.streamingAssetsPath to Application.persistentDataPath
             string SourcePath = Path.Combine(Application.streamingAssetsPath, "Skymaps");
             string DestinationPath = fullpath_skymap_folder;
             if (!Directory.Exists(DestinationPath))

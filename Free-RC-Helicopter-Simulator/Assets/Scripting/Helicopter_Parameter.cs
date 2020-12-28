@@ -319,6 +319,7 @@ namespace Parameter
             this.camera_shaking.val = PlayerPrefs.GetFloat("__simulation_" + "camera_shaking", this.camera_shaking.val);
             this.camera_xr_zoom_factor.val = PlayerPrefs.GetFloat("__simulation_" + "camera_xr_zoom_factor", this.camera_xr_zoom_factor.val);
             this.rotor_disk_transparency.val = PlayerPrefs.GetFloat("__simulation_" + "rotor_disk_transparency", this.rotor_disk_transparency.val);
+            this.rotor_blade_transparency.val = PlayerPrefs.GetFloat("__simulation_" + "rotor_blade_transparency", this.rotor_blade_transparency.val);
             this.ui_show_fps.val = (PlayerPrefs.GetInt("__simulation_" + "ui_show_fps", this.ui_show_fps.val == false ? 0 : 1)) == 0 ? false : true;
             this.show_pilot.val = (PlayerPrefs.GetInt("__simulation_" + "show_pilot", this.show_pilot.val == false ? 0 : 1)) == 0 ? false : true;
             //this.v_sync.val = (PlayerPrefs.GetInt("__simulation_" + "v_sync", this.v_sync.val));
