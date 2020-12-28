@@ -185,8 +185,8 @@
       <invert_mainrotor2propeller_transmission>  <val>false</val>  </invert_mainrotor2propeller_transmission>
       <i_gear_motor>  <val>14</val>  </i_gear_motor> 
       <i_gear_maingear>  <val>135</val>  </i_gear_maingear>       
-      <i_gear_mainrotor>  <val>90</val>  </i_gear_mainrotor> 42
-      <i_gear_tailrotor>  <val>20</val>  </i_gear_tailrotor> 9 
+      <i_gear_mainrotor>  <val>90</val>  </i_gear_mainrotor> 
+      <i_gear_tailrotor>  <val>20</val>  </i_gear_tailrotor> 
       <i_gear_propeller>  <val>1</val>  </i_gear_propeller>
       <k_freewheel>  <val>10</val>  </k_freewheel> <!--[Nm/rad] rotational stiffness-->
       <d_freewheel>  <val>1</val>  </d_freewheel> <!--[Nm/(rad/s)] rotational damping-->
