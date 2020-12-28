@@ -92,6 +92,12 @@ namespace Parameter
     {
         public List<Vector3> vect3 { get; set; }
     }
+    [Serializable]
+    public class stru_list : stru_hint // dropdown
+    {
+        public List<string> str { get; set; }
+        public int val { get; set; }
+    }
     // ##################################################################################
 
 
@@ -123,6 +129,7 @@ namespace Parameter
         public stru_bool motion_blur { get; set; } // 
         public stru_bool bloom { get; set; } // 
         public stru_int quality_setting { get; set; } // 
+        public stru_list resolution_setting { get; set; } // 
 
 
         public stru_simulation()
@@ -147,7 +154,7 @@ namespace Parameter
             motion_blur = new stru_bool();
             bloom = new stru_bool();
             quality_setting = new stru_int();
-
+            resolution_setting = new stru_list();
 
 
             delta_t.val = 0.0050f;
@@ -300,6 +307,23 @@ namespace Parameter
             quality_setting.unit = "int"; // QualitySettings.names
             quality_setting.save_under_player_prefs = true;
 
+            resolution_setting.val = 0;
+            resolution_setting.str = new List<string>();
+            Resolution[] resolutions = Screen.resolutions;
+            for (int i = 0; i < resolutions.Length; i++)
+            {
+                if(resolutions[i].width > 1024)
+                    resolution_setting.str.Add(resolutions[i].width + " x " + resolutions[i].height);
+                    //if (resolutions[i].width == Screen.width && resolutions[i].height == Screen.height)
+                    //    resolution_setting.val = i; // currentResolutionIndex 
+            }
+            if(resolution_setting.str.Count > 0) // set highest resolution
+                resolution_setting.val = resolution_setting.str.Count-1;
+            resolution_setting.hint = "Test ";
+            resolution_setting.comment = "Test ";
+            resolution_setting.unit = "-";
+            resolution_setting.save_under_player_prefs = true;
+
         }
 
         public void get_stru_simulation_settings_from_player_prefs() 
@@ -327,6 +351,7 @@ namespace Parameter
             this.motion_blur.val = (PlayerPrefs.GetInt("__simulation_" + "motion_blur", this.motion_blur.val == false ? 0 : 1)) == 0 ? false : true;
             this.bloom.val = (PlayerPrefs.GetInt("__simulation_" + "bloom", this.bloom.val == false ? 0 : 1)) == 0 ? false : true;  
             this.quality_setting.val = (PlayerPrefs.GetInt("__simulation_" + "quality_setting", this.quality_setting.val));
+            this.resolution_setting.val = (PlayerPrefs.GetInt("__simulation_" + "resolution_setting", this.resolution_setting.val));
             // ##################################################################################
         }
 

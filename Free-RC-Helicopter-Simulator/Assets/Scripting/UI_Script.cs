@@ -71,6 +71,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     GameObject ui_prefab_vector3; // prefab for scalar Vector3
     GameObject ui_prefab_vector3_list_setting; // prefab for size info/setting of Vector3-List
     GameObject ui_prefab_vector3_list_vector3; // prefab: Vector3-List's one Vector3
+    GameObject ui_prefab_list; // prefab: dropdown list
+
     /// <summary>
     /// folder with parameter and settings for "transmitter_and_helicopter": transmitter and helicopter
     /// c:\Users\ .... \AppData\LocalLow\Free RC Helicopter Simulator\Free RC Helicopter Simulator\Resources\SavedHelicopterParametersets\
@@ -728,9 +730,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         ui_prefab_vector3 = (GameObject)Resources.Load("Prefabs/UI_Inputfield_Vector3", typeof(GameObject)); // prefab for scalar Vector3
         ui_prefab_vector3_list_setting = (GameObject)Resources.Load("Prefabs/UI_Inputfield_Vector3_List_Settings", typeof(GameObject)); // prefab for size info/setting of Vector3-List
         ui_prefab_vector3_list_vector3 = (GameObject)Resources.Load("Prefabs/UI_Inputfield_Vector3_List_Vector3", typeof(GameObject));  // prefab: Vector3-List's one Vector3
-        
-        
-        
+        ui_prefab_list = (GameObject)Resources.Load("Prefabs/UI_Dropdown_List", typeof(GameObject));  // prefab: dropdown list
+
+
         // find the main Canvas object
         ui_canvas = GameObject.Find("Canvas");
 
@@ -1347,6 +1349,10 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                                 sb.Append($"{indent_string}   - {prop.Name} comment = { ((stru_Vector3_list)prop_value).comment }\n");
                                 sb.Append($"{indent_string}   - {prop.Name} unit = { ((stru_Vector3_list)prop_value).unit }\n");
                             }
+                            else if (prop_value.GetType() == typeof(stru_list))
+                            {
+                                CreatePrefab_Parameter_Instance(parent_ui_container, ui_style, prop, prop_value, indent_string);
+                            }
                             else
                             {
                                 CreatePrefab_Headline_Instance(parent_ui_container, ui_style, prop, prop_value, indent_string);
@@ -1414,6 +1420,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             show_in_sim = ((stru_Vector3)prop_value).show_in_sim;
         if (prop.PropertyType == typeof(stru_Vector3_list))
             show_in_sim = ((stru_Vector3_list)prop_value).show_in_sim;
+        if (prop.PropertyType == typeof(stru_list))
+            show_in_sim = ((stru_list)prop_value).show_in_sim;
 
 
         if (ui_Style == Ui_Styles.ui_scroll_view_content || show_in_sim)
@@ -1704,13 +1712,70 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                         inputfield_value_object_z_list[i].onEndEdit.AddListener(delegate { Listener_Input_Field_OnEndEdit_Vector3_List_Vector3(text_object_name, inputfield_value_object_x_list, inputfield_value_object_y_list, inputfield_value_object_z_list, prop_value); });
                     }
                 }
+            }
 
+
+            // type: list of strings
+            if (prop.PropertyType == typeof(stru_list))
+            {
+                // instantiate prefab
+                GameObject prefab_object = (GameObject)Instantiate(ui_prefab_list);
+                prefab_object.transform.SetParent(parent_ui_container, false);
+                prefab_object.transform.localScale = new Vector3(1, 1, 1);
+                prefab_object.transform.localPosition = new Vector3(50 + indent_string.Length * 0, prefabs_vertical_position, 00);
+                if (ui_Style == Ui_Styles.ui_overlaid_parameterlist) // todo 
+                {
+                    RectTransform rect_transform = prefab_object.GetComponent<RectTransform>();
+                    rect_transform.anchorMax = new Vector2(0, 0); // BottomLeft
+                    rect_transform.anchorMin = new Vector2(0, 0); // BottomLeft
+                }
+
+                // get from prefab TextObject and inputfield_value_object
+                Text text_object_name = prefab_object.transform.Find("Text_name").GetComponent<Text>();
+                Toggle toggle_show_in_sim_object = prefab_object.transform.Find("Toggle_show_in_sim").GetComponent<Toggle>();
+                Dropdown dropdown_object = prefab_object.transform.Find("Dropdown").GetComponent<Dropdown>();
+                Text text_units_object = prefab_object.transform.Find("Text_units").GetComponent<Text>();
+                Text text_hints_object = prefab_object.transform.Find("Text_hints").GetComponent<Text>();
+
+                // setup prefab's TextObject
+                text_object_name.text = prop.Name;
+
+                toggle_show_in_sim_object.isOn = ((stru_list)prop_value).show_in_sim;
+        
+                dropdown_object.ClearOptions();
+                for (int i = 0; i < (((stru_list)prop_value).str.Count); i++)   // Populate List
+                    dropdown_object.options.Add(new Dropdown.OptionData() { text = ((stru_list)prop_value).str[i] }  );
+                dropdown_object.value = ((stru_list)prop_value).val;
+                dropdown_object.RefreshShownValue();
+                text_units_object.text = ((stru_list)prop_value).unit;
+                text_hints_object.text = ((stru_list)prop_value).hint;
+              
+                // AddListener to inputfield_value_object
+                dropdown_object.onValueChanged.AddListener(delegate { Listener_UI_Dropdown_List_OnValueChanged(text_object_name, dropdown_object, prop_value); });
+
+                toggle_show_in_sim_object.onValueChanged.AddListener(delegate { Listener_Toggle_Show_In_Simulation_As_Overlay(text_object_name, toggle_show_in_sim_object, prop_value); });
             }
 
         }
     }
     // ##################################################################################
 
+
+
+
+    // ##################################################################################
+    // Listener for prefab's dropdown-list
+    // ##################################################################################
+    void Listener_UI_Dropdown_List_OnValueChanged(Text text_object_name, Dropdown dropdown, object prop_value)
+    {
+        ((stru_list)prop_value).val = dropdown.value;
+
+        if (((stru_list)prop_value).save_under_player_prefs)
+            PlayerPrefs.SetInt("__simulation_" + text_object_name.text, ((stru_list)prop_value).val);
+
+        UI_Update_Parameter_Settings_UI();
+    }
+    // ##################################################################################
 
 
 
@@ -1877,7 +1942,13 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 // not implemented
             //}
         }
+        if (prop_value.GetType() == typeof(stru_list))
+        {
+            ((stru_list)prop_value).show_in_sim = input.isOn;
 
+            if (((stru_list)prop_value).save_under_player_prefs)
+                PlayerPrefs.SetFloat("__simulation_" + text_object_name.text, ((stru_list)prop_value).val);
+        }
         UI_Update_Parameter_Settings_UI();
     }
     // ##################################################################################

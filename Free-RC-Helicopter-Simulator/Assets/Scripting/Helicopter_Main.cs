@@ -304,6 +304,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     bool bloom_old;
 
     int quality_setting_old = 0;
+    int resolution_setting_old = 0;
 
     //int target_frame_rate_old;
 
@@ -1927,6 +1928,18 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             quality_setting_old = quality_setting;
         }
 
+        int resolution_setting = Helper.Clamp(helicopter_ODE.par_temp.simulation.resolution_setting);
+        if (resolution_setting != resolution_setting_old)
+        {
+            //Resolution[] resolutions = Screen.resolutions;
+            //Screen.SetResolution(resolutions[resolution_setting].width, resolutions[resolution_setting].height, true);
+
+            string[] splitArray = helicopter_ODE.par_temp.simulation.resolution_setting.str[resolution_setting].Split(char.Parse("x"));
+            Screen.SetResolution(Int32.Parse(splitArray[0]), Int32.Parse(splitArray[1]), true);
+            //UnityEngine.Debug.Log("resolution : " + Int32.Parse(splitArray[0]) + "  " + Int32.Parse(splitArray[1]));
+
+            resolution_setting_old = resolution_setting;
+        }
         // ##################################################################################
 
 
