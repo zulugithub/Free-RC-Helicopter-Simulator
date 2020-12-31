@@ -1945,23 +1945,6 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
 
 
-        // ##################################################################################
-        // deactivate UI-input if not needed
-        // ##################################################################################
-        if (calibration_with_timer_old != (helicopter_ODE.par_temp.simulation.calibration_with_timer.val == true ? 1 : 0))
-        {
-            if (helicopter_ODE.par_temp.simulation.calibration_with_timer.val)
-                helicopter_ODE.par_temp.simulation.calibration_duration.calculated = false;
-            else
-                helicopter_ODE.par_temp.simulation.calibration_duration.calculated = true;
-            UI_Update_Parameter_Settings_UI();
-            calibration_with_timer_old = (helicopter_ODE.par_temp.simulation.calibration_with_timer.val == true ? 1 : 0);
-        }
-        // ##################################################################################
-
-
-
-
 
         // ##################################################################################
         // anti stutter
@@ -2409,15 +2392,15 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                     }
 
                     // pusher propeller
-                    if (UnityEngine.InputSystem.Keyboard.current.numpad8Key.wasPressedThisFrame)
+                    if (UnityEngine.InputSystem.Keyboard.current.upArrowKey.wasPressedThisFrame)
                     {
                         u_inputs[4] = 1;
                     }
-                    if (UnityEngine.InputSystem.Keyboard.current.numpad5Key.wasPressedThisFrame)
+                    if (UnityEngine.InputSystem.Keyboard.current.leftArrowKey.wasPressedThisFrame || UnityEngine.InputSystem.Keyboard.current.rightArrowKey.wasPressedThisFrame)
                     {
                         u_inputs[4] = 0;
                     }
-                    if (UnityEngine.InputSystem.Keyboard.current.numpad2Key.wasPressedThisFrame)
+                    if (UnityEngine.InputSystem.Keyboard.current.downArrowKey.wasPressedThisFrame)
                     {
                         u_inputs[4] = -1;
                     }
@@ -3319,10 +3302,11 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // update debug text
         if (ui_debug_panel_state > 1)
         {
-            ui_debug_text.text = ui_string_connected_input_devices_names + "\n" +
+            ui_debug_text.text = ui_string_connected_input_devices_names + "  er" + error_counter.ToString() + "\n" +
                 "thread_ODE_deltat = " + thread_ODE_deltat.ToString() +
                 "   msec_per_thread_call = " + Helper.FormatNumber(msec_per_thread_call, "0.000") +
-                "   monitor_frequency = " + Helper.FormatNumber(refresh_rate_hz, "0.000") + (refresh_rate_sec_found_flag ? "*" : "") + "\n" +
+                "   monitor_frequency = " + Helper.FormatNumber(refresh_rate_hz, "0.000") + (refresh_rate_sec_found_flag ? "*" : "") + 
+                "   time = " + Helper.FormatNumber(time, "0.00") + "s" + "\n" +
                 helicopter_ODE.ODEDebug.debug_text;
         }
 

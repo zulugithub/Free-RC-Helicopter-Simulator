@@ -113,9 +113,8 @@ namespace Parameter
         public stru_float master_sound_volume { get; set; } // [%]
         public stru_float commentator_audio_source_volume { get; set; }  // [%]
         public stru_float crash_audio_source_volume { get; set; }  // [%]
-        public stru_bool calibration_with_timer { get; set; } // [-]
-        public stru_float calibration_duration { get; set; } // [sec]
         public stru_float timescale { get; set; } // [-] timescale factor
+        public stru_float delay_after_reset { get; set; } // [sec] deactivate user input duration after reset  
         public stru_float camera_stiffness { get; set; } // [-]
         public stru_float camera_fov { get; set; } // [deg]
         public stru_float camera_shaking { get; set; } // [%]
@@ -138,9 +137,8 @@ namespace Parameter
             master_sound_volume = new stru_float();
             commentator_audio_source_volume = new stru_float();
             crash_audio_source_volume = new stru_float();
-            calibration_with_timer = new stru_bool();
-            calibration_duration = new stru_float();
             timescale = new stru_float();
+            delay_after_reset = new stru_float();  
             camera_stiffness = new stru_float();
             camera_fov = new stru_float();
             camera_shaking = new stru_float();
@@ -187,20 +185,6 @@ namespace Parameter
             crash_audio_source_volume.comment = "Crash audio volume";
             crash_audio_source_volume.unit = "%";
 
-            calibration_with_timer.val = false;
-            calibration_with_timer.hint = "Continue to next calibration step after a specified time (ON) or after pressing space key (OFF)";
-            calibration_with_timer.comment = "Continue to next calibration step after a specified time (ON) or after pressing space key (OFF)";
-            calibration_with_timer.unit = "-";
-            calibration_with_timer.save_under_player_prefs = true;
-
-            calibration_duration.val = 10.00f;
-            calibration_duration.min = 1.000f;
-            calibration_duration.max = 100.0f;
-            calibration_duration.hint = "Duration of each calibration step";
-            calibration_duration.comment = "Duration of each calibration step";
-            calibration_duration.unit = "sec";
-            calibration_duration.save_under_player_prefs = true;
-
             timescale.val = 1f;
             timescale.max = 3.00f;
             timescale.min = 0.10f;
@@ -209,6 +193,14 @@ namespace Parameter
             timescale.unit = "-";
             timescale.save_under_player_prefs = true;
 
+            delay_after_reset.val = 2f;
+            delay_after_reset.max = 5.00f;
+            delay_after_reset.min = 0.00f;
+            delay_after_reset.hint = "Deactivates user input after resetting helicopter for this amount of time.";
+            delay_after_reset.comment = "Deactivates user input after resetting helicopter for this amount of time.";
+            delay_after_reset.unit = "-";
+            delay_after_reset.save_under_player_prefs = true;
+            
             camera_stiffness.val = 4.0f;
             camera_stiffness.min = 0.0f;
             camera_stiffness.max = 20f;
@@ -236,8 +228,8 @@ namespace Parameter
             camera_xr_zoom_factor.val = 1f;
             camera_xr_zoom_factor.min = 1f;
             camera_xr_zoom_factor.max = 2f;
-            camera_xr_zoom_factor.hint = "Zooms the XR projection";
-            camera_xr_zoom_factor.comment = "Zooms the XR projection.";
+            camera_xr_zoom_factor.hint = "Zooms the XR projection in virtual reality mode";
+            camera_xr_zoom_factor.comment = "Zooms the XR projection in virtual reality mode.";
             camera_xr_zoom_factor.unit = "-";
             camera_xr_zoom_factor.save_under_player_prefs = true;
             
@@ -317,10 +309,10 @@ namespace Parameter
                     //if (resolutions[i].width == Screen.width && resolutions[i].height == Screen.height)
                     //    resolution_setting.val = i; // currentResolutionIndex 
             }
-            if(resolution_setting.str.Count > 0) // set highest resolution
+            if(resolution_setting.str.Count > 0) // set highest resolution as default
                 resolution_setting.val = resolution_setting.str.Count-1;
-            resolution_setting.hint = "Test ";
-            resolution_setting.comment = "Test ";
+            resolution_setting.hint = "Change monitor resolution ";
+            resolution_setting.comment = "Change monitor resolution  ";
             resolution_setting.unit = "-";
             resolution_setting.save_under_player_prefs = true;
 
@@ -335,9 +327,8 @@ namespace Parameter
             this.master_sound_volume.val = PlayerPrefs.GetFloat("__simulation_" + "master_sound_volume", this.master_sound_volume.val);
             this.commentator_audio_source_volume.val = PlayerPrefs.GetFloat("__simulation_" + "commentator_audio_source_volume", this.commentator_audio_source_volume.val);
             this.crash_audio_source_volume.val = PlayerPrefs.GetFloat("__simulation_" + "crash_audio_source_volume", this.crash_audio_source_volume.val);
-            this.calibration_with_timer.val = (PlayerPrefs.GetInt("__simulation_" + "calibration_with_timer", this.calibration_with_timer.val == false ? 0 : 1)) == 0 ? false : true;
-            this.calibration_duration.val = PlayerPrefs.GetFloat("__simulation_" + "calibration_duration", this.calibration_duration.val);
             this.timescale.val = PlayerPrefs.GetFloat("__simulation_" + "timescale", this.timescale.val);
+            this.delay_after_reset.val = PlayerPrefs.GetFloat("__simulation_" + "delay_after_reset", this.delay_after_reset.val);
             this.camera_stiffness.val = PlayerPrefs.GetFloat("__simulation_" + "camera_stiffness", this.camera_stiffness.val);
             this.camera_fov.val = PlayerPrefs.GetFloat("__simulation_" + "camera_fov", this.camera_fov.val);
             this.camera_shaking.val = PlayerPrefs.GetFloat("__simulation_" + "camera_shaking", this.camera_shaking.val);
@@ -2652,6 +2643,7 @@ namespace Parameter
         public stru_float K_a { get; set; } /// [-] yaw rate controller input signal amplifier
         public stru_float K_I { get; set; } /// [-] yaw rate controller integral gain
         public stru_float K_p { get; set; } /// [-] yaw rate controller proportional gain
+        public stru_float K_d { get; set; } /// [-] yaw rate controller differential gain
         public stru_bool direct_feadtrough_gyroscope { get; set; } // [-] Turn off gyro. 
 
         public stru_yaw_rate_controller() 
@@ -2659,13 +2651,14 @@ namespace Parameter
             K_a = new stru_float();
             K_I = new stru_float();
             K_p = new stru_float();
+            K_d = new stru_float();
             direct_feadtrough_gyroscope = new stru_bool();
 
             K_a.val = 500f;
             K_a.min = 100f;
             K_a.max = 2000f;
-            K_a.hint = "Tailrotor input signal amplifier";
-            K_a.comment = "Tailrotor input signal amplifier";
+            K_a.hint = "Tailrotor maximum rotation velocity.";
+            K_a.comment = "Tailrotor maximum rotation velocity.";
             K_a.unit = "deg/sec";
 
             K_I.val = 3.0f;
@@ -2682,6 +2675,13 @@ namespace Parameter
             K_p.comment = "Tailrotor proportional gain";
             K_p.unit = "-";
 
+            K_d.val = 0.0001f;
+            K_d.min = 0.0001f;
+            K_d.max = 100f;
+            K_d.hint = "Tailrotor differential gain";
+            K_d.comment = "Tailrotor differential gain";
+            K_d.unit = "-";
+            
             direct_feadtrough_gyroscope.val = false;
             direct_feadtrough_gyroscope.hint = "Turn off gyro.";
             direct_feadtrough_gyroscope.comment = "Turn off gyro.";
@@ -2703,6 +2703,7 @@ namespace Parameter
         public stru_float K_a { get; set; } // [-] flybarless controller input signal amplifier
         public stru_float K_I { get; set; } // [-] flybarless controller integral gain
         public stru_float K_p { get; set; } // [-] flybarless controller proportional gain
+        public stru_float K_d { get; set; } // [-] flybarless controller differential  gain
         public stru_bool direct_feadtrough_flybareless { get; set; } // [-] Turn off flybareless. 
 
 
@@ -2711,13 +2712,14 @@ namespace Parameter
             K_a = new stru_float();
             K_I = new stru_float();
             K_p = new stru_float();
+            K_d = new stru_float();
             direct_feadtrough_flybareless = new stru_bool();
 
             K_a.val = 275f;
             K_a.min = 0.01f;
             K_a.max = 100f;
-            K_a.hint = "Flybarless input signal amplifier";
-            K_a.comment = "Flybarless input signal amplifier";
+            K_a.hint = "Flybarless maximum rotation velocity.";
+            K_a.comment = "Flybarless maximum rotation velocity.";
             K_a.unit = "deg/sec";
 
             K_I.val = 3.0f;
@@ -2733,6 +2735,13 @@ namespace Parameter
             K_p.hint = "Flybarless proportional gain";
             K_p.comment = "Flybarless proportional gain";
             K_p.unit = "-";
+
+            K_d.val = 0.0001f;
+            K_d.min = 0.0001f;
+            K_d.max = 100f;
+            K_d.hint = "Flybarless differential gain";
+            K_d.comment = "Flybarless differential gain";
+            K_d.unit = "-";
 
             direct_feadtrough_flybareless.val = false;
             direct_feadtrough_flybareless.hint = "Turn off flybareless.";

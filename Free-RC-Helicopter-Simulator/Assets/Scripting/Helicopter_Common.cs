@@ -777,6 +777,32 @@ namespace Common
 
         // ############################################################################
         /// <summary>
+        /// Two point form of a line.
+        ///  y = ((y2 - y1)/(x2 - x1)) * (x - x1) + y1;
+        ///  https://mathworld.wolfram.com/Two-PointForm.html
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="x1"></param>
+        /// <param name="x2"></param>
+        /// <param name="y1"></param>
+        /// <param name="y2"></param>
+        /// <returns></returns>
+        // ############################################################################
+        public static double Two_Point_Form_Of_Line(double x, double x1, double x2, double y1, double y2)
+        {
+            return ((y2 - y1) / (x2 - x1)) * (x - x1) + y1;
+        }
+        public static float Two_Point_Form_Of_Line(float x, float x1, float x2, float y1, float y2)
+        {
+            return ((y2 - y1) / (x2 - x1)) * (x - x1) + y1;
+        }
+        // ############################################################################
+
+
+
+
+        // ############################################################################
+        /// <summary>
         /// limiting function for a value similar to Mathf.Clamp but with a smooth transition
         /// limits input value "x" to +-"limit". A smooth transition range can be defined with "limit_transition". limit_transition is the measured distance from limit value.
         /// example 1: Limit_Symetric(time, 50, 0.001) gives a sharp corner

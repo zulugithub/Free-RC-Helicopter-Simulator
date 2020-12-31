@@ -50,12 +50,14 @@
       <K_a>  <val>100</val>  </K_a>
       <K_I>  <val>1.0</val>  </K_I>
       <K_p>  <val>0.3</val>  </K_p>
+      <K_d>  <val>0.0005</val>  </K_d>
       <direct_feadtrough_gyroscope>  <val>false</val>  </direct_feadtrough_gyroscope>
     </gyro>
     <flybarless>
       <K_a>  <val>120</val>  </K_a>
-      <K_I>  <val>1.5</val>  </K_I>
-      <K_p>  <val>0.6</val>  </K_p>
+      <K_I>  <val>2.0</val>  </K_I>
+      <K_p>  <val>0.5</val>  </K_p>
+      <K_d>  <val>0.0005</val>  </K_d>
       <direct_feadtrough_flybareless>  <val>false</val>  </direct_feadtrough_flybareless>
     </flybarless>
     <servo_damping>

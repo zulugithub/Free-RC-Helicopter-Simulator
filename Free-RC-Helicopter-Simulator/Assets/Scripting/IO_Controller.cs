@@ -133,13 +133,10 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     stru_Controller_Setup stru_controller_settings;
 
     State_Calibration calibration_state = State_Calibration.not_running;
-    float currenttime;
     List<int> available_channels;
 
 
     bool calibration_stepping_with_keyboard_trigger;
-
-    int calibration_with_timer_old = -1;
     // ################################################################################## 
 
 
@@ -149,28 +146,21 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     // ################################################################################## 
     bool Check_If_Next_Calibration_Step_Is_Reached()
     {
-        if (helicopter_ODE.par.simulation.calibration_with_timer.val == true)
+        bool return_value = false;
+
+        if (( Keyboard.current.spaceKey.wasPressedThisFrame && !Is_Text_Input_Field_Focused() )  &&  
+            (calibration_stepping_with_keyboard_trigger == false) )
         {
-            return Time.time >= currenttime + helicopter_ODE.par.simulation.calibration_duration.val;
+            calibration_stepping_with_keyboard_trigger = true;
+            return_value = true;
         }
-        else
+
+        if (Keyboard.current.spaceKey.wasReleasedThisFrame && !Is_Text_Input_Field_Focused() )
         {
-            bool return_value = false;
-
-            if (( Keyboard.current.spaceKey.wasPressedThisFrame && !Is_Text_Input_Field_Focused() )  &&  
-                (calibration_stepping_with_keyboard_trigger == false) )
-            {
-                calibration_stepping_with_keyboard_trigger = true;
-                return_value = true;
-            }
-
-            if (Keyboard.current.spaceKey.wasReleasedThisFrame && !Is_Text_Input_Field_Focused() )
-            {
-                calibration_stepping_with_keyboard_trigger = false;
-            }
-
-            return return_value;
+            calibration_stepping_with_keyboard_trigger = false;
         }
+
+        return return_value;
     }
     // ################################################################################## 
 
@@ -343,16 +333,12 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // #################################################################################
         if (calibration_state == State_Calibration.starting)
         {
-            currenttime = Time.time;
             calibration_state = State_Calibration.find_center;
             available_channels = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7 }; // list will be reduced during calibration by the channels already assigned: avoids double selection of channel
 
             // UI 
             ui_controller_calibration_flag = true; // show UI
-            if (helicopter_ODE.par.simulation.calibration_with_timer.val == true)
-                ui_controller_calibration_panel_text.text = "Please move every axis to CENTER position within " + (helicopter_ODE.par.simulation.calibration_duration.val).ToString() + " sec.";
-            else
-                ui_controller_calibration_panel_text.text = "Please move every axis to CENTER position and press space bar.";
+            ui_controller_calibration_panel_text.text = "Please move every axis to CENTER position and press space bar.";
             ui_controller_calibration_panel_image.sprite = Resources.Load<Sprite>("Sprites/Controller_center");
             ui_controller_calibration_panel_device_name_text.text = connected_input_devices_names[selected_input_device_id];
             Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/Calibration_Sounds/female_voice_callibration_center_position.wav");
@@ -407,13 +393,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 if (calibration_state == State_Calibration.find_min_max)
                 {
                     // UI       
-                    if (helicopter_ODE.par.simulation.calibration_with_timer.val == true)
-                        ui_controller_calibration_panel_text.text = "Please move every axis to MIN and MAX within " + helicopter_ODE.par.simulation.calibration_duration.val.ToString() + " sec.";
-                    else
-                        ui_controller_calibration_panel_text.text = "Please move every axis to MIN and MAX and press space bar."; 
+                    ui_controller_calibration_panel_text.text = "Please move every axis to MIN and MAX and press space bar."; 
                     ui_controller_calibration_panel_image.sprite = Resources.Load<Sprite>("Sprites/Controller_min_max");
 
-                    currenttime = Time.time;
                     Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/Calibration_Sounds/female_voice_callibration_min_max.wav");
                 }
             }
@@ -459,12 +441,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                         //                      " max " + i.ToString() + "=" + stru_controller_settings.list_channel_settings[i].axis_settings.max +
                         //                      "     Channel_Type " + i.ToString() + "=" + stru_controller_settings.list_channel_settings[i].channel_Type) ;
                     }
-                    currenttime = Time.time;
                     calibration_state = State_Calibration.go_to_center_again;
-                    if (helicopter_ODE.par.simulation.calibration_with_timer.val == true)
-                        ui_controller_calibration_panel_text.text = "Please move all sticks back to CENTER within " + helicopter_ODE.par.simulation.calibration_duration.val.ToString() + " sec.";
-                    else
-                        ui_controller_calibration_panel_text.text = "Please move all sticks back to CENTER and press space bar.";
+                    ui_controller_calibration_panel_text.text = "Please move all sticks back to CENTER and press space bar.";
                     ui_controller_calibration_panel_image.sprite = Resources.Load<Sprite>("Sprites/Controller_center");
                     Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/Calibration_Sounds/female_voice_callibration_axes_back_to_center_position.wav");
                 }
@@ -666,12 +644,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 }
                 if (calibration_state == State_Calibration.calibrate_all_switches_off)
                 {
-                    if (helicopter_ODE.par.simulation.calibration_with_timer.val == true)
-                        ui_controller_calibration_panel_text.text = "Please move all switches to OFF position within " + (helicopter_ODE.par.simulation.calibration_duration.val).ToString() + " sec.";
-                    else
-                        ui_controller_calibration_panel_text.text = "Please move all switches to OFF position and press space bar.";
+                    ui_controller_calibration_panel_text.text = "Please move all switches to OFF position and press space bar.";
                     ui_controller_calibration_panel_image.sprite = Resources.Load<Sprite>("Sprites/Switch_Position_0");
-                    currenttime = Time.time;
                     Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/Calibration_Sounds/female_voice_callibration_switches_off.wav");
 
                     calibration_stepping_with_keyboard_trigger = false;
@@ -699,12 +673,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                         float value = input_channel_used_in_game[c];
                         stru_controller_settings.list_channel_settings[c].switch_settings.state0 = value;
                     }
-                    if (helicopter_ODE.par.simulation.calibration_with_timer.val == true)
-                        ui_controller_calibration_panel_text.text = "Please move switch-0 (motor on/off) to ON position within " + (helicopter_ODE.par.simulation.calibration_duration.val).ToString() + " sec.";
-                    else
-                        ui_controller_calibration_panel_text.text = "Please move switch-0 (motor on/off) to ON position and press space bar.";
+                    ui_controller_calibration_panel_text.text = "Please move switch-0 (motor on/off) to ON position and press space bar.";
                     ui_controller_calibration_panel_image.sprite = Resources.Load<Sprite>("Sprites/Switch_Position_2");
-                    currenttime = Time.time;
 
                     calibration_state = State_Calibration.calibrate_switch0;
                     Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/Calibration_Sounds/female_voice_callibration_switch0_on.wav");
@@ -739,12 +709,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                             available_channels.RemoveAt(i);
 
                             calibration_state = State_Calibration.calibrate_switch1;
-                            if (helicopter_ODE.par.simulation.calibration_with_timer.val == true)
-                                ui_controller_calibration_panel_text.text = "Please move switch-1 (landing gear) to ON position within " + (helicopter_ODE.par.simulation.calibration_duration.val).ToString() + " sec.";
-                            else
-                                ui_controller_calibration_panel_text.text = "Please move switch-1 (landing gear) to ON position and press space bar.";
+                            ui_controller_calibration_panel_text.text = "Please move switch-1 (landing gear) to ON position and press space bar.";
                             ui_controller_calibration_panel_image.sprite = Resources.Load<Sprite>("Sprites/Switch_Position_2");
-                            currenttime = Time.time;
                             Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/Calibration_Sounds/female_voice_callibration_switch1_on.wav");
 
                             break;
@@ -800,7 +766,6 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                             calibration_state = State_Calibration.finished;
                             //ui_controller_calibration_panel_text.text = "Please move switch 1 to ON position within " + (helicopter_ODE.par.simulation.calibration_duration.val).ToString() + " sec.";
                             //ui_controller_calibration_panel_image.sprite = Resources.Load<Sprite>("Sprites/Switch_Position_2");
-                            //currenttime = Time.time;
                             //Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/Calibration_Sounds/female_voice_callibration_finished.wav");
 
                             break;

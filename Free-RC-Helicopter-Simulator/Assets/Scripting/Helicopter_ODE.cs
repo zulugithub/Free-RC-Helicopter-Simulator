@@ -311,6 +311,12 @@ namespace Helisimulator
         private double dDELTA_x_roll__int_dt = 0;    // [rad/sec] flybareless error value integral
         private double dDELTA_y_yaw__int_dt = 0;     // [rad/sec] gyro error value integral
         private double dDELTA_z_pitch__int_dt = 0;   // [rad/sec] flybareless error value integral
+        private double DELTA_x_roll__diff = 0;    // [rad/sec] flybareless error value differential
+        private double DELTA_y_yaw__diff = 0;     // [rad/sec] gyro error value differential
+        private double DELTA_z_pitch__diff = 0;   // [rad/sec] flybareless error value differential
+        private double DELTA_x_roll__diff_old = 0;    // [rad/sec] flybareless error value differential _old
+        private double DELTA_y_yaw__diff_old = 0;     // [rad/sec] gyro error value differential _old
+        private double DELTA_z_pitch__diff_old = 0;   // [rad/sec] flybareless error value differential _old
         private double dservo_col_mr_damped_dt = 0;  // [-1...1] damping of mainrotor collective movement - Collective
         private double dservo_lat_mr_damped_dt = 0;  // [-1...1] damping of mainrotor lateral movement - Roll
         private double dservo_lon_mr_damped_dt = 0;  // [-1...1] damping of mainrotor longitudial movement - Pitch
@@ -1488,7 +1494,7 @@ namespace Helisimulator
             double[] x_states,                          // [IN] states
             double[] u_inputs,                          // [IN] inputs
             double[] dxdt,                              // [OUT] derivatives
-            double time,                                // [IN] time        - not used
+            double time,                                // [IN] time 
             double dtime)                               // [IN] timestep    
         {
 
@@ -1547,6 +1553,12 @@ namespace Helisimulator
             dDELTA_x_roll__int_dt = 0;    // [rad/sec] flybareless error value integral
             dDELTA_y_yaw__int_dt = 0;     // [rad/sec] gyro error value integral
             dDELTA_z_pitch__int_dt = 0;   // [rad/sec] flybareless error value integral
+            DELTA_x_roll__diff = 0;    // [rad/sec] flybareless error value differential
+            DELTA_y_yaw__diff = 0;     // [rad/sec] gyro error value differential
+            DELTA_z_pitch__diff = 0;   // [rad/sec] flybareless error value differential
+            DELTA_x_roll__diff_old = 0;    // [rad/sec] flybareless error value differential_old
+            DELTA_y_yaw__diff_old = 0;     // [rad/sec] gyro error value differential_old
+            DELTA_z_pitch__diff_old = 0;   // [rad/sec] flybareless error value differential_old
             dservo_col_mr_damped_dt = 0;  // [-1...1] damping of mainrotor collective movement - Collective
             dservo_lat_mr_damped_dt = 0;  // [-1...1] damping of mainrotor lateral movement - Roll
             dservo_col_tr_damped_dt = 0;  // [-1...1] damping of tailrotor collective movement - Yaw
@@ -1609,6 +1621,13 @@ namespace Helisimulator
             q.y = (float)q2;
             q.z = (float)q3;
 
+            // because RungeKutta4 doesn't preserve quaternion-norm normalize quaternion: from mathematical point of view not a clean solution  
+            q.Normalize();
+            q0 = q.w;
+            q1 = q.x;
+            q2 = q.y;
+            q3 = q.z;
+
             vectO.x = (float)x_R; //[m]  TODO double
             vectO.y = (float)y_R; //[m]
             vectO.z = (float)z_R; //[m]
@@ -1639,6 +1658,26 @@ namespace Helisimulator
             // ##################################################################################
 
 
+           
+
+
+            // ##################################################################################
+            // after resetting the simulation the user input it turned off for 1 sec and is fully active after 2sec
+            // ##################################################################################   
+            float set_controll_to_zero_after_simulation_reset=1;
+            if (time < Mathf.Abs(par.simulation.delay_after_reset.val))
+            {
+                set_controll_to_zero_after_simulation_reset = Helper.Step((float)time, Mathf.Abs(par.simulation.delay_after_reset.val/2), 0, Mathf.Abs(par.simulation.delay_after_reset.val), 1); 
+                input_y_col *= set_controll_to_zero_after_simulation_reset;
+                input_x_roll *= set_controll_to_zero_after_simulation_reset;
+                input_y_yaw *= set_controll_to_zero_after_simulation_reset;
+                input_z_pitch *= set_controll_to_zero_after_simulation_reset;
+
+                input_x_propeller *= set_controll_to_zero_after_simulation_reset;
+            }
+            // ##################################################################################
+
+
 
 
             // ##################################################################################
@@ -1659,15 +1698,30 @@ namespace Helisimulator
                     {
                         // PI controller                  
                         delta_error = par.transmitter_and_helicopter.helicopter.flybarless.K_a.val * Mathf.Deg2Rad * input_x_roll - (float)wx_LH; // [rad/sec] error value in PI controller
-                        delta_lat_mr = par.transmitter_and_helicopter.helicopter.flybarless.K_p.val * delta_error + par.transmitter_and_helicopter.helicopter.flybarless.K_I.val * (float)DELTA_x_roll__int; // [rad/sec] yaw
+                        DELTA_x_roll__diff = (delta_error - DELTA_x_roll__diff_old) / dtime; // differential part
+                        if (integrator_function_call_number == 3)
+                            DELTA_x_roll__diff_old = delta_error;
+                        delta_lat_mr = par.transmitter_and_helicopter.helicopter.flybarless.K_p.val * delta_error + 
+                                       par.transmitter_and_helicopter.helicopter.flybarless.K_I.val * (float)DELTA_x_roll__int +
+                                       par.transmitter_and_helicopter.helicopter.flybarless.K_d.val * (float)DELTA_x_roll__diff; // [rad/sec] roll
                         dDELTA_x_roll__int_dt = delta_error; // [rad/sec] error value to be integrated
 
                         delta_error = par.transmitter_and_helicopter.helicopter.gyro.K_a.val * Mathf.Deg2Rad * input_y_yaw - (float)wy_LH; // [rad/sec] error value in PI controller
-                        delta_col_tr = par.transmitter_and_helicopter.helicopter.gyro.K_p.val * delta_error + par.transmitter_and_helicopter.helicopter.gyro.K_I.val * (float)DELTA_y_yaw__int; // [rad/sec] yaw
+                        DELTA_y_yaw__diff = (delta_error - DELTA_y_yaw__diff_old) / dtime; // differential part
+                        if (integrator_function_call_number == 3)
+                            DELTA_y_yaw__diff_old = delta_error;
+                        delta_col_tr = par.transmitter_and_helicopter.helicopter.gyro.K_p.val * delta_error + 
+                                       par.transmitter_and_helicopter.helicopter.gyro.K_I.val * (float)DELTA_y_yaw__int +
+                                       par.transmitter_and_helicopter.helicopter.gyro.K_d.val * (float)DELTA_y_yaw__diff; // [rad/sec] yaw
                         dDELTA_y_yaw__int_dt = delta_error; // [rad/sec] error value to be integrated
 
                         delta_error = par.transmitter_and_helicopter.helicopter.flybarless.K_a.val * Mathf.Deg2Rad * input_z_pitch - (float)wz_LH; // [rad/sec] error value in PI controller
-                        delta_lon_mr = par.transmitter_and_helicopter.helicopter.flybarless.K_p.val * delta_error + par.transmitter_and_helicopter.helicopter.flybarless.K_I.val * (float)DELTA_z_pitch__int; // [rad/sec] yaw
+                        DELTA_z_pitch__diff = (delta_error - DELTA_z_pitch__diff_old) / dtime; // differential part
+                        if (integrator_function_call_number == 3)
+                            DELTA_z_pitch__diff_old = delta_error;
+                        delta_lon_mr = par.transmitter_and_helicopter.helicopter.flybarless.K_p.val * delta_error +
+                                       par.transmitter_and_helicopter.helicopter.flybarless.K_I.val * (float)DELTA_z_pitch__int +
+                                       par.transmitter_and_helicopter.helicopter.flybarless.K_d.val * (float)DELTA_z_pitch__diff; // [rad/sec] pitch
                         dDELTA_z_pitch__int_dt = delta_error; // [rad/sec] error value to be integrated
 
                         // feedtrough of controller input (controller override)
@@ -1870,12 +1924,15 @@ namespace Helisimulator
                     {
                         // convert normalized controller output to angle
                         Theta_cyc_b_s_mr = par.transmitter_and_helicopter.helicopter.flapping.B_lat.val * Mathf.Deg2Rad * (float)servo_lat_mr_damped; // [rad]
-                        Theta_cyc_a_s_mr = par.transmitter_and_helicopter.helicopter.flapping.A_lon.val * Mathf.Deg2Rad * (float)servo_lon_mr_damped; // [rad]           
-                        Theta_col_mr = par.transmitter_and_helicopter.helicopter.mainrotor.K_col.val * Mathf.Deg2Rad * (float)servo_col_mr_damped + par.transmitter_and_helicopter.helicopter.mainrotor.Theta_col_0.val * Mathf.Deg2Rad;
-                        
-                        Theta_col_tr = par.transmitter_and_helicopter.helicopter.tailrotor.K_col.val * Mathf.Deg2Rad * (float)servo_col_tr_damped + par.transmitter_and_helicopter.helicopter.tailrotor.Theta_col_0.val * Mathf.Deg2Rad; // [rad] Theta_ped, K_ped 
-                        
-                        Theta_col_pr = par.transmitter_and_helicopter.helicopter.propeller.K_col.val * Mathf.Deg2Rad * (float)delta_col_pr + par.transmitter_and_helicopter.helicopter.propeller.Theta_col_0.val * Mathf.Deg2Rad; // [rad] Theta_ped, K_ped 
+                        Theta_cyc_a_s_mr = par.transmitter_and_helicopter.helicopter.flapping.A_lon.val * Mathf.Deg2Rad * (float)servo_lon_mr_damped; // [rad]    
+                        //  y = ((y2 - y1)/(x2 - x1)) * (x - x1) + y1
+                        //Theta_col_mr = (double)Helper.Two_Point_Form_Of_Line(servo_col_mr_damped,-1,1, par.transmitter_and_helicopter.helicopter.mainrotor.Theta_col_min.val, par.transmitter_and_helicopter.helicopter.mainrotor.Theta_col_max.val) * Mathf.Deg2Rad; // [rad] Theta_ped, K_ped 
+                        //Theta_col_tr = (double)Helper.Two_Point_Form_Of_Line(servo_col_tr_damped, -1,1, par.transmitter_and_helicopter.helicopter.tailrotor.Theta_col_min.val, par.transmitter_and_helicopter.helicopter.tailrotor.Theta_col_max.val) * Mathf.Deg2Rad; // [rad] Theta_ped, K_ped 
+                        //Theta_col_pr = (double)Helper.Two_Point_Form_Of_Line(delta_col_pr, -1,1, par.transmitter_and_helicopter.helicopter.propeller.Theta_col_min.val, par.transmitter_and_helicopter.helicopter.propeller.Theta_col_max.val) * Mathf.Deg2Rad; // [rad] Theta_ped, K_ped 
+
+                        Theta_col_mr = (par.transmitter_and_helicopter.helicopter.mainrotor.K_col.val * (float)servo_col_mr_damped + par.transmitter_and_helicopter.helicopter.mainrotor.Theta_col_0.val) * Mathf.Deg2Rad;                 
+                        Theta_col_tr = (par.transmitter_and_helicopter.helicopter.tailrotor.K_col.val * (float)servo_col_tr_damped + par.transmitter_and_helicopter.helicopter.tailrotor.Theta_col_0.val) * Mathf.Deg2Rad; // [rad] Theta_ped, K_ped    
+                        Theta_col_pr = (par.transmitter_and_helicopter.helicopter.propeller.K_col.val * (float)delta_col_pr + par.transmitter_and_helicopter.helicopter.propeller.Theta_col_0.val) * Mathf.Deg2Rad; // [rad] Theta_ped, K_ped 
                         break;
                     }
                 case 1: // 1: Tandem Rotor
@@ -1884,16 +1941,36 @@ namespace Helisimulator
                         Theta_cyc_a_s_mr = 0; // [rad]        
                         Theta_cyc_b_s_tr = par.transmitter_and_helicopter.helicopter.flapping.B_lat.val * Mathf.Deg2Rad * (float)servo_lat_tr_damped; // [rad]
                         Theta_cyc_a_s_tr = 0; // [rad]   
+                        //  y = ((y2 - y1)/(x2 - x1)) * (x - x1) + y1
+                        //Theta_col_mr = (double)Helper.Two_Point_Form_Of_Line(servo_col_mr_damped, -1, 1, par.transmitter_and_helicopter.helicopter.mainrotor.Theta_col_min.val, par.transmitter_and_helicopter.helicopter.mainrotor.Theta_col_max.val) * Mathf.Deg2Rad; // [rad] Theta_ped, K_ped 
+                        //Theta_col_mr = (double)Helper.Two_Point_Form_Of_Line(servo_col_tr_damped, -1, 1, par.transmitter_and_helicopter.helicopter.tailrotor.Theta_col_min.val, par.transmitter_and_helicopter.helicopter.tailrotor.Theta_col_max.val) * Mathf.Deg2Rad; // [rad] Theta_ped, K_ped 
+                        //Theta_col_mr = (double)Helper.Two_Point_Form_Of_Line(delta_col_pr, -1, 1, par.transmitter_and_helicopter.helicopter.propeller.Theta_col_min.val, par.transmitter_and_helicopter.helicopter.propeller.Theta_col_max.val) * Mathf.Deg2Rad; // [rad] Theta_ped, K_ped 
 
-                        Theta_col_mr = par.transmitter_and_helicopter.helicopter.mainrotor.K_col.val * Mathf.Deg2Rad * (float)servo_col_mr_damped + par.transmitter_and_helicopter.helicopter.mainrotor.Theta_col_0.val * Mathf.Deg2Rad;
-                        Theta_col_tr = par.transmitter_and_helicopter.helicopter.tailrotor.K_col.val * Mathf.Deg2Rad * (float)servo_col_tr_damped + par.transmitter_and_helicopter.helicopter.tailrotor.Theta_col_0.val * Mathf.Deg2Rad; // [rad] Theta_ped, K_ped 
-
-                        Theta_col_pr = par.transmitter_and_helicopter.helicopter.propeller.K_col.val * Mathf.Deg2Rad * (float)delta_col_pr + par.transmitter_and_helicopter.helicopter.propeller.Theta_col_0.val * Mathf.Deg2Rad; // [rad] Theta_ped, K_ped 
+                        Theta_col_mr = (par.transmitter_and_helicopter.helicopter.mainrotor.K_col.val * (float)servo_col_mr_damped + par.transmitter_and_helicopter.helicopter.mainrotor.Theta_col_0.val) * Mathf.Deg2Rad;
+                        Theta_col_tr = (par.transmitter_and_helicopter.helicopter.tailrotor.K_col.val * (float)servo_col_tr_damped + par.transmitter_and_helicopter.helicopter.tailrotor.Theta_col_0.val) * Mathf.Deg2Rad; // [rad] Theta_ped, K_ped 
+                        Theta_col_pr = (par.transmitter_and_helicopter.helicopter.propeller.K_col.val * (float)delta_col_pr + par.transmitter_and_helicopter.helicopter.propeller.Theta_col_0.val) * Mathf.Deg2Rad; // [rad] Theta_ped, K_ped 
                         break;
                     }
             }
             // ##################################################################################
 
+
+
+
+            // ##################################################################################
+            // after resetting the simulation the user input it turned off for 1 sec and is fully active after 2sec
+            // ##################################################################################            
+            if (time < Mathf.Abs(par.simulation.delay_after_reset.val))
+            {
+                Theta_cyc_b_s_mr *= set_controll_to_zero_after_simulation_reset;
+                Theta_cyc_a_s_mr *= set_controll_to_zero_after_simulation_reset;
+                Theta_cyc_b_s_tr *= set_controll_to_zero_after_simulation_reset;
+                Theta_cyc_a_s_tr *= set_controll_to_zero_after_simulation_reset;
+                Theta_col_mr *= set_controll_to_zero_after_simulation_reset;
+                Theta_col_tr *= set_controll_to_zero_after_simulation_reset;
+                Theta_col_pr *= set_controll_to_zero_after_simulation_reset;
+            }
+            // ##################################################################################
 
 
 

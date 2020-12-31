@@ -108,7 +108,7 @@
     </horizontal_wing_right>
     <collision>
       <friction_coeff>  <val>0.4</val>  </friction_coeff>
-      <friction_coeff_forward>  <val>0.2</val>  </friction_coeff_forward>
+      <friction_coeff_forward>  <val>0.35</val>  </friction_coeff_forward>
       <friction_coeff_sideward>  <val>0.5</val>  </friction_coeff_sideward>
       <friction_coeff_steering>   <val>0.01</val>  </friction_coeff_steering>
       <stiffness_factor>  <val>3000</val>  </stiffness_factor>
@@ -216,12 +216,14 @@
       <K_a>  <val>450</val>  </K_a>
       <K_I>  <val>2.0</val>  </K_I>
       <K_p>  <val>0.8</val>  </K_p>
+      <K_d>  <val>0.0001</val>  </K_d>
       <direct_feadtrough_gyroscope>  <val>false</val>  </direct_feadtrough_gyroscope>
     </gyro>
     <flybarless>
       <K_a>  <val>400</val>  </K_a>
-      <K_I>  <val>1.0</val>  </K_I>
-      <K_p>  <val>0.25</val>  </K_p>
+      <K_I>  <val>2.0</val>  </K_I>
+      <K_p>  <val>0.10</val>  </K_p>
+      <K_d>  <val>0.0001</val>  </K_d>
       <direct_feadtrough_flybareless>  <val>false</val>  </direct_feadtrough_flybareless>
     </flybarless>
     <servo_damping>  		
