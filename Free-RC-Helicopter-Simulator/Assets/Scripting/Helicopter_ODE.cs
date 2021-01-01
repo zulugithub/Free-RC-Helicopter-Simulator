@@ -195,6 +195,7 @@ namespace Helisimulator
         public Parameter.Parameter par = new Parameter.Parameter();
 
         public double[] x_states;
+        public double[] x_states_old;
 
         static int log_output_frequency = 0;
 
@@ -536,6 +537,7 @@ namespace Helisimulator
         {
             // state variables
             x_states = new double[31]; // ODE state variables
+            x_states_old = new double[31]; // for NaN workaround, TODO better
             Init(31); // allocates memory for Helicopter_Integrator variables
 
             par_temp.transmitter_and_helicopter.Update_Calculated_Parameter();
