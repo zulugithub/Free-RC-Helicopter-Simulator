@@ -369,10 +369,11 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         {
             string scenery_name = selection_name;
             string fullpath_scenery_folder;
-            if ((Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor))
+            if (((Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)) &&
+                helicopter_ODE.par_temp.simulation.storage.sceneries_file_location.val == 0)
                 fullpath_scenery_folder = Path.Combine(Path.Combine(Application.streamingAssetsPath, "Skymaps"), scenery_name); // Windows
             else
-                fullpath_scenery_folder = Path.Combine(Path.Combine(Application.persistentDataPath, "Skymaps"), scenery_name); // MacIO, ...
+                fullpath_scenery_folder = Path.Combine(Path.Combine(Application.persistentDataPath, "Skymaps"), scenery_name); // Only choice on MacIO, ...
 
             Button download_button = prefab_instance.transform.Find("Button Download").GetComponent<Button>();
             Button select_button = prefab_instance.transform.Find("Button Select").GetComponent<Button>();

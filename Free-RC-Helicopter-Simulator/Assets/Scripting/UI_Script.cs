@@ -1231,7 +1231,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
 
         // change ODE timing parameter
-        thread_ODE_deltat = Helper.Clamp(helicopter_ODE.par.simulation.delta_t);
+        thread_ODE_deltat = Helper.Clamp(helicopter_ODE.par.simulation.physics.delta_t);
 
         // controller parameter
         stru_controller_settings.list_channel_settings[stru_controller_settings.channel_collective].axis_settings.clearance = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_collective.clearance.val;

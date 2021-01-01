@@ -167,7 +167,7 @@ namespace Rotor
                         {
                             rotor_blades_material = material;
                             rotor_blades_material.ToFadeMode();
-                            rotor_blades_material.ChangeTransparency(1.0f - helicopter_ODE.par.simulation.rotor_disk_transparency.val); // alpha setting
+                            rotor_blades_material.ChangeTransparency(1.0f - helicopter_ODE.par.simulation.gameplay.rotor_disk_transparency.val); // alpha setting
                             break;
                         }
                     }
@@ -181,9 +181,9 @@ namespace Rotor
                 // ##################################################################################
                 rotordisk = Helicopter_Selected.transform.Find(rotor_name + "_Disk").gameObject;
                 rotordisk_top_material = rotordisk.GetComponent<MeshRenderer>().materials[0];
-                rotordisk_top_material.ChangeTransparency((1.0f - helicopter_ODE.par.simulation.rotor_disk_transparency.val));
+                rotordisk_top_material.ChangeTransparency((1.0f - helicopter_ODE.par.simulation.gameplay.rotor_disk_transparency.val));
                 rotordisk_bottom_material = rotordisk.GetComponent<MeshRenderer>().materials[1];
-                rotordisk_bottom_material.ChangeTransparency((1.0f - helicopter_ODE.par.simulation.rotor_disk_transparency.val));
+                rotordisk_bottom_material.ChangeTransparency((1.0f - helicopter_ODE.par.simulation.gameplay.rotor_disk_transparency.val));
                 // ##################################################################################
 
 
@@ -287,14 +287,14 @@ namespace Rotor
                 const float rotational_speed_where_visiblity_is_full_transparent_const = 1000.0f; // [rpm]
 
                 float rotational_speed_where_visiblity_is_full_transparent = rotational_speed_where_visiblity_is_full_transparent_const / par_rotor.b.val; // [rpm]
-                float rotor_disk_transparency = (1.0f - helicopter_ODE.par.simulation.rotor_disk_transparency.val);  // [0...1]
+                float rotor_disk_transparency = (1.0f - helicopter_ODE.par.simulation.gameplay.rotor_disk_transparency.val);  // [0...1]
                 float normalized_speed_for_rotorvisibility, fade_disk_transparency, fade_blade_transparency;
 
                 // rotor
                 normalized_speed_for_rotorvisibility = Mathf.Clamp(Mathf.Abs(omega) / (rotational_speed_where_visiblity_is_full_transparent * Common.Helper.Rpm_to_RadPerSec), 0.00f, 1f);
 
                 fade_disk_transparency = Helper.Step(normalized_speed_for_rotorvisibility, 0.3f, 0, 1.0f, 1);
-                fade_blade_transparency = Helper.Step(normalized_speed_for_rotorvisibility, 0.2f, 1, 1.0f, 1 - helicopter_ODE.par.simulation.rotor_blade_transparency.val);
+                fade_blade_transparency = Helper.Step(normalized_speed_for_rotorvisibility, 0.2f, 1, 1.0f, 1 - helicopter_ODE.par.simulation.gameplay.rotor_blade_transparency.val);
 
                 rotordisk_top_material.ChangeTransparency(rotor_disk_transparency * fade_disk_transparency); // alpha setting
                 rotordisk_bottom_material.ChangeTransparency(rotor_disk_transparency * fade_disk_transparency); // alpha setting
@@ -337,7 +337,7 @@ namespace Rotor
                     const float speed_of_sound = 343; // [m / s]
                     rotor_audio_source_rotor.pitch *= (speed_of_sound + 0f) / (speed_of_sound - velocity_for_doppler_effect);
 
-                    rotor_audio_source_rotor.volume *= (helicopter_ODE.par.transmitter_and_helicopter.helicopter.sound_volume.val / 100f) * pause_activated_reduces_audio_volume * (helicopter_ODE.par.simulation.master_sound_volume.val / 100f);
+                    rotor_audio_source_rotor.volume *= (helicopter_ODE.par.transmitter_and_helicopter.helicopter.sound_volume.val / 100f) * pause_activated_reduces_audio_volume * (helicopter_ODE.par.simulation.audio.master_sound_volume.val / 100f);
                 }
 
                 // stall sound
@@ -350,7 +350,7 @@ namespace Rotor
                     float T_max_transition = T_max * 0.6f; //[N] ????    0.2  ........ 0.8  
                     rotor_audio_source_stall.volume = Helper.Step(Math.Abs(helicopter_ODE.thrust_mr_for_stall_sound), T_max_transition, 0, T_max_transition * 1.3f, 1) * 0.500000f; // TODO  thrust_mr_for_stall_sound
 
-                    rotor_audio_source_stall.volume *= (helicopter_ODE.par.transmitter_and_helicopter.helicopter.sound_volume.val / 100f) * pause_activated_reduces_audio_volume * (helicopter_ODE.par.simulation.master_sound_volume.val / 100f);
+                    rotor_audio_source_stall.volume *= (helicopter_ODE.par.transmitter_and_helicopter.helicopter.sound_volume.val / 100f) * pause_activated_reduces_audio_volume * (helicopter_ODE.par.simulation.audio.master_sound_volume.val / 100f);
                 }
             }
         }

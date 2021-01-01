@@ -733,7 +733,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     // ############################################################################
     private void Transmitter_Play_Audio(string fullpath_transmitter_audio_file)
     {
-        transmitter_audio_source.volume = (helicopter_ODE.par.transmitter_and_helicopter.transmitter.countdown_volume.val / 100f) * (helicopter_ODE.par.simulation.master_sound_volume.val / 100f);
+        transmitter_audio_source.volume = (helicopter_ODE.par.transmitter_and_helicopter.transmitter.countdown_volume.val / 100f) * (helicopter_ODE.par.simulation.audio.master_sound_volume.val / 100f);
 
         Play_Audio(transmitter_audio_source, fullpath_transmitter_audio_file);
     }
@@ -747,7 +747,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     // ############################################################################
     private void Commentator_Play_Audio(string fullpath_commentator_audio_file)
     {
-        commentator_audio_source.volume = (helicopter_ODE.par.simulation.commentator_audio_source_volume.val / 100f) * (helicopter_ODE.par.simulation.master_sound_volume.val / 100f);
+        commentator_audio_source.volume = (helicopter_ODE.par.simulation.audio.commentator_audio_source_volume.val / 100f) * (helicopter_ODE.par.simulation.audio.master_sound_volume.val / 100f);
 
         Play_Audio(commentator_audio_source, fullpath_commentator_audio_file);
     }
@@ -763,8 +763,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     {
         // set crash sound volume at distance, where crash happened. 
         crash_audio_source.volume = (1.0f / (Mathf.Pow(Vector3.Distance(Vector3.zero, helicopters_available.transform.position), 0.7f))) *
-            (helicopter_ODE.par.simulation.crash_audio_source_volume.val / 100f) *
-            (helicopter_ODE.par.simulation.master_sound_volume.val / 100f);
+            (helicopter_ODE.par.simulation.audio.crash_audio_source_volume.val / 100f) *
+            (helicopter_ODE.par.simulation.audio.master_sound_volume.val / 100f);
 
         Play_Audio(crash_audio_source, fullpath_audio_file);
     }
@@ -1010,7 +1010,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             //PlayerPrefs.DeleteKey("active_helicopter_id");
             //PlayerPrefs.DeleteKey("active_scenery_id");
             PlayerPrefs.DeleteKey("__simulation_" + "delta_t");
-            PlayerPrefs.DeleteKey("__simulation_" + "ui_show_fps");
+            PlayerPrefs.DeleteKey("__simulation_" + "show_fps");
             PlayerPrefs.DeleteKey("__simulation_" + "v_sync");
         }
         // ##################################################################################
@@ -1882,7 +1882,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // 
         // ##################################################################################
         // game timescale,... (ODE has its independent calculation)
-        Time.timeScale = helicopter_ODE.par.simulation.timescale.val;
+        Time.timeScale = helicopter_ODE.par.simulation.physics.timescale.val;
 
         //int v_sync = Helper.Clamp(helicopter_ODE.par.simulation.v_sync);
         //if (v_sync != v_sync_old)
@@ -1905,7 +1905,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         //    target_frame_rate_old = target_frame_rate;
         //}
 
-        bool motion_blur = helicopter_ODE.par_temp.simulation.motion_blur.val;
+        bool motion_blur = helicopter_ODE.par_temp.simulation.graphic_quality.motion_blur.val;
         if (motion_blur != motion_blur_old)
         {
             if (motion_blur_layer != null)
@@ -1913,7 +1913,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             motion_blur_old = motion_blur;
         }
 
-        bool bloom = helicopter_ODE.par_temp.simulation.bloom.val;
+        bool bloom = helicopter_ODE.par_temp.simulation.graphic_quality.bloom.val;
         if (bloom != bloom_old)
         {
             if (bloom_layer != null)
@@ -1921,20 +1921,20 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             bloom_old = bloom;
         }
 
-        int quality_setting = Helper.Clamp(helicopter_ODE.par_temp.simulation.quality_setting);
+        int quality_setting = Helper.Clamp(helicopter_ODE.par_temp.simulation.graphic_quality.quality_setting);
         if (quality_setting != quality_setting_old)
         {
             QualitySettings.SetQualityLevel(quality_setting, true);
             quality_setting_old = quality_setting;
         }
 
-        int resolution_setting = Helper.Clamp(helicopter_ODE.par_temp.simulation.resolution_setting);
+        int resolution_setting = Helper.Clamp(helicopter_ODE.par_temp.simulation.graphic_quality.resolution_setting);
         if (resolution_setting != resolution_setting_old)
         {
             //Resolution[] resolutions = Screen.resolutions;
             //Screen.SetResolution(resolutions[resolution_setting].width, resolutions[resolution_setting].height, true);
 
-            string[] splitArray = helicopter_ODE.par_temp.simulation.resolution_setting.str[resolution_setting].Split(char.Parse("x"));
+            string[] splitArray = helicopter_ODE.par_temp.simulation.graphic_quality.resolution_setting.str[resolution_setting].Split(char.Parse("x"));
             Screen.SetResolution(Int32.Parse(splitArray[0]), Int32.Parse(splitArray[1]), true);
             //UnityEngine.Debug.Log("resolution : " + Int32.Parse(splitArray[0]) + "  " + Int32.Parse(splitArray[1]));
 
@@ -1953,7 +1953,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // frame FixedUpdate() is called. 
         if (QualitySettings.vSyncCount > 0) // if V_sync on
         {
-            Time.fixedDeltaTime = refresh_rate_sec * 0.98f * helicopter_ODE.par.simulation.timescale.val;
+            Time.fixedDeltaTime = refresh_rate_sec * 0.98f * helicopter_ODE.par.simulation.physics.timescale.val;
         }
         else
         {
@@ -2513,12 +2513,12 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         ui_scenery_selection_panel.gameObject.SetActive(ui_scenery_selection_menu_flag);
 
 
-        if (helicopter_ODE.par_temp.simulation.ui_show_fps.val == true && coroutine_frames_per_second_running == null)
+        if (helicopter_ODE.par_temp.simulation.gameplay.show_fps.val == true && coroutine_frames_per_second_running == null)
         {
             ui_frames_per_sec_text.gameObject.SetActive(true);
             coroutine_frames_per_second_running = StartCoroutine(FramesPerSecond());
         }
-        if (helicopter_ODE.par_temp.simulation.ui_show_fps.val == false)
+        if (helicopter_ODE.par_temp.simulation.gameplay.show_fps.val == false)
         {
             ui_frames_per_sec_text.gameObject.SetActive(false);
             if (coroutine_frames_per_second_running != null)
@@ -2535,7 +2535,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // ##################################################################################
         // show / hide pilot
         // ##################################################################################
-        pilot.SetActive(helicopter_ODE.par_temp.simulation.show_pilot.val);
+        pilot.SetActive(helicopter_ODE.par_temp.simulation.gameplay.show_pilot.val);
         // ##################################################################################
 
 
@@ -2661,7 +2661,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 if (switch_value > (switch_state1 - 0.05f) && switch_value < (switch_state1 + 0.05f))
                     switch0_status = 1;
 
-                if (helicopter_ODE.par.transmitter_and_helicopter.transmitter.switch0.type.val == 0) // 0=>switch
+                if (helicopter_ODE.par.transmitter_and_helicopter.transmitter.switch0.type.val == 0) // 0=>switch_
+
                 {
                     //UnityEngine.Debug.Log("aa switch0_status " + switch0_status);
                     if (switch0_status == 0) { helicopter_ODE.Stop_Motor(); }
@@ -3200,8 +3201,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         
         // limit sound by master volume settings
         float pause_activated_reduces_audio_volume = gl_pause_flag ? 0.2f : 1.0f;
-        audio_source_motor.volume *= (helicopter_ODE.par.transmitter_and_helicopter.helicopter.sound_volume.val / 100f) * pause_activated_reduces_audio_volume * (helicopter_ODE.par.simulation.master_sound_volume.val / 100f);
-        ambient_audio_source.volume = (helicopter_ODE.par.scenery.ambient_sound_volume.val / 100f) * (helicopter_ODE.par.simulation.master_sound_volume.val / 100f);  //  * opened_parameter_menu_reduced_audio_volume
+        audio_source_motor.volume *= (helicopter_ODE.par.transmitter_and_helicopter.helicopter.sound_volume.val / 100f) * pause_activated_reduces_audio_volume * (helicopter_ODE.par.simulation.audio.master_sound_volume.val / 100f);
+        ambient_audio_source.volume = (helicopter_ODE.par.scenery.ambient_sound_volume.val / 100f) * (helicopter_ODE.par.simulation.audio.master_sound_volume.val / 100f);  //  * opened_parameter_menu_reduced_audio_volume
         // ##################################################################################
 
 
@@ -3442,13 +3443,13 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // ##################################################################################
         if (XRSettings.enabled)
         {
-            XRDevice.fovZoomFactor = Helper.Clamp(helicopter_ODE.par.simulation.camera_xr_zoom_factor);
+            XRDevice.fovZoomFactor = Helper.Clamp(helicopter_ODE.par.simulation.camera.camera_xr_zoom_factor);
 
             Correct_And_Limit_XR_Camera_Vertical_Position();
         }
         else
         {
-            if (helicopter_ODE.par.simulation.camera_shaking.val > 0)
+            if (helicopter_ODE.par.simulation.camera.camera_shaking.val > 0)
             {
                 // camera shaking
                 //Vector3 localPosition = UnityEngine.Random.insideUnitSphere * 0.05f;
@@ -3456,7 +3457,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 //float y = (float)exponential_moving_average_filter_for_camera_position_y.Calculate(100000, (double)localPosition.y) * 2000;
                 //float z = (float)exponential_moving_average_filter_for_camera_position_z.Calculate(100000, (double)localPosition.z) * 2000;
 
-                float factor = Helper.Clamp(helicopter_ODE.par.simulation.camera_shaking) / 100f; // [%]->[0...1]
+                float factor = Helper.Clamp(helicopter_ODE.par.simulation.camera.camera_shaking) / 100f; // [%]->[0...1]
                 float camera_shaking_factor = 0.03f * factor;
                 float x = Mathf.PerlinNoise(Time.timeSinceLevelLoad / 4.0f + 1, Time.timeSinceLevelLoad / 2f + 100) * camera_shaking_factor;
                 float y = Mathf.PerlinNoise(Time.timeSinceLevelLoad / 3.0f + 10, 0) * camera_shaking_factor * 3;
@@ -3469,7 +3470,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 main_camera.transform.position = new Vector3(0, helicopter_ODE.par.scenery.camera_height.val, 0);
             }
             //main_camera.transform.position = new Vector3(0, helicopter_ODE.par.scenery.camera_height.val, 0);
-            float fieldOfView = Mathf.Clamp(helicopter_ODE.par.simulation.camera_fov.val + mouse_camera_fov, 10, 60);
+            float fieldOfView = Mathf.Clamp(helicopter_ODE.par.simulation.camera.camera_fov.val + mouse_camera_fov, 10, 60);
             main_camera.fieldOfView = fieldOfView;
             //sub_camera.fieldOfView = fieldOfView;
 
@@ -3477,7 +3478,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             // rotation.x = 0; This is for limiting the rotation to the y axis. I needed this for my project so just
             // rotation.z = 0; delete or add the lines you need to have it behave the way you want.
             if (!UnityEngine.InputSystem.Mouse.current.middleButton.isPressed && !UnityEngine.InputSystem.Mouse.current.rightButton.isPressed && !UnityEngine.InputSystem.Keyboard.current.leftAltKey.isPressed)
-                main_camera.transform.rotation = Quaternion.Slerp(main_camera.transform.rotation, camera_rotation, Time.deltaTime * helicopter_ODE.par.simulation.camera_stiffness.val);
+                main_camera.transform.rotation = Quaternion.Slerp(main_camera.transform.rotation, camera_rotation, Time.deltaTime * helicopter_ODE.par.simulation.camera.camera_stiffness.val);
             else
                 main_camera.transform.eulerAngles += new Vector3(mouse_camera_pitch, mouse_camera_yaw, 0.0f);
 

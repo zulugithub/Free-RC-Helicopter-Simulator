@@ -729,7 +729,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // neccessary images and also partial empty folder with downloadable content) are copied to 
         // Application.persistentDataPath.
         string fullpath_skymap_folder;
-        if ((Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor))
+        if (((Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)) &&
+            helicopter_ODE.par_temp.simulation.storage.sceneries_file_location.val == 0 )
         {
             fullpath_skymap_folder = Path.Combine(Application.streamingAssetsPath, "Skymaps"); // Windows
 
@@ -737,7 +738,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         }
         else
         {
-            fullpath_skymap_folder = Path.Combine(Application.persistentDataPath, "Skymaps");  // MacIO, ...
+            fullpath_skymap_folder = Path.Combine(Application.persistentDataPath, "Skymaps");  // Only choice on MacIO, ...
 
             // On other systems (MacOS, ...) copy everthing from Application.streamingAssetsPath to Application.persistentDataPath
             string SourcePath = Path.Combine(Application.streamingAssetsPath, "Skymaps");

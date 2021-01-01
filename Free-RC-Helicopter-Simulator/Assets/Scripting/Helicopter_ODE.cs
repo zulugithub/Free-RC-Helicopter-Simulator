@@ -1665,9 +1665,9 @@ namespace Helisimulator
             // after resetting the simulation the user input it turned off for 1 sec and is fully active after 2sec
             // ##################################################################################   
             float set_controll_to_zero_after_simulation_reset=1;
-            if (time < Mathf.Abs(par.simulation.delay_after_reset.val))
+            if (time < Mathf.Abs(par.simulation.gameplay.delay_after_reset.val))
             {
-                set_controll_to_zero_after_simulation_reset = Helper.Step((float)time, Mathf.Abs(par.simulation.delay_after_reset.val/2), 0, Mathf.Abs(par.simulation.delay_after_reset.val), 1); 
+                set_controll_to_zero_after_simulation_reset = Helper.Step((float)time, Mathf.Abs(par.simulation.gameplay.delay_after_reset.val/2), 0, Mathf.Abs(par.simulation.gameplay.delay_after_reset.val), 1); 
                 input_y_col *= set_controll_to_zero_after_simulation_reset;
                 input_x_roll *= set_controll_to_zero_after_simulation_reset;
                 input_y_yaw *= set_controll_to_zero_after_simulation_reset;
@@ -1960,7 +1960,7 @@ namespace Helisimulator
             // ##################################################################################
             // after resetting the simulation the user input it turned off for 1 sec and is fully active after 2sec
             // ##################################################################################            
-            if (time < Mathf.Abs(par.simulation.delay_after_reset.val))
+            if (time < Mathf.Abs(par.simulation.gameplay.delay_after_reset.val))
             {
                 Theta_cyc_b_s_mr *= set_controll_to_zero_after_simulation_reset;
                 Theta_cyc_a_s_mr *= set_controll_to_zero_after_simulation_reset;

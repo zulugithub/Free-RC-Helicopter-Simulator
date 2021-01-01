@@ -81,8 +81,8 @@ namespace Common
         }
         public static int Clamp(stru_list stru_list)
         {
-            if (stru_list.val.CompareTo(stru_list.str.Count) > 0)
-                return stru_list.str.Count;
+            if (stru_list.val.CompareTo(stru_list.str.Count) >= 0)
+                return stru_list.str.Count-1;
             if (stru_list.val.CompareTo(0) < 0)
                 return 0;
             return stru_list.val;

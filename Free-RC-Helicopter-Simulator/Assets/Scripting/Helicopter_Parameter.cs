@@ -107,54 +107,16 @@ namespace Parameter
     // paramter structur setup
     // ##################################################################################
     [Serializable]
-    public class stru_simulation
+    public class stru_physics
     {
         public stru_float delta_t { get; set; } // [sec]
-        public stru_float master_sound_volume { get; set; } // [%]
-        public stru_float commentator_audio_source_volume { get; set; }  // [%]
-        public stru_float crash_audio_source_volume { get; set; }  // [%]
         public stru_float timescale { get; set; } // [-] timescale factor
-        public stru_float delay_after_reset { get; set; } // [sec] deactivate user input duration after reset  
-        public stru_float camera_stiffness { get; set; } // [-]
-        public stru_float camera_fov { get; set; } // [deg]
-        public stru_float camera_shaking { get; set; } // [%]
-        public stru_float camera_xr_zoom_factor { get; set; } // []
-        public stru_float rotor_disk_transparency { get; set; } // [0...1]
-        public stru_float rotor_blade_transparency { get; set; } // [0...1]
-        public stru_bool ui_show_fps { get; set; } // 
-        public stru_bool show_pilot { get; set; } // 
-        //public stru_int v_sync { get; set; } // 
-        //public stru_int target_frame_rate { get; set; } // 
-        public stru_bool motion_blur { get; set; } // 
-        public stru_bool bloom { get; set; } // 
-        public stru_int quality_setting { get; set; } // 
-        public stru_list resolution_setting { get; set; } // 
 
-
-        public stru_simulation()
+        public stru_physics()
         {
             delta_t = new stru_float();
-            master_sound_volume = new stru_float();
-            commentator_audio_source_volume = new stru_float();
-            crash_audio_source_volume = new stru_float();
             timescale = new stru_float();
-            delay_after_reset = new stru_float();  
-            camera_stiffness = new stru_float();
-            camera_fov = new stru_float();
-            camera_shaking = new stru_float();
-            camera_xr_zoom_factor = new stru_float();
-            rotor_disk_transparency = new stru_float();
-            rotor_blade_transparency = new stru_float();
-            ui_show_fps = new stru_bool();
-            show_pilot = new stru_bool();
-            //v_sync = new stru_int();
-            //target_frame_rate = new stru_int();
-            motion_blur = new stru_bool();
-            bloom = new stru_bool();
-            quality_setting = new stru_int();
-            resolution_setting = new stru_list();
-
-
+        
             delta_t.val = 0.0050f;
             delta_t.min = 0.0001f;
             delta_t.max = 0.0100f;
@@ -162,6 +124,29 @@ namespace Parameter
             delta_t.comment = "Physics simulation step size";
             delta_t.unit = "sec";
             delta_t.save_under_player_prefs = true;
+
+            timescale.val = 1f;
+            timescale.max = 3.00f;
+            timescale.min = 0.10f;
+            timescale.hint = "Timescale factor";
+            timescale.comment = "Timescale factor";
+            timescale.unit = "-";
+            timescale.save_under_player_prefs = true;
+        }
+    }
+
+    [Serializable]
+    public class stru_audio
+    {
+        public stru_float master_sound_volume { get; set; } // [%]
+        public stru_float commentator_audio_source_volume { get; set; }  // [%]
+        public stru_float crash_audio_source_volume { get; set; }  // [%]
+
+        public stru_audio()
+        {
+            master_sound_volume = new stru_float();
+            commentator_audio_source_volume = new stru_float();
+            crash_audio_source_volume = new stru_float();
 
             master_sound_volume.val = 100.00f;
             master_sound_volume.min = 0.000f;
@@ -184,23 +169,24 @@ namespace Parameter
             crash_audio_source_volume.hint = "Crash audio volume";
             crash_audio_source_volume.comment = "Crash audio volume";
             crash_audio_source_volume.unit = "%";
+        }
+    }
 
-            timescale.val = 1f;
-            timescale.max = 3.00f;
-            timescale.min = 0.10f;
-            timescale.hint = "Timescale factor";
-            timescale.comment = "Timescale factor";
-            timescale.unit = "-";
-            timescale.save_under_player_prefs = true;
+    [Serializable]
+    public class stru_camera
+    {
+        public stru_float camera_stiffness { get; set; } // [-]
+        public stru_float camera_fov { get; set; } // [deg]
+        public stru_float camera_shaking { get; set; } // [%]
+        public stru_float camera_xr_zoom_factor { get; set; } // []
 
-            delay_after_reset.val = 2f;
-            delay_after_reset.max = 5.00f;
-            delay_after_reset.min = 0.00f;
-            delay_after_reset.hint = "Deactivates user input after resetting helicopter for this amount of time.";
-            delay_after_reset.comment = "Deactivates user input after resetting helicopter for this amount of time.";
-            delay_after_reset.unit = "-";
-            delay_after_reset.save_under_player_prefs = true;
-            
+        public stru_camera()
+        {
+            camera_stiffness = new stru_float();
+            camera_fov = new stru_float();
+            camera_shaking = new stru_float();
+            camera_xr_zoom_factor = new stru_float();
+
             camera_stiffness.val = 4.0f;
             camera_stiffness.min = 0.0f;
             camera_stiffness.max = 20f;
@@ -232,7 +218,46 @@ namespace Parameter
             camera_xr_zoom_factor.comment = "Zooms the XR projection in virtual reality mode.";
             camera_xr_zoom_factor.unit = "-";
             camera_xr_zoom_factor.save_under_player_prefs = true;
+        }
+    }
+
+    [Serializable]
+    public class stru_gameplay
+    {
+        public stru_bool show_pilot { get; set; } // 
+        public stru_bool show_fps { get; set; } // 
+        public stru_float delay_after_reset { get; set; } // [sec] deactivate user input duration after reset  
+        public stru_float rotor_disk_transparency { get; set; } // [0...1]
+        public stru_float rotor_blade_transparency { get; set; } // [0...1]
+
+        public stru_gameplay()
+        {
+            show_pilot = new stru_bool();
+            show_fps = new stru_bool();
+            delay_after_reset = new stru_float();
+            rotor_disk_transparency = new stru_float();
+            rotor_blade_transparency = new stru_float();
             
+
+            show_pilot.val = true;
+            show_pilot.hint = "Show pilot with transmitter";
+            show_pilot.comment = "Show pilot with transmitter";
+            show_pilot.unit = "-";
+            show_pilot.save_under_player_prefs = true;
+
+            show_fps.val = false;
+            show_fps.hint = "Show frame rate";
+            show_fps.comment = "Show frame rate";
+            show_fps.unit = "-";
+            show_fps.save_under_player_prefs = true;
+
+            delay_after_reset.val = 1f;
+            delay_after_reset.max = 5.00f;
+            delay_after_reset.min = 0.00f;
+            delay_after_reset.hint = "Deactivates user input after resetting helicopter for this amount of time.";
+            delay_after_reset.comment = "Deactivates user input after resetting helicopter for this amount of time.";
+            delay_after_reset.unit = "sec";
+            delay_after_reset.save_under_player_prefs = true;
 
             rotor_disk_transparency.val = 0.92f;
             rotor_disk_transparency.min = 0f;
@@ -249,36 +274,26 @@ namespace Parameter
             rotor_blade_transparency.comment = "Rotor blade transparency factor when rotating (1: full transparent)";
             rotor_blade_transparency.unit = "(0...1)";
             rotor_blade_transparency.save_under_player_prefs = true;
+        }
+    }
 
-            ui_show_fps.val = false;
-            ui_show_fps.hint = "Show frame rate";
-            ui_show_fps.comment = "Show frame rate";
-            ui_show_fps.unit = "-";
-            ui_show_fps.save_under_player_prefs = true;
+    [Serializable]
+    public class stru_graphic_quality
+    {
 
-            show_pilot.val = true;
-            show_pilot.hint = "Show pilot with transmitter";
-            show_pilot.comment = "Show pilot with transmitter";
-            show_pilot.unit = "-";
-            show_pilot.save_under_player_prefs = true;
+        public stru_bool motion_blur { get; set; } // 
+        public stru_bool bloom { get; set; } // 
+        public stru_list quality_setting { get; set; } // 
+        public stru_list resolution_setting { get; set; } // 
+        
+        public stru_graphic_quality()
+        {
+            motion_blur = new stru_bool();
+            bloom = new stru_bool();
+            quality_setting = new stru_list();
+            resolution_setting = new stru_list();
+
             
-            //v_sync.val = 1;
-            //v_sync.min = 0;
-            //v_sync.max = 4;
-            //v_sync.hint = "The number of VSyncs that should pass between each frame. Use 0 to not wait for VSync.";
-            //v_sync.comment = "The number of VSyncs that should pass between each frame. Use 0 to not wait for VSync.";
-            //v_sync.unit = "0...4";
-            //v_sync.save_under_player_prefs = true;
-
-            //// target_frame_rate.calculated will be set in code, because target_frame_rate depends on v_sync setting (if v_sync>0 then target_frame_rate is ignored)
-            //target_frame_rate.val = 1000;
-            //target_frame_rate.min = 30;
-            //target_frame_rate.max = 1000;
-            //target_frame_rate.hint = "Instructs the game to try to render at a specified frame rate if v_sync = 0.";
-            //target_frame_rate.comment = "Instructs the game to try to render at a specified frame rate if v_sync = 0.";
-            //target_frame_rate.unit = "30...1000";
-            //target_frame_rate.save_under_player_prefs = true;
-
             motion_blur.val = true;
             motion_blur.hint = "Enables or disables motion blur effect.";
             motion_blur.comment = "Enables or disables motion blur effect.";
@@ -292,17 +307,16 @@ namespace Parameter
             bloom.save_under_player_prefs = true;
 
             quality_setting.val = 3;
-            quality_setting.min = 0;
-            quality_setting.max = 4;
-            quality_setting.hint = "Sets a new graphics quality level. (0 = low ... 4 = ultra)";
-            quality_setting.comment = "Sets a new graphics quality level. (0 = low ... 4 = ultra)";
-            quality_setting.unit = "int"; // QualitySettings.names
+            quality_setting.str = new List<string> { "Low", "High", "Very High", "Ultra" };
+            quality_setting.hint = "Sets graphics quality level.";
+            quality_setting.comment = "Sets graphics quality level.";
+            quality_setting.unit = ""; 
             quality_setting.save_under_player_prefs = true;
 
             resolution_setting.val = 0;
             resolution_setting.str = new List<string>();
             Resolution[] resolutions = Screen.resolutions;
-            for (int i = 0; i < resolutions.Length; i++)
+            for (int i = 0; i<resolutions.Length; i++)
             {
                 if(resolutions[i].width > 1024)
                     resolution_setting.str.Add(resolutions[i].width + " x " + resolutions[i].height);
@@ -311,11 +325,49 @@ namespace Parameter
             }
             if(resolution_setting.str.Count > 0) // set highest resolution as default
                 resolution_setting.val = resolution_setting.str.Count-1;
-            resolution_setting.hint = "Change monitor resolution ";
-            resolution_setting.comment = "Change monitor resolution  ";
-            resolution_setting.unit = "-";
+            resolution_setting.hint = "Change monitor resolution.";
+            resolution_setting.comment = "Change monitor resolution.";
+            resolution_setting.unit = "";
             resolution_setting.save_under_player_prefs = true;
+        }
+    }
 
+    [Serializable]
+    public class stru_storage
+    {
+        public stru_list sceneries_file_location { get; set; } // []
+
+        public stru_storage()
+        {
+            sceneries_file_location = new stru_list();
+
+            sceneries_file_location.val = 1;
+            sceneries_file_location.str = new List<string> { "Streaming assets" ,  "Persistent data" };
+            sceneries_file_location.hint = "Where should sceneries be saved. 'Peristent data' (only option on MacOS) is outside of game folder.";
+            sceneries_file_location.comment = "If 'Peristent data' is seleceted, downloaded files does not need to be downloaded every time, if game is updated.";
+            sceneries_file_location.unit = "";
+            sceneries_file_location.save_under_player_prefs = true;
+        }
+    }
+
+    [Serializable]
+    public class stru_simulation
+    {
+        public stru_physics physics { get; set; }
+        public stru_audio audio { get; set; }
+        public stru_camera camera { get; set; }
+        public stru_gameplay gameplay { get; set; }
+        public stru_graphic_quality graphic_quality { get; set; }
+        public stru_storage storage { get; set; }
+
+        public stru_simulation()
+        {
+            physics = new stru_physics();
+            audio = new stru_audio();
+            camera = new stru_camera();
+            gameplay = new stru_gameplay();
+            graphic_quality = new stru_graphic_quality();
+            storage = new stru_storage();
         }
 
         public void get_stru_simulation_settings_from_player_prefs() 
@@ -323,26 +375,30 @@ namespace Parameter
             // ##################################################################################
             // Get PlayerPrefs for "simulation"-structure
             // ##################################################################################
-            this.delta_t.val = PlayerPrefs.GetFloat("__simulation_" + "delta_t", this.delta_t.val);
-            this.master_sound_volume.val = PlayerPrefs.GetFloat("__simulation_" + "master_sound_volume", this.master_sound_volume.val);
-            this.commentator_audio_source_volume.val = PlayerPrefs.GetFloat("__simulation_" + "commentator_audio_source_volume", this.commentator_audio_source_volume.val);
-            this.crash_audio_source_volume.val = PlayerPrefs.GetFloat("__simulation_" + "crash_audio_source_volume", this.crash_audio_source_volume.val);
-            this.timescale.val = PlayerPrefs.GetFloat("__simulation_" + "timescale", this.timescale.val);
-            this.delay_after_reset.val = PlayerPrefs.GetFloat("__simulation_" + "delay_after_reset", this.delay_after_reset.val);
-            this.camera_stiffness.val = PlayerPrefs.GetFloat("__simulation_" + "camera_stiffness", this.camera_stiffness.val);
-            this.camera_fov.val = PlayerPrefs.GetFloat("__simulation_" + "camera_fov", this.camera_fov.val);
-            this.camera_shaking.val = PlayerPrefs.GetFloat("__simulation_" + "camera_shaking", this.camera_shaking.val);
-            this.camera_xr_zoom_factor.val = PlayerPrefs.GetFloat("__simulation_" + "camera_xr_zoom_factor", this.camera_xr_zoom_factor.val);
-            this.rotor_disk_transparency.val = PlayerPrefs.GetFloat("__simulation_" + "rotor_disk_transparency", this.rotor_disk_transparency.val);
-            this.rotor_blade_transparency.val = PlayerPrefs.GetFloat("__simulation_" + "rotor_blade_transparency", this.rotor_blade_transparency.val);
-            this.ui_show_fps.val = (PlayerPrefs.GetInt("__simulation_" + "ui_show_fps", this.ui_show_fps.val == false ? 0 : 1)) == 0 ? false : true;
-            this.show_pilot.val = (PlayerPrefs.GetInt("__simulation_" + "show_pilot", this.show_pilot.val == false ? 0 : 1)) == 0 ? false : true;
-            //this.v_sync.val = (PlayerPrefs.GetInt("__simulation_" + "v_sync", this.v_sync.val));
-            //this.target_frame_rate.val = (PlayerPrefs.GetInt("__simulation_" + "target_frame_rate", this.target_frame_rate.val));
-            this.motion_blur.val = (PlayerPrefs.GetInt("__simulation_" + "motion_blur", this.motion_blur.val == false ? 0 : 1)) == 0 ? false : true;
-            this.bloom.val = (PlayerPrefs.GetInt("__simulation_" + "bloom", this.bloom.val == false ? 0 : 1)) == 0 ? false : true;  
-            this.quality_setting.val = (PlayerPrefs.GetInt("__simulation_" + "quality_setting", this.quality_setting.val));
-            this.resolution_setting.val = (PlayerPrefs.GetInt("__simulation_" + "resolution_setting", this.resolution_setting.val));
+            this.physics.delta_t.val = PlayerPrefs.GetFloat("__simulation_" + "delta_t", this.physics.delta_t.val);
+            this.physics.timescale.val = PlayerPrefs.GetFloat("__simulation_" + "timescale", this.physics.timescale.val);
+
+            this.audio.master_sound_volume.val = PlayerPrefs.GetFloat("__simulation_" + "master_sound_volume", this.audio.master_sound_volume.val);
+            this.audio.commentator_audio_source_volume.val = PlayerPrefs.GetFloat("__simulation_" + "commentator_audio_source_volume", this.audio.commentator_audio_source_volume.val);
+            this.audio.crash_audio_source_volume.val = PlayerPrefs.GetFloat("__simulation_" + "crash_audio_source_volume", this.audio.crash_audio_source_volume.val);
+            
+            this.camera.camera_stiffness.val = PlayerPrefs.GetFloat("__simulation_" + "camera_stiffness", this.camera.camera_stiffness.val);
+            this.camera.camera_fov.val = PlayerPrefs.GetFloat("__simulation_" + "camera_fov", this.camera.camera_fov.val);
+            this.camera.camera_shaking.val = PlayerPrefs.GetFloat("__simulation_" + "camera_shaking", this.camera.camera_shaking.val);
+            this.camera.camera_xr_zoom_factor.val = PlayerPrefs.GetFloat("__simulation_" + "camera_xr_zoom_factor", this.camera.camera_xr_zoom_factor.val);
+
+            this.gameplay.show_pilot.val = (PlayerPrefs.GetInt("__simulation_" + "show_pilot", this.gameplay.show_pilot.val == false ? 0 : 1)) == 0 ? false : true;
+            this.gameplay.show_fps.val = (PlayerPrefs.GetInt("__simulation_" + "show_fps", this.gameplay.show_fps.val == false ? 0 : 1)) == 0 ? false : true;
+            this.gameplay.delay_after_reset.val = PlayerPrefs.GetFloat("__simulation_" + "delay_after_reset", this.gameplay.delay_after_reset.val);
+            this.gameplay.rotor_disk_transparency.val = PlayerPrefs.GetFloat("__simulation_" + "rotor_disk_transparency", this.gameplay.rotor_disk_transparency.val);
+            this.gameplay.rotor_blade_transparency.val = PlayerPrefs.GetFloat("__simulation_" + "rotor_blade_transparency", this.gameplay.rotor_blade_transparency.val);
+         
+            this.graphic_quality.motion_blur.val = (PlayerPrefs.GetInt("__simulation_" + "motion_blur", this.graphic_quality.motion_blur.val == false ? 0 : 1)) == 0 ? false : true;
+            this.graphic_quality.bloom.val = (PlayerPrefs.GetInt("__simulation_" + "bloom", this.graphic_quality.bloom.val == false ? 0 : 1)) == 0 ? false : true;  
+            this.graphic_quality.quality_setting.val = (PlayerPrefs.GetInt("__simulation_" + "quality_setting", this.graphic_quality.quality_setting.val));
+            this.graphic_quality.resolution_setting.val = (PlayerPrefs.GetInt("__simulation_" + "resolution_setting", this.graphic_quality.resolution_setting.val));
+            
+            this.storage.sceneries_file_location.val = (PlayerPrefs.GetInt("__simulation_" + "sceneries_file_location", this.storage.sceneries_file_location.val));
             // ##################################################################################
         }
 
@@ -2136,11 +2192,11 @@ namespace Parameter
         public stru_float friction_coeff_steering { get; set; } // [-] friction coefficient (ground <-> heli) for steering gear";
         public stru_float stiffness_factor { get; set; } // [N/m] 
         public stru_float damping_factor { get; set; }  // [N/m/s] 
-        public stru_int positions_left_type { get; set; }  // [skids, gear] 
-        public stru_int positions_right_type { get; set; } // [skids, gear] 
-        public stru_int positions_steering_center_type { get; set; }  // [support, gear]
-        public stru_int positions_steering_left_type { get; set; }  // [support, gear]
-        public stru_int positions_steering_right_type { get; set; }  // [support, gear]
+        public stru_list positions_left_type { get; set; }  // [skids, gear]  
+        public stru_list positions_right_type { get; set; } // [skids, gear] 
+        public stru_list positions_steering_center_type { get; set; }  // [support, gear]
+        public stru_list positions_steering_left_type { get; set; }  // [support, gear]
+        public stru_list positions_steering_right_type { get; set; }  // [support, gear]
         public stru_float positions_left_rised_offset { get; set; } // [m] 
         public stru_float positions_right_rised_offset { get; set; } // [m] 
         public stru_float positions_steering_center_rised_offset { get; set; } // [m] 
@@ -2163,11 +2219,11 @@ namespace Parameter
             friction_coeff_steering = new stru_float();
             stiffness_factor = new stru_float();
             damping_factor = new stru_float();
-            positions_left_type = new stru_int();
-            positions_right_type = new stru_int();
-            positions_steering_center_type = new stru_int();
-            positions_steering_left_type = new stru_int();
-            positions_steering_right_type = new stru_int();
+            positions_left_type = new stru_list();
+            positions_right_type = new stru_list();
+            positions_steering_center_type = new stru_list();
+            positions_steering_left_type = new stru_list();
+            positions_steering_right_type = new stru_list();
             positions_left_rised_offset = new stru_float();
             positions_right_rised_offset = new stru_float();
             positions_steering_center_rised_offset = new stru_float();
@@ -2224,39 +2280,34 @@ namespace Parameter
 
 
             positions_left_type.val = 0;
-            positions_left_type.max = 1;
-            positions_left_type.min = 0;
-            positions_left_type.hint = "Contact type (0:skids, 1:grear)";
-            positions_left_type.comment = "Contact type (0:skids, 1:grear)";
-            positions_left_type.unit = "[]";
+            positions_left_type.str = new List<string> { "Skids", "Grear" };
+            positions_left_type.hint = "Contact type";
+            positions_left_type.comment = "Contact type";
+            positions_left_type.unit = "";
 
             positions_right_type.val = 0;
-            positions_right_type.max = 1;
-            positions_right_type.min = 0;
-            positions_right_type.hint = "Contact type (0:skids, 1:grear)";
-            positions_right_type.comment = "Contact type (0:skids, 1:grear)";
-            positions_right_type.unit = "[]";
+            positions_right_type.str = new List<string> { "Skids", "Grear" };
+            positions_right_type.hint = "Contact type";
+            positions_right_type.comment = "Contact type";
+            positions_right_type.unit = "";
 
             positions_steering_center_type.val = 0;
-            positions_steering_center_type.max = 1;
-            positions_steering_center_type.min = 0;
-            positions_steering_center_type.hint = "Contact type (0:skids, 1:grear)";
-            positions_steering_center_type.comment = "Contact type (0:skids, 1:grear)";
-            positions_steering_center_type.unit = "[]";
+            positions_steering_center_type.str = new List<string> { "Skids", "Grear" };
+            positions_steering_center_type.hint = "Contact type";
+            positions_steering_center_type.comment = "Contact type";
+            positions_steering_center_type.unit = "";
 
             positions_steering_left_type.val = 0;
-            positions_steering_left_type.max = 1;
-            positions_steering_left_type.min = 0;
-            positions_steering_left_type.hint = "Contact type (0:skids, 1:grear)";
-            positions_steering_left_type.comment = "Contact type (0:skids, 1:grear)";
-            positions_steering_left_type.unit = "[]";
+            positions_steering_left_type.str = new List<string> { "Skids", "Grear" };
+            positions_steering_left_type.hint = "Contact type";
+            positions_steering_left_type.comment = "Contact type";
+            positions_steering_left_type.unit = "";
 
             positions_steering_right_type.val = 0;
-            positions_steering_right_type.max = 1;
-            positions_steering_right_type.min = 0;
-            positions_steering_right_type.hint = "Contact type (0:skids, 1:grear)";
-            positions_steering_right_type.comment = "Contact type (0:skids, 1:grear)";
-            positions_steering_right_type.unit = "[]";
+            positions_steering_right_type.str = new List<string> { "Skids", "Grear" };
+            positions_steering_right_type.hint = "Contact type";
+            positions_steering_right_type.comment = "Contact type";
+            positions_steering_right_type.unit = "";
 
 
 
@@ -2533,11 +2584,11 @@ namespace Parameter
     [Serializable]
     public class stru_switch
     {
-        public stru_int type { get; set; } // [0,1] 
+        public stru_list type { get; set; } // [0,1] 
 
         public stru_switch()
         {
-            type = new stru_int();
+            type = new stru_list();
         }
     }
     // ##################################################################################
@@ -2553,11 +2604,10 @@ namespace Parameter
         public stru_switch0()
         {
             type.val = 1;
-            type.min = 0;
-            type.max = 1;
+            type.str = new List<string> { "Switch", "Button"};
             type.hint = "Switch-0 type: 0=>switch, 1=>button  (rising flank trigger)";
             type.comment = "Switch-0 type: 0=>switch, 1=>button (rising flank trigger)";
-            type.unit = "0,1";
+            type.unit = "";
         }
     }
     // ##################################################################################
@@ -2574,11 +2624,10 @@ namespace Parameter
         public stru_switch1()
         {
             type.val = 1;
-            type.min = 0;
-            type.max = 1;
+            type.str = new List<string> { "Switch", "Button" };
             type.hint = "Switch-1 type: 0=>switch, 1=>button  (rising flank trigger)";
             type.comment = "Switch-1 type: 0=>switch, 1=>button (rising flank trigger)";
-            type.unit = "0,1";
+            type.unit = "";
         }
     }
     // ##################################################################################
@@ -2838,7 +2887,7 @@ namespace Parameter
         public string name;
 
         /// [int] 0:Single Main Rotor, (1:Tandem rotor, 2:Coaxial, 3:Intermeshing rotors)  https://www.skybrary.aero/index.php/Helicopter_Rotor_Systems_Configuration
-        public stru_int rotor_systems_configuration { get; set; } 
+        public stru_list rotor_systems_configuration { get; set; } 
 
         public stru_float mass_total { get; set; }// [kg] total mass of the whole heli
         public stru_Vector3 J_xyz { get; set; } // [kg*m²] forward up right
@@ -2871,7 +2920,7 @@ namespace Parameter
         {
             name = "Logo600SE_V3";
 
-            rotor_systems_configuration = new stru_int();
+            rotor_systems_configuration = new stru_list();
 
             mass_total = new stru_float();
             J_xyz = new stru_Vector3();
@@ -2900,13 +2949,11 @@ namespace Parameter
             visual_effects = new stru_visual_effects();
 
 
-
             rotor_systems_configuration.val = 0;
-            rotor_systems_configuration.min = 0;
-            rotor_systems_configuration.max = 1;
-            rotor_systems_configuration.hint = "Rotor system type: 0=Single Main Rotor, 1=Tandem rotor"; // (2:Coaxial, 3:Intermeshing rotors)";
-            rotor_systems_configuration.comment = "Rotor system type: 0=Single Main Rotor, 1=Tandem rotor"; // (2:Coaxial, 3:Intermeshing rotors)";
-            rotor_systems_configuration.unit = "-";
+            rotor_systems_configuration.str = new List<string> { "Single main rotor", "Tandem rotor"};
+            rotor_systems_configuration.hint = "Rotor system type"; // (2:Coaxial, 3:Intermeshing rotors)";
+            rotor_systems_configuration.comment = "Rotor system type"; // (2:Coaxial, 3:Intermeshing rotors)";
+            rotor_systems_configuration.unit = "";
 
             mass_total.val = 3.6f;
             mass_total.min = 0.1f;
