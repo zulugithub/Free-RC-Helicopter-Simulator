@@ -49,7 +49,7 @@
     <collision>
       <friction_coeff>  <val>0.6</val>  </friction_coeff>
       <stiffness_factor>  <val>3500</val>  </stiffness_factor>
-      <damping_factor>  <val>70</val>  </damping_factor>
+      <damping_factor>  <val>90</val>  </damping_factor>
       <positions_left>
         <vect3>
           <Vector3>  <x>0.43</x>  <y>-0.310</y>  <z>-0.215</z>  </Vector3>

@@ -2265,14 +2265,14 @@ namespace Parameter
             friction_coeff_steering.unit = "-";
 
             stiffness_factor.val = 5000.0f;
-            stiffness_factor.max = 0.00f;
+            stiffness_factor.max = 100000f;
             stiffness_factor.min = 20.0f;
             stiffness_factor.hint = "Contact stiffness factor";
             stiffness_factor.comment = "Contact stiffness factor";
             stiffness_factor.unit = "N/m";
 
-            damping_factor.val = 80.0f;
-            damping_factor.max = 0.00f;
+            damping_factor.val = 100.0f;
+            damping_factor.max = 1000f;
             damping_factor.min = 20.0f;
             damping_factor.hint = "Contact damping factor";
             damping_factor.comment = "Contact damping factor";

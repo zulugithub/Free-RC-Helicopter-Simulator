@@ -55,7 +55,7 @@
       <positions_left_type>  <val>0</val>  </positions_left_type>  <!--0:skids,1:gear-->
       <positions_right_type>  <val>0</val>  </positions_right_type>  <!--0:skids,1:gear-->
       <positions_steering_center_type>  <val>0</val>  </positions_steering_center_type>  <!--0:skids,1:gear-->
-      <damping_factor>  <val>70</val>  </damping_factor>
+      <damping_factor>  <val>90</val>  </damping_factor>
       <positions_left>
         <vect3>
           <Vector3>  <x>0.48</x>  <y>-0.385</y>  <z>-0.215</z>  </Vector3>
