@@ -138,6 +138,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     readonly double[] u_inputs = new double[8]; // transmitter/controller input signal vector; // input for system of ordenary equations
     readonly Stopwatch stopwatch = new Stopwatch();
     int counter = 0;
+    int error_counter = 0;
 
 
     // animation: pilot is rising his arms with transmitter
@@ -451,7 +452,21 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
             //UnityEngine.Debug.Log("TakeStep Called");
             stopwatch.Start();
-            time = helicopter_ODE.RK4Step(helicopter_ODE.x_states, u_inputs, time, dt * helicopter_ODE.par.simulation.timescale.val);
+            if (helicopter_ODE.RK4Step(helicopter_ODE.x_states, u_inputs, ref time, dt * helicopter_ODE.par.simulation.physics.timescale.val))
+            {
+                // catch NaN
+                error_counter++;
+                //helicopter_ODE.Set_Initial_Conditions(); 
+                time = 0;
+                for (int i = 0; i < helicopter_ODE.x_states.Count(); i++)
+                    helicopter_ODE.x_states[i] = helicopter_ODE.x_states_old[i];
+            }
+            else
+            {
+                // save successfull result, for the case, if the next results are not valid or NaN, then use these instead
+                for(int i=0; i<helicopter_ODE.x_states.Count(); i++)
+                    helicopter_ODE.x_states_old[i] = helicopter_ODE.x_states[i];
+            }
             stopwatch.Stop();
             counter++;
 

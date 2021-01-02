@@ -10,6 +10,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 /// <summary>
 /// Helicopter_Integrator is an abstract class for integrating a system of ODEs
@@ -86,25 +87,90 @@ abstract public class Helicopter_Integrator  {
 	/// </summary>
 	/// <param name="x">The values being integrated.</param>
 	/// <param name="h">The time step.</param>
-	public double RK4Step(double [] x, double[] u, double t, double h) {
+	public bool RK4Step(double [] x, double[] u, ref double t, double h) {
         int integrator_function_call_number = 0;
         ODE (integrator_function_call_number++, x ,u, k1, t , h);
+		if (check_results(x)) return true;
 		for (int i = 0; i < nEquations; i++) {
 			store [i] = x [i] + k1 [i] * h / 2.0;
 		}
         ODE(integrator_function_call_number++, store, u, k2, t, h);
+		if (check_results(store)) return true;
 		for (int i = 0; i < nEquations; i++) {
 			store [i] = x [i] + k2 [i] * h / 2.0;
 		}
         ODE(integrator_function_call_number++, store, u, k3, t, h);
+		if (check_results(store)) return true;
 		for (int i = 0; i < nEquations; i++) {
 			store [i] = x [i] + k3 [i] * h;
 		}
         ODE(integrator_function_call_number++, store, u, k4, t, h);
+		if (check_results(store)) return true;
 		for (int i = 0; i < nEquations; i++) {
 			x [i] = x [i] + (k1[i] +2.0*k2[i]+ 2.0*k3 [i]+k4[i]) * h/6.0;
 		}
-		return t + h;
+		if (check_results(x)) return true;
+		t = t + h;
+		return false;
+	}
+
+	public bool check_results(double[] x)
+	{
+/*
+		x_R = x_states[0]; // [m] right handed system, position x in reference frame
+		y_R = x_states[1]; // [m] right handed system, position y in reference frame
+		z_R = x_states[2]; // [m] right handed system, position z in reference frame
+		q0 = x_states[3]; // [-] w quaternion orientation real
+		q1 = x_states[4]; // [-] x quaternion orientation imag i
+		q2 = x_states[5]; // [-] y quaternion orientation imag j
+		q3 = x_states[6]; // [-] z quaternion orientation imag k
+		dxdt_R = x_states[7]; // [m/sec] right handed system, velocity x in reference frame
+		dydt_R = x_states[8]; // [m/sec] right handed system, velocity y in reference frame
+		dzdt_R = x_states[9]; // [m/sec] right handed system, velocity z in reference frame
+		wx_LH = x_states[10]; // [rad/sec] local rotational velocity vector x   around longitudial x-axis 
+		wy_LH = x_states[11]; // [rad/sec] local rotational velocity vector y   around vertical y-axis  
+		wz_LH = x_states[12]; // [rad/sec] local rotational velocity vector z   around lateral z-axis 
+
+		flapping_a_s_mr_LR = x_states[13]; // [rad] mainrotor pitch flapping angle a_s in local frame (longitudial direction)
+		flapping_b_s_mr_LR = x_states[14]; // [rad] mainrotor roll flapping angle b_s in local frame (lateral direction) 
+		flapping_a_s_tr_LR = x_states[15]; // [rad] tailrotor pitch flapping angle a_s in local frame (longitudial direction)
+		flapping_b_s_tr_LR = x_states[16]; // [rad] tailrotor roll flapping angle b_s in local frame (lateral direction) 
+
+		omega_mo = x_states[17]; // [rad/sec] brushless motor rotational speed
+		Omega_mo = x_states[18]; // [rad] brushless motor rotational angle
+		omega_mr = x_states[19]; // [rad/sec] mainrotor rotational speed
+		Omega_mr = x_states[20]; // [rad] mainrotor rotational angle
+
+		DELTA_omega_mo___int = x_states[21]; // [rad] // PI Controller's integral part
+
+		DELTA_x_roll__int = x_states[22];   // [rad] flybareless error value integral
+		DELTA_y_yaw__int = x_states[23];    // [rad] gyro error value integral
+		DELTA_z_pitch__int = x_states[24];  // [rad] flybareless error value integral
+
+		servo_col_mr_damped = x_states[25];  // [-1...1] damping of mainrotor collective movement - Collective
+		servo_lat_mr_damped = x_states[26];  // [-1...1] damping of mainrotor lateral movement - Roll
+		servo_lon_mr_damped = x_states[27];  // [-1...1] damping of mainrotor longitudial movement - Pitch
+		servo_col_tr_damped = x_states[28];  // [-1...1] damping of tailrotor collective movement - Yaw
+		servo_lat_tr_damped = x_states[29];  // [-1...1] damping of tailrotor lateral movement 
+		servo_lon_tr_damped = x_states[30];  // [-1...1] damping of tailrotor longitudial movement*/
+
+		double[] mylimits = {10000,10000,10000, 1.1, 1.1, 1.1, 1.1, 100,100,100, 1000,1000,1000,  1,1,1,1,  100000,10000000,10000,1000000,  1000, 100,100,100,  2,2,2,2,2,2 };
+
+		for (int i = 0; i < nEquations; i++)
+		{
+			if(Double.IsNaN(x[i]) || Double.IsInfinity(x[i]))
+			{
+				return true;
+			}
+
+
+			if (Math.Abs(x[i]) > mylimits[i])
+			{
+				return true;
+			}
+
+		}
+		return false;
 	}
 
 
@@ -125,7 +191,7 @@ abstract public class Helicopter_Integrator  {
 				ym2[i] = x[i];
 			}
 			ODE(integrator_function_call_number++, dm3, u, ym3,t,h);
-			t = RK4Step(ym2, u, t, h);
+			RK4Step(ym2, u, ref t, h);
 			ODE(integrator_function_call_number++, dm2, u, ym2, t,h);
 			for(int i=0;i<x.Length;i++) {
 				x[i] = ym2[i];
@@ -136,7 +202,7 @@ abstract public class Helicopter_Integrator  {
 			for(int i=0;i<x.Length;i++) {
 				ym1[i] = ym2[i];
 			}
-			t = RK4Step(ym1, u, t,  h);
+			RK4Step(ym1, u, ref t,  h);
 			ODE(integrator_function_call_number++, dm1, u, ym1, t, h);
 			for(int i=0;i<x.Length;i++) {
 				x[i] = ym1[i];
