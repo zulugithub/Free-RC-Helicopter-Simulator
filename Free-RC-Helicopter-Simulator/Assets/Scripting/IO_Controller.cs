@@ -125,6 +125,12 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         public int channel_roll; // which input channel should be roll
         public int channel_switch0 = -12345; // which input channel should be switch0
         public int channel_switch1 = -12345; // which input channel should be switch1
+
+        public stru_Controller_Setup()
+        {
+            for (int c = 0; c < 8; c++) // eight channels
+                list_channel_settings.Add(new Channel_Settings { });
+        }
     }
 
     float switch0_status_old; // to detect flank
@@ -142,7 +148,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
 
     // ################################################################################## 
-    // handle continue to next calibration step by time or by key
+    // handle continue to next calibration step by key
     // ################################################################################## 
     bool Check_If_Next_Calibration_Step_Is_Reached()
     {
@@ -172,9 +178,6 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     void Init_Controller()
     {
         stru_controller_settings = new stru_Controller_Setup();
-        // eight channels
-        for (int c = 0; c < 8; c++)
-            stru_controller_settings.list_channel_settings.Add(new Channel_Settings { });
     }
     // ##################################################################################
 
@@ -237,9 +240,6 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // check, if current controller is already calibrated and read data from registry with PlayerPrefs 
         stru_Controller_Setup stru_controller_settings_empty = new stru_Controller_Setup();
         stru_Controller_Setup stru_controller_settings_temp = new stru_Controller_Setup();
-        for (int c = 0; c < 8; c++) // eight channels
-            stru_controller_settings_temp.list_channel_settings.Add(new Channel_Settings { });
-        stru_controller_settings_empty = stru_controller_settings_temp;
 
         int k = 0;
         string s, s0 = "CC___" + (connected_input_devices_names[selected_input_device_id]).Replace(' ', '_');
@@ -345,8 +345,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
             // eight channels
             stru_controller_settings.list_channel_settings.Clear();
-            for (int c = 0; c < 8; c++)
-                stru_controller_settings.list_channel_settings.Add(new Channel_Settings { });
+            stru_controller_settings =  new stru_Controller_Setup();
 
             calibration_stepping_with_keyboard_trigger = false;
         }
