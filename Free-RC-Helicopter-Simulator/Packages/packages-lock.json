@@ -68,8 +68,8 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.inputsystem": {
-      "version": "1.1.0-preview.1",
-      "depth": 1,
+      "version": "1.1.0-preview.2",
+      "depth": 0,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
@@ -175,6 +175,21 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.xr.magicleap": {
+      "version": "6.0.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.screencapture": "1.0.0",
+        "com.unity.modules.vr": "1.0.0",
+        "com.unity.modules.xr": "1.0.0",
+        "com.unity.ugui": "1.0.0",
+        "com.unity.xr.arsubsystems": "4.0.1",
+        "com.unity.xr.interactionsubsystems": "1.0.1",
+        "com.unity.xr.management": "3.2.10"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.xr.management": {
       "version": "4.0.0-pre.2",
       "depth": 1,
@@ -198,7 +213,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.oculus": {
-      "version": "1.6.1",
+      "version": "1.7.0-preview.2",
       "depth": 0,
       "source": "registry",
       "dependencies": {

@@ -69,6 +69,7 @@ using Rotor;
 using Parameter;
 
 using UnityEngine.XR;
+using UnityEngine.XR.Management;
 
 
 // ##################################################################################
@@ -338,6 +339,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     // https://forum.unity.com/threads/deprecation-nightmare.812688/
     readonly List<XRDisplaySubsystemDescriptor> displaysDescs = new List<XRDisplaySubsystemDescriptor>();
     readonly List<XRDisplaySubsystem> displays = new List<XRDisplaySubsystem>();
+    private Coroutine co_StartXR;
+    bool xr_mode_flag = false;
 
     // steering wheel
     readonly Helper.Exponential_Moving_Average_Filter_For_Rotations exponential_moving_average_filter_for_roations_for_steering_wheel_center = new Helper.Exponential_Moving_Average_Filter_For_Rotations();
@@ -428,6 +431,41 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
         return vrIsRunning;
     }
+    /* 
+    // https://forum.unity.com/threads/deprecation-nightmare.812688/
+   bool IsVrRunning_()
+    {
+        var inputs = new List<XRInputSubsystem>();
+        SubsystemManager.GetInstances(inputs);
+        bool canTest = false;
+        bool result = false;
+        if (inputs.Count > 0)
+        {
+            List<InputDevice> devices = new List<InputDevice>();
+            foreach (var input in inputs)
+            {
+                if (input.TryGetInputDevices(devices))
+                {
+                    foreach (var d in devices)
+                    {
+                      //  if ((d.characteristics & (InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.Left)) == (InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.Left))
+                    //        leftHandInput = d;
+                     //   if ((d.characteristics & (InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.Right)) == (InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.Right))
+                     //       rightHandInput = d;
+                        if ((d.characteristics & (InputDeviceCharacteristics.HeadMounted | InputDeviceCharacteristics.TrackedDevice)) == (InputDeviceCharacteristics.HeadMounted | InputDeviceCharacteristics.TrackedDevice))
+                            headSetInput = d;
+
+                        if (d.TryGetFeatureValue(CommonUsages.userPresence, out bool userPresent))
+                        {
+                            canTest = true;
+                            if (userPresent)
+                                result = true;
+                        }
+                    }
+                }
+            }
+        }
+    }*/
 
     // ##################################################################################
 
@@ -983,8 +1021,6 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     #region awake
     void Awake()
     {
-        //Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Highest;
-
 
         // ##################################################################################
         // Init: clear UNITY console  
@@ -996,7 +1032,6 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         method.Invoke(new object(), null);
 #endif
         // ##################################################################################
-
 
 
 
@@ -1116,8 +1151,6 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // ##################################################################################
         // load skybox
         // ##################################################################################
-        Skybox_Initialize();
-
         Load_Skymap(list_skymap_paths, active_scenery_id);
         // ##################################################################################
 
@@ -1187,11 +1220,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // ##################################################################################
         if (XRSettings.enabled)
         {
-            UnityEngine.Rendering.PostProcessing.PostProcessLayer post_processing_layer = main_camera.GetComponent<PostProcessLayer>();
-            if (post_processing_layer != null)
-            {
-                post_processing_layer.enabled = false;
-            }
+            if (main_camera.GetComponent<PostProcessLayer>() != null) main_camera.GetComponent<PostProcessLayer>().enabled = false;
         }
         // ##################################################################################
 
@@ -1367,35 +1396,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     #region start
     void Start()
     {
-        //XRSettings.enabled = false; 
-        //UnityEngine.Debug.Log("XR Enabled: " + XRSettings.enabled);
-/*
-        UnityEngine.Debug.Log("XR Device Present: " + XRDeviceIsPresent().ToString());
-        UnityEngine.Debug.Log("XR Device IsActive: " + IsActive()); // https://forum.unity.com/threads/deprecation-nightmare.812688/
-        UnityEngine.Debug.Log("XR Device IsVrRunning: " + IsVrRunning()); // https://forum.unity.com/threads/deprecation-nightmare.812688/
-
-
-        //UnityEngine.Debug.Log("XR User Presence: " + UnityEngine.InputSystem.CommonUsages.userPresence);
-
-
-        UnityEngine.XR.InputDevice headDevice = InputDevices.GetDeviceAtXRNode(XRNode.Head);
-        UnityEngine.Debug.Log("XR headDevice: " + headDevice);
-        //if (headDevice.isValid == false) return;
-        bool presenceFeatureSupported = headDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.userPresence, out bool userPresent);
-        UnityEngine.Debug.Log(headDevice.isValid + " ** " + presenceFeatureSupported + " ** " + userPresent);
-
-
-
-        //UnityEngine.Debug.Log("XR Model: " + UnityEngine.XR.InputDevice.....); // https://forum.unity.com/threads/detailed-xr-inputdevice-names.720614/
-        UnityEngine.Debug.Log("XR Device Active: " + XRSettings.isDeviceActive);
-        UnityEngine.Debug.Log("XR Enabled: " + XRSettings.enabled);
-        // OpenVR.System.IsTrackedDeviceConnected()
-*/
-       
-
-        
-
-
+     
         // during first start of the game a welcome message is shown by using "first_start_flag"
         if (version_number == Application.version)
         {
@@ -2146,7 +2147,18 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                     }
                 }
 
+                if ((Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor))
+                { 
+                    if (UnityEngine.InputSystem.Keyboard.current.pageUpKey.wasPressedThisFrame)
+                    { 
+                        xr_mode_flag ^= true;
 
+                        if (xr_mode_flag)
+                            co_StartXR = StartCoroutine(StartXR());
+                        else
+                            StopXR();
+                    }
+                }
 
                 if (UnityEngine.InputSystem.Keyboard.current.f12Key.wasPressedThisFrame)
                 {
@@ -3318,7 +3330,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // update debug text
         if (ui_debug_panel_state > 1)
         {
-            ui_debug_text.text = ui_string_connected_input_devices_names + "  er" + error_counter.ToString() + "\n" +
+            ui_debug_text.text = ui_string_connected_input_devices_names + "  er" + error_counter.ToString() + " xr" + (XRSettings.enabled ? 1 : 0) + "\n" + 
                 "thread_ODE_deltat = " + thread_ODE_deltat.ToString() +
                 "   msec_per_thread_call = " + Helper.FormatNumber(msec_per_thread_call, "0.000") +
                 "   monitor_frequency = " + Helper.FormatNumber(refresh_rate_hz, "0.000") + (refresh_rate_sec_found_flag ? "*" : "") + 
@@ -3559,6 +3571,126 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         Cursor.visible = false;
     }
     // ##################################################################################
+
+
+
+
+
+    // ##################################################################################
+    // XR start and stop
+    // ##################################################################################
+    public IEnumerator StartXR()
+    {
+        UnityEngine.Debug.Log("Initializing XR...");
+        yield return XRGeneralSettings.Instance.Manager.InitializeLoader();
+
+        if (XRGeneralSettings.Instance.Manager.activeLoader == null)
+        {
+            UnityEngine.Debug.LogError("Initializing XR Failed. Check Editor or Player log for details.");
+            StopXR();
+        }
+        else
+        {
+            UnityEngine.Debug.Log("Starting XR...");
+
+            //XRGeneralSettings.Instance.Manager.StartSubsystems();
+
+
+
+            //Try to start all subsystems and check if they were all successfully started ( thus HMD prepared).
+            bool loaderSuccess = XRGeneralSettings.Instance.Manager.activeLoader.Start();
+            if (loaderSuccess)
+            {
+                
+                // --------------------------- TRY TO FIND OUT IF DEVICIE IS ACTIVE: DOES NOT WORK YET ---------------------
+                UnityEngine.Debug.Log("-----XR Device Present: " + XRDeviceIsPresent().ToString());
+                UnityEngine.Debug.Log("-----XR Device IsActive: " + IsActive()); // https://forum.unity.com/threads/deprecation-nightmare.812688/
+                UnityEngine.Debug.Log("-----XR Device IsVrRunning: " + IsVrRunning()); // https://forum.unity.com/threads/deprecation-nightmare.812688/
+                //UnityEngine.Debug.Log("XR User Presence: " + UnityEngine.InputSystem.CommonUsages.userPresence);
+
+                UnityEngine.XR.InputDevice headDevice = InputDevices.GetDeviceAtXRNode(XRNode.Head);
+                UnityEngine.Debug.Log("-----XR headDevice: " + headDevice);
+                //if (headDevice.isValid == false) return;
+                bool presenceFeatureSupported = headDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.userPresence, out bool userPresent);
+                UnityEngine.Debug.Log(headDevice.isValid + " ** " + presenceFeatureSupported + " ** " + userPresent);
+
+                //UnityEngine.Debug.Log("XR Model: " + UnityEngine.XR.InputDevice.....); // https://forum.unity.com/threads/detailed-xr-inputdevice-names.720614/
+                UnityEngine.Debug.Log("-----XR Device Active: " + XRSettings.isDeviceActive);
+                UnityEngine.Debug.Log("-----XR Enabled: " + XRSettings.enabled);
+
+                //UnityEngine.Debug.Log("-----XR OpenVR: " + OpenVR.IsHmdPresent());
+                // OpenVR.System.IsTrackedDeviceConnected()
+
+                // https://docs.unity3d.com/2020.2/Documentation/Manual/xr_input.html
+                var inputDevices = new List<UnityEngine.XR.InputDevice>();
+                UnityEngine.XR.InputDevices.GetDevices(inputDevices);
+                bool XR_devide_is_active = false;
+                foreach (var device in inputDevices)
+                {
+                    UnityEngine.Debug.Log(string.Format("  xxxxxxxxxxxx  Device found with name '{0}' and role '{1}'", device.name, device.role.ToString()));
+                    XR_devide_is_active = true;
+                }
+                // --------------------------- TRY TO FIND OUT IF DEVICIE IS ACTIVE: DOES NOT WORK YET ---------------------
+
+
+
+
+                if (IsActive() && IsVrRunning())
+                //if (XR_devide_is_active)
+                { 
+                    UnityEngine.Debug.Log("All Subsystems Started!");
+
+                    // disable postprocessing layer (beacuse 
+                    if (main_camera.GetComponent<PostProcessLayer>() != null) main_camera.GetComponent<PostProcessLayer>().enabled = false;
+
+                    // fps
+                    refresh_rate_sec_old = 0;
+                    exponential_moving_average_filter_for_refresh_rate_sec.Init_Mean_Value(1.0f / Screen.currentResolution.refreshRate);
+                    refresh_rate_sec_found_flag = false;
+                    //Find_Exact_Monitor_Refreshrate();
+                }
+                else
+                {
+                    UnityEngine.Debug.LogError("Starting Subsystems Failed. Directing to Normal Interaciton Mode...!");
+                    StopXR();
+                }
+
+            }
+            else
+            {
+                UnityEngine.Debug.LogError("Starting Subsystems Failed. Directing to Normal Interaciton Mode...!");
+                StopXR();
+            }
+
+        }
+    }
+
+    void StopXR()
+    {
+        UnityEngine.Debug.Log("Stopping XR...");
+
+        XRGeneralSettings.Instance.Manager.StopSubsystems();
+        XRGeneralSettings.Instance.Manager.DeinitializeLoader();
+        UnityEngine.Debug.Log("XR stopped completely.");
+
+        // reset monitor resolution
+        int resolution_setting = Helper.Clamp(helicopter_ODE.par_temp.simulation.graphic_quality.resolution_setting);
+        string[] splitArray = helicopter_ODE.par_temp.simulation.graphic_quality.resolution_setting.str[resolution_setting].Split(char.Parse("x"));
+        Screen.SetResolution(Int32.Parse(splitArray[0]), Int32.Parse(splitArray[1]), true);
+
+
+        // enable postprocessing layer
+        if (main_camera.GetComponent<PostProcessLayer>() != null) main_camera.GetComponent<PostProcessLayer>().enabled = true;
+
+
+        refresh_rate_sec_old = 0;
+        exponential_moving_average_filter_for_refresh_rate_sec.Init_Mean_Value(1.0f / Screen.currentResolution.refreshRate);
+        refresh_rate_sec_found_flag = false;
+       // Find_Exact_Monitor_Refreshrate();
+
+    }
+    // ##################################################################################
+
     #endregion
 
 

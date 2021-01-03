@@ -214,16 +214,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     //// Use this for initialization
     //// ############################################################################
     //// is called by Start() in main partial class file
-    void Skybox_Initialize()
-    {
-        if (!XRSettings.enabled)
-            skybox_cubemap = new Cubemap(4096, TextureFormat.RGBA32, false);
-        else
-            skybox_cubemap = new Cubemap(2048, TextureFormat.RGBA32, false);
 
-        ground_material.SetTexture("_SkyCube", skybox_cubemap);
-
-    }
     //// ############################################################################
     #endregion
 
@@ -348,174 +339,53 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
 
 
-
-
-    /*
-        // ############################################################################
-        // change the skybox material textures
-        // ############################################################################
-        private void Change_Skybox_Material(stru_skymap_paths skymap_paths)
-        {
-            Texture2D tex_front = Load_Image(skymap_paths.fullpath_front_texture);
-            Texture2D tex_back = Load_Image(skymap_paths.fullpath_back_texture);
-            Texture2D tex_left = Load_Image(skymap_paths.fullpath_left_texture);
-            Texture2D tex_right = Load_Image(skymap_paths.fullpath_right_texture);
-            Texture2D tex_top = Load_Image(skymap_paths.fullpath_up_texture);
-            Texture2D tex_bottom = Load_Image(skymap_paths.fullpath_down_texture);
-
-            //skybox_material.SetTexture("_FrontTex", Load_Image(skymap_paths.fullpath_front_texture));
-            //skybox_material.SetTexture("_BackTex", Load_Image(skymap_paths.fullpath_back_texture));
-            //skybox_material.SetTexture("_LeftTex", Load_Image(skymap_paths.fullpath_left_texture));
-            //skybox_material.SetTexture("_RightTex", Load_Image(skymap_paths.fullpath_right_texture));
-            //skybox_material.SetTexture("_UpTex", Load_Image(skymap_paths.fullpath_up_texture));
-            //skybox_material.SetTexture("_DownTex", Load_Image(skymap_paths.fullpath_down_texture));
-
-            // setup skybox material
-            skybox_material.SetTexture("_FrontTex", tex_front);
-            skybox_material.SetTexture("_BackTex", tex_back);
-            skybox_material.SetTexture("_LeftTex", tex_left);
-            skybox_material.SetTexture("_RightTex", tex_right);
-            skybox_material.SetTexture("_UpTex", tex_top);
-            skybox_material.SetTexture("_DownTex", tex_bottom);
-
-
-            // setup ground object shader
-            if (XRSettings.enabled)
-            {
-                tex_front = TextureScaler.scaled(tex_front, 2048, 2048);
-                tex_back = TextureScaler.scaled(tex_back, 2048, 2048);
-                tex_left = TextureScaler.scaled(tex_left, 2048, 2048);
-                tex_right = TextureScaler.scaled(tex_right, 2048, 2048);
-                tex_top = TextureScaler.scaled(tex_top, 2048, 2048);
-                tex_bottom = TextureScaler.scaled(tex_bottom, 2048, 2048);
-            }
-            else
-            {
-                tex_front = TextureScaler.scaled(tex_front, 4096, 4096);
-                tex_back = TextureScaler.scaled(tex_back, 4096, 4096);
-                tex_left = TextureScaler.scaled(tex_left, 4096, 4096);
-                tex_right = TextureScaler.scaled(tex_right, 4096, 4096);
-                tex_top = TextureScaler.scaled(tex_top, 4096, 4096);
-                tex_bottom = TextureScaler.scaled(tex_bottom, 4096, 4096);
-            }
-
-            tex_front.Rotate(Common.Texture2DExtensions.Rotation.HalfCircle);
-            tex_back.Rotate(Common.Texture2DExtensions.Rotation.HalfCircle);
-            tex_left.Rotate(Common.Texture2DExtensions.Rotation.HalfCircle);
-            tex_right.Rotate(Common.Texture2DExtensions.Rotation.HalfCircle);
-            tex_top.Rotate(Common.Texture2DExtensions.Rotation.HalfCircle);
-            tex_bottom.Rotate(Common.Texture2DExtensions.Rotation.HalfCircle);
-
-            skybox_cubemap.SetPixels(tex_right.GetPixels(), CubemapFace.PositiveX); // front -> left
-            skybox_cubemap.SetPixels(tex_top.GetPixels(), CubemapFace.PositiveY); // top
-            skybox_cubemap.SetPixels(tex_front.GetPixels(), CubemapFace.PositiveZ); // left -> front
-            skybox_cubemap.SetPixels(tex_left.GetPixels(), CubemapFace.NegativeX); // back -> right
-            skybox_cubemap.SetPixels(tex_bottom.GetPixels(), CubemapFace.NegativeY); // bottom
-            skybox_cubemap.SetPixels(tex_back.GetPixels(), CubemapFace.NegativeZ); // right -> back 
-            //skybox_cubemap.SetPixels(tex_front.GetPixels(), CubemapFace.PositiveX); // front -> left
-            //skybox_cubemap.SetPixels(tex_top.GetPixels(), CubemapFace.PositiveY); // top
-            //skybox_cubemap.SetPixels(tex_left.GetPixels(), CubemapFace.PositiveZ); // left -> front
-            //skybox_cubemap.SetPixels(tex_back.GetPixels(), CubemapFace.NegativeX); // back -> right
-            //skybox_cubemap.SetPixels(tex_bottom.GetPixels(), CubemapFace.NegativeY); // bottom
-            //skybox_cubemap.SetPixels(tex_right.GetPixels(), CubemapFace.NegativeZ); // right -> back 
-            skybox_cubemap.Apply();
-
-
-            DynamicGI.UpdateEnvironment();
-        }
-        // ############################################################################
-    */
-    
+   
     // ############################################################################
     // change the skybox material textures
     // ############################################################################
     private void Change_Skybox_Material(stru_skymap_paths skymap_paths)
     {
-        Texture2D tex_front = new Texture2D(2, 2, TextureFormat.RGBA32, false);// , TextureFormat.RGBA32, false
-        Load_Image(skymap_paths.fullpath_front_texture, ref tex_front);
-        skybox_material.SetTexture("_FrontTex", tex_front);
-        if (XRSettings.enabled) tex_front = TextureScaler.scaled(tex_front, 2048, 2048);
-        else tex_front = TextureScaler.scaled(tex_front, 4096, 4096);
-        tex_front.Rotate(Common.Texture2DExtensions.Rotation.HalfCircle);
-        skybox_cubemap.SetPixels(tex_front.GetPixels(), CubemapFace.PositiveZ); // left -> front
-        Destroy(tex_front);
-//        Resources.UnloadUnusedAssets(); // unneccessary
-//        GC.Collect(); // unneccessary
-//        GC.WaitForPendingFinalizers(); // unneccessary
-//        GC.Collect(); // unneccessary
-
-        Texture2D tex_back = new Texture2D(2, 2, TextureFormat.RGBA32, false);// , TextureFormat.RGBA32, false
-        Load_Image(skymap_paths.fullpath_back_texture, ref tex_back);
-        skybox_material.SetTexture("_BackTex", tex_back);
-        if (XRSettings.enabled) tex_back = TextureScaler.scaled(tex_back, 2048, 2048);
-        else tex_back = TextureScaler.scaled(tex_back, 4096, 4096);
-        tex_back.Rotate(Common.Texture2DExtensions.Rotation.HalfCircle);
-        skybox_cubemap.SetPixels(tex_back.GetPixels(), CubemapFace.NegativeZ); // right -> back 
-        Destroy(tex_back);
-        //        Resources.UnloadUnusedAssets(); // unneccessary
-        //        GC.Collect(); // unneccessary
-        //        GC.WaitForPendingFinalizers(); // unneccessary
-        //        GC.Collect(); // unneccessary
-
-        Texture2D tex_left = new Texture2D(2, 2, TextureFormat.RGBA32, false);// , TextureFormat.RGBA32, false
-        Load_Image(skymap_paths.fullpath_left_texture, ref tex_left);
-        skybox_material.SetTexture("_LeftTex", tex_left);
-        if (XRSettings.enabled) tex_left = TextureScaler.scaled(tex_left, 2048, 2048);
-        else tex_left = TextureScaler.scaled(tex_left, 4096, 4096);
-        tex_left.Rotate(Common.Texture2DExtensions.Rotation.HalfCircle);
-        skybox_cubemap.SetPixels(tex_left.GetPixels(), CubemapFace.NegativeX); // back -> right
-        Destroy(tex_left);
-        //        Resources.UnloadUnusedAssets(); // unneccessary
-        //        GC.Collect(); // unneccessary
-        //        GC.WaitForPendingFinalizers(); // unneccessary
-        //        GC.Collect(); // unneccessary
-
-        Texture2D tex_right = new Texture2D(2, 2, TextureFormat.RGBA32, false);// , TextureFormat.RGBA32, false
-        Load_Image(skymap_paths.fullpath_right_texture, ref tex_right);
-        skybox_material.SetTexture("_RightTex", tex_right);
-        if (XRSettings.enabled) tex_right = TextureScaler.scaled(tex_right, 2048, 2048);
-        else tex_right = TextureScaler.scaled(tex_right, 4096, 4096);
-        tex_right.Rotate(Common.Texture2DExtensions.Rotation.HalfCircle);
-        skybox_cubemap.SetPixels(tex_right.GetPixels(), CubemapFace.PositiveX); // front -> left
-        Destroy(tex_right);
-        //        Resources.UnloadUnusedAssets(); // unneccessary
-        //        GC.Collect(); // unneccessary
-        //        GC.WaitForPendingFinalizers(); // unneccessary
-        //        GC.Collect(); // unneccessary
-
-        Texture2D tex_top = new Texture2D(2, 2, TextureFormat.RGBA32, false);// , TextureFormat.RGBA32, false
-        Load_Image(skymap_paths.fullpath_up_texture, ref tex_top);
-        skybox_material.SetTexture("_UpTex", tex_top);
-        if (XRSettings.enabled) tex_top = TextureScaler.scaled(tex_top, 2048, 2048);
-        else tex_top = TextureScaler.scaled(tex_top, 4096, 4096);
-        tex_top.Rotate(Common.Texture2DExtensions.Rotation.HalfCircle);
-        skybox_cubemap.SetPixels(tex_top.GetPixels(), CubemapFace.PositiveY); // top
-        Destroy(tex_top);
-        //        Resources.UnloadUnusedAssets(); // unneccessary
-        //        GC.Collect(); // unneccessary
-        //        GC.WaitForPendingFinalizers(); // unneccessary
-        //        GC.Collect(); // unneccessary
-
-        Texture2D tex_bottom = new Texture2D(2, 2, TextureFormat.RGBA32, false);// , TextureFormat.RGBA32, false
-        Load_Image(skymap_paths.fullpath_down_texture, ref tex_bottom);
-        skybox_material.SetTexture("_DownTex", tex_bottom);
-        if (XRSettings.enabled) tex_bottom = TextureScaler.scaled(tex_bottom, 2048, 2048);
-        else tex_bottom = TextureScaler.scaled(tex_bottom, 4096, 4096);
-        tex_bottom.Rotate(Common.Texture2DExtensions.Rotation.HalfCircle);
-        skybox_cubemap.SetPixels(tex_bottom.GetPixels(), CubemapFace.NegativeY); // bottom
-        Destroy(tex_bottom);
-        //        Resources.UnloadUnusedAssets(); // unneccessary
-        //        GC.Collect(); // unneccessary
-        //        GC.WaitForPendingFinalizers(); // unneccessary
-        //        GC.Collect(); // unneccessary
+        Change_Skybox_Material_Subfunction(skymap_paths.fullpath_front_texture, "_FrontTex", CubemapFace.PositiveZ, true); // left -> front  
+        Change_Skybox_Material_Subfunction(skymap_paths.fullpath_back_texture, "_BackTex", CubemapFace.NegativeZ, false);  // right -> back 
+        Change_Skybox_Material_Subfunction(skymap_paths.fullpath_left_texture, "_LeftTex", CubemapFace.NegativeX, false); // back -> right
+        Change_Skybox_Material_Subfunction(skymap_paths.fullpath_right_texture, "_RightTex", CubemapFace.PositiveX, false); // front -> left
+        Change_Skybox_Material_Subfunction(skymap_paths.fullpath_up_texture, "_UpTex", CubemapFace.PositiveY, false); // top
+        Change_Skybox_Material_Subfunction(skymap_paths.fullpath_down_texture, "_DownTex", CubemapFace.NegativeY, false); // bottom
 
         skybox_cubemap.Apply();
-
+        
         Resources.UnloadUnusedAssets();
         DynamicGI.UpdateEnvironment();
     }
     // ############################################################################
-    
+
+
+
+
+    // ############################################################################
+    // change the skybox material textures - helper function
+    // ############################################################################
+    private void Change_Skybox_Material_Subfunction(string path, string material_direction, CubemapFace cubamp_direction, bool init)
+    {
+        Texture2D tex_front = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        Load_Image(path, ref tex_front);
+
+        if (init) // change the resolution of the skybox_cobemap to fit the size of the image
+        {
+            skybox_cubemap = new Cubemap(tex_front.width, TextureFormat.RGBA32, false);
+            ground_material.SetTexture("_SkyCube", skybox_cubemap);
+        }
+
+        // cubemap is used for the ground
+        tex_front.Rotate(Common.Texture2DExtensions.Rotation.HalfCircle);
+        skybox_cubemap.SetPixels(tex_front.GetPixels(), cubamp_direction);  
+        // skybox is the background
+        tex_front.Rotate(Common.Texture2DExtensions.Rotation.HalfCircle);
+        skybox_material.SetTexture(material_direction, tex_front);
+    }
+    // ############################################################################
+
+
 
 
     // ############################################################################
