@@ -2050,6 +2050,13 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 gl_pause_flag = true;
             }
 
+            if(calibration_abortable && calibration_state != State_Calibration.not_running)
+            {
+                calibration_state = State_Calibration.abort;
+                ui_exit_panel_flag = false;
+
+                gl_pause_flag = false;
+            }
 
             if (first_start_flag == 1)
             {
@@ -2383,6 +2390,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                     if (UnityEngine.InputSystem.Keyboard.current.cKey.wasPressedThisFrame && calibration_state == State_Calibration.not_running && !ui_parameter_panel_flag && first_start_flag == 0)
                     {
                         calibration_state = State_Calibration.starting;
+                        calibration_abortable = true; // if started manually, calbration can be abborted
                     }
 
                     if (UnityEngine.InputSystem.Keyboard.current.tKey.wasPressedThisFrame)
@@ -2440,12 +2448,11 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         if (calibration_state != State_Calibration.not_running && first_start_flag == 0 && !ui_welcome_panel_flag)
         {
             gl_pause_flag = true;
-            Set_Controller_Calibration();
+            Controller_Calibration();
         }
 
 
-
-        if (UnityEngine.InputSystem.Keyboard.current.jKey.wasPressedThisFrame && !Is_Text_Input_Field_Focused() && !ui_parameter_panel_flag)
+        if (UnityEngine.InputSystem.Keyboard.current.jKey.wasPressedThisFrame && !Is_Text_Input_Field_Focused() && !ui_parameter_panel_flag && calibration_state == State_Calibration.not_running)
         {
             if (connected_input_devices_count > 0)
             {
