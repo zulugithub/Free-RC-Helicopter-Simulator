@@ -33,12 +33,13 @@
   <helicopter>
     <mass_total>  <val>50.0</val>  </mass_total>
     <rotor_sound_recorded_rpm>  <val>700</val>  </rotor_sound_recorded_rpm> <!--real1300rpm -->
-    <J_xyz>
+	<motor_sound_recorded_rpm>  <val>700</val>  </motor_sound_recorded_rpm> 
+    <sound_volume>  <val>20</val>  </sound_volume>
+	<J_xyz>
       <vect3>  <x>3.5</x>  <y>14</y>  <z>14</z>  </vect3>
     </J_xyz>
-    <sound_volume>  <val>20</val>  </sound_volume>
     <collision>
-        <friction_coeff>  <val>0.4</val>  </friction_coeff>
+      <friction_coeff>  <val>0.4</val>  </friction_coeff>
       <friction_coeff_forward>  <val>0.02</val>  </friction_coeff_forward>
       <friction_coeff_sideward>  <val>0.5</val>  </friction_coeff_sideward>
       <friction_coeff_steering>   <val>0.01</val>  </friction_coeff_steering>

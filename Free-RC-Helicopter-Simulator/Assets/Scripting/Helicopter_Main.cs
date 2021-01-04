@@ -3210,8 +3210,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // unity's doppler effect 
         audio_source_motor.velocityUpdateMode = AudioVelocityUpdateMode.Dynamic;
 
-        audio_source_motor.pitch = Mathf.Abs(omega_mr / (helicopter_ODE.par.transmitter_and_helicopter.helicopter.rotor_sound_recorded_rpm.val * 6 * Mathf.PI / 180f)); // sound recorded at ~ 1280 rpm
-        audio_source_motor.volume = Mathf.Abs(omega_mr / (helicopter_ODE.par.transmitter_and_helicopter.helicopter.rotor_sound_recorded_rpm.val * 6 * Mathf.PI / 180f)); // sound recorded at ~ 1280 rpm
+        audio_source_motor.pitch = Mathf.Abs(omega_mr / (helicopter_ODE.par.transmitter_and_helicopter.helicopter.motor_sound_recorded_rpm.val * 6 * Mathf.PI / 180f)); // sound recorded at ~ 1280 rpm
+        audio_source_motor.volume = Mathf.Abs(omega_mr / (helicopter_ODE.par.transmitter_and_helicopter.helicopter.motor_sound_recorded_rpm.val * 6 * Mathf.PI / 180f)); // sound recorded at ~ 1280 rpm
 
         // unity's doppler effect still sounds weird in build therefore a custum equation is implemented here (doppler effect has to be set to 0 in unity)
         float velocity_for_doppler_effect = Vector3.Dot(-position.normalized, velocity); // helicopters velocity vector component pointing to camera

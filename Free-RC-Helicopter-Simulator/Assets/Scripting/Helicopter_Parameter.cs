@@ -2903,6 +2903,7 @@ namespace Parameter
         public stru_Vector3 J_xyz { get; set; } // [kg*m²] forward up right
         public stru_float sound_volume { get; set; } // [%]
         public stru_float rotor_sound_recorded_rpm { get; set; } // [rpm]
+        public stru_float motor_sound_recorded_rpm { get; set; } // [rpm]
 
 
         public stru_reference_to_masscentrum reference_to_masscentrum { get; set; }
@@ -2936,7 +2937,8 @@ namespace Parameter
             J_xyz = new stru_Vector3();
             sound_volume = new stru_float();
             rotor_sound_recorded_rpm = new stru_float();
-            
+            motor_sound_recorded_rpm = new stru_float();
+
             reference_to_masscentrum = new stru_reference_to_masscentrum();
             gyro = new stru_yaw_rate_controller();
             flybarless = new stru_flybarless_controller();
@@ -2990,7 +2992,14 @@ namespace Parameter
             rotor_sound_recorded_rpm.hint = "Helicopter's rotor audio file recorded rpm";
             rotor_sound_recorded_rpm.comment = "Helicopter's rotor audio file recorded rpm";
             rotor_sound_recorded_rpm.unit = "rpm";
-            
+
+            motor_sound_recorded_rpm.val = 1280f;
+            motor_sound_recorded_rpm.min = 0.000f;
+            motor_sound_recorded_rpm.max = 10000.0f;
+            motor_sound_recorded_rpm.hint = "Helicopter's motor audio file recorded rpm";
+            motor_sound_recorded_rpm.comment = "Helicopter's motor audio file recorded rpm";
+            motor_sound_recorded_rpm.unit = "rpm";
+
         }
     }
     // ##################################################################################

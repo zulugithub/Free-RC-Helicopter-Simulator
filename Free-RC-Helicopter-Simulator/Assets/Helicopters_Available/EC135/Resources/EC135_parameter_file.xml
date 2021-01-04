@@ -42,6 +42,7 @@
     </reference_to_masscentrum>
     <mass_total>  <val>15.0</val>  </mass_total>
     <rotor_sound_recorded_rpm>  <val>1000</val>  </rotor_sound_recorded_rpm>   <!--real1300rpm-->  
+	<motor_sound_recorded_rpm>  <val>1000</val>  </motor_sound_recorded_rpm>
     <J_xyz>
       <vect3>  <x>0.3</x>  <y>1.5</y>  <z>1.5</z>  </vect3>
     </J_xyz>

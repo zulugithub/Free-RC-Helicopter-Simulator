@@ -45,6 +45,7 @@
       <vect3>  <x>10</x>  <y>20</y>  <z>20</z>  </vect3>
     </J_xyz>
     <rotor_sound_recorded_rpm>  <val>650</val>  </rotor_sound_recorded_rpm>
+	<motor_sound_recorded_rpm>  <val>650</val>  </motor_sound_recorded_rpm>
     <sound_volume>  <val>25</val>  </sound_volume>
 	<gyro>
       <K_a>  <val>100</val>  </K_a>
