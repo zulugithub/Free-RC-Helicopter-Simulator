@@ -2218,7 +2218,7 @@ namespace Parameter
         public stru_Vector3_list positions_steering_center { get; set; } // [m] in local reference frame
         public stru_Vector3_list positions_steering_left { get; set; } // [m] in local reference frame
         public stru_Vector3_list positions_steering_right { get; set; } // [m] in local reference frame
-
+        public stru_float collision_force_max { get; set; } // [N] crashes modell if to high
 
 
         public stru_collision_points_with_groundplane()
@@ -2245,6 +2245,8 @@ namespace Parameter
             positions_steering_left = new stru_Vector3_list();
             positions_steering_right = new stru_Vector3_list();
             positions_usual = new stru_Vector3_list();
+            collision_force_max = new stru_float();
+
 
             friction_coeff.val = 0.50f;
             friction_coeff.min = 0.01f;
@@ -2394,6 +2396,13 @@ namespace Parameter
             positions_steering_right.hint = "Contact position heli's right steering/landing gear or support to ground";
             positions_steering_right.comment = "Contact position heli's right steering/landing gear or support to ground";
             positions_steering_right.unit = "m";
+
+            collision_force_max.val = 500f;
+            collision_force_max.min = 1.00f;
+            collision_force_max.max = 10000f;
+            collision_force_max.hint = "If a collision force is larger then this value, the heli will crash.";
+            collision_force_max.comment = "If a collision force is larger then this value, the heli will crash.";
+            collision_force_max.unit = "N";
         }
     }
     // ##################################################################################

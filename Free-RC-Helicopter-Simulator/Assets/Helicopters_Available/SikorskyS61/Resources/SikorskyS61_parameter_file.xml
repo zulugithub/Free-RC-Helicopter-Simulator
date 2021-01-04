@@ -254,6 +254,7 @@
           <Vector3>  <x>0.80</x>  <y>-0.36</y>  <z>0.0</z>  </Vector3>
         </vect3>
       </positions_usual>
+	  <collision_force_max>  <val>1500</val>  </collision_force_max>
     </collision>
     <visual_effects>
       <mainrotor_idle_deformation>  <val>4</val>  </mainrotor_idle_deformation>

@@ -101,6 +101,7 @@
           <Vector3>  <x>-0.485</x>  <y>-0.101</y>  <z>-0.013</z>  </Vector3>
         </vect3>
       </positions_steering_center>
+	  <collision_force_max>  <val>200</val>  </collision_force_max>
     </collision>
     <mainrotor>
       <b>  <val>2</val>  </b>

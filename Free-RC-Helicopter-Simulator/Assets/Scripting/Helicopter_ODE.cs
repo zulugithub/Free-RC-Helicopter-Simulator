@@ -222,6 +222,8 @@ namespace Helisimulator
         public float collision_positions_landing_gear_steering_left_rising_offset; //[m]
         public float collision_positions_landing_gear_steering_right_rising_offset; //[m]
 
+        public bool collision_force_too_high_flag = false; 
+
         // debug variables
         public void Update_ODE_Debug_Variables()
         {
@@ -1047,7 +1049,7 @@ namespace Helisimulator
 
 
         // ##################################################################################
-        // mainrotor thrust, torque and induced velcoity
+        // mainrotor thrust, torque and induced velocity
         // ##################################################################################
         private void Mainrotor_Thrust_and_Torque_with_Precalculations(Vector3 force_fuselageLH, out double thrust_mr, out double torque_mr, out double v_i_mr, out double dflapping_a_s_mr_LR__int_dt, out double dflapping_b_s_mr_LR__int_dt)
         {
@@ -2345,6 +2347,17 @@ namespace Helisimulator
                     torque_frictionLH_sum.z += torque_frictionLH.z; // [Nm]
 
 
+                    // if contact force is to high, then heli crashes and is reset to inital position
+                    if (integrator_function_call_number == 3)
+                    {
+                        if (contact_forceR.magnitude > par.transmitter_and_helicopter.helicopter.collision.collision_force_max.val) // [N]
+                        {
+                            //Set_Initial_Conditions();
+                            collision_force_too_high_flag = true;
+                        }
+                    }
+
+                    // 
                     if (integrator_function_call_number == 0)
                     {
                         // collect the resulting forces in y-direction (upwards) for the animation of the deformation 

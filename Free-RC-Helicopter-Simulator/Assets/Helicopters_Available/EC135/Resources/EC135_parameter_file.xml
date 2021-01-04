@@ -43,10 +43,10 @@
     <mass_total>  <val>15.0</val>  </mass_total>
     <rotor_sound_recorded_rpm>  <val>1000</val>  </rotor_sound_recorded_rpm>   <!--real1300rpm-->  
 	<motor_sound_recorded_rpm>  <val>1000</val>  </motor_sound_recorded_rpm>
+    <sound_volume>  <val>14</val>  </sound_volume>
     <J_xyz>
       <vect3>  <x>0.3</x>  <y>1.5</y>  <z>1.5</z>  </vect3>
     </J_xyz>
-    <sound_volume>  <val>14</val>  </sound_volume>
     <collision>
       <friction_coeff>  <val>0.6</val>  </friction_coeff>
       <friction_coeff_forward>  <val>0.3</val>  </friction_coeff_forward>
@@ -74,6 +74,7 @@
           <Vector3>  <x>-1.25</x>  <y>-0.28</y>  <z>0</z>  </Vector3>
         </vect3>
       </positions_steering_center>
+	  <collision_force_max>  <val>500</val>  </collision_force_max>
     </collision>
 	<gyro>
       <K_a>  <val>300</val>  </K_a>

@@ -68,6 +68,7 @@
           <Vector3>  <x>-1.5</x>  <y>-0.1</y>  <z>0</z>  </Vector3>
         </vect3>
       </positions_steering_center>
+	  <collision_force_max>  <val>500</val>  </collision_force_max>
     </collision>
 	<gyro>
       <K_a>  <val>250</val>  </K_a>

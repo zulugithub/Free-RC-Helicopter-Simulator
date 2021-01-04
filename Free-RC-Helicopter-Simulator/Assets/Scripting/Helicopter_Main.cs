@@ -2586,6 +2586,21 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
 
 
+        // ##################################################################################
+        // reset sim. if collision forces to hight
+        // ##################################################################################
+        if (helicopter_ODE.collision_force_too_high_flag)
+        {
+            Pause_ODE(gl_pause_flag = true);
+            Crash_Play_Audio(Application.streamingAssetsPath + "/Audio/crash_audio_001.wav");
+            Reset_Simulation_States();
+            Pause_ODE(gl_pause_flag = false);
+
+            helicopter_ODE.collision_force_too_high_flag = false;
+        }
+        // ##################################################################################
+
+
 
         // ##################################################################################
         // hide mouse cursor

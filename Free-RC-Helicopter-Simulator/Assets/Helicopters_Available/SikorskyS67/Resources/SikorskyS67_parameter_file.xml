@@ -143,6 +143,7 @@
           <Vector3>  <x>-0.04</x>  <y>-0.10</y>  <z>-0.4</z>  </Vector3>
         </vect3>
       </positions_usual>
+	  <collision_force_max>  <val>400</val>  </collision_force_max>
     </collision>
     <mainrotor>
       <b>  <val>2</val>  </b>
