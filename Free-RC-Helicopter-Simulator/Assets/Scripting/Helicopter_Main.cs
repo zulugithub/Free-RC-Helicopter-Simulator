@@ -2892,12 +2892,14 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                         animator_wheels_steering_right.SetFloat("Wheel_Deflection", Mathf.Abs(helicopter_ODE.force_y_gear_or_support_steering_rightLH / stiffness_normalized));
                 }
 
-                // wheel/gear rotation
+                // wheel/gear rotation 
                 float wheel_radius = helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.landing_gear_main_radius.val; //[m] TODO seams that diameter has to be entered here, but why???
                 if (wheel_radius > 0)
                 {
-                    animator_wheels_left.SetFloat("Wheel_Rolling", Mathf.Abs(((helicopter_ODE.wheel_rolling_distance_left - 10000) / ((2 * wheel_radius * Mathf.PI)))) % 1.0f);
-                    animator_wheels_right.SetFloat("Wheel_Rolling", Mathf.Abs(((helicopter_ODE.wheel_rolling_distance_right - 10000) / ((2 * wheel_radius * Mathf.PI)))) % 1.0f);
+                    if (helicopter_ODE.par.transmitter_and_helicopter.helicopter.collision.positions_left_type.val == 1) // [0:skids, 1:gear] 
+                        animator_wheels_left.SetFloat("Wheel_Rolling", Mathf.Abs(((helicopter_ODE.wheel_rolling_distance_left - 10000) / ((2 * wheel_radius * Mathf.PI)))) % 1.0f);
+                    if (helicopter_ODE.par.transmitter_and_helicopter.helicopter.collision.positions_right_type.val == 1) // [0:skids, 1:gear] 
+                        animator_wheels_right.SetFloat("Wheel_Rolling", Mathf.Abs(((helicopter_ODE.wheel_rolling_distance_right - 10000) / ((2 * wheel_radius * Mathf.PI)))) % 1.0f);
                     if (animator_wheels_steering_center != null)
                         animator_wheels_steering_center.SetFloat("Wheel_Rolling", Mathf.Abs(((helicopter_ODE.wheel_rolling_distance_steering_center - 10000) / ((2 * wheel_radius * Mathf.PI)))) % 1.0f);
                     if (animator_wheels_steering_left != null)
