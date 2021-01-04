@@ -3657,6 +3657,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                     exponential_moving_average_filter_for_refresh_rate_sec.Init_Mean_Value(1.0f / Screen.currentResolution.refreshRate);
                     refresh_rate_sec_found_flag = false;
                     //Find_Exact_Monitor_Refreshrate();
+
+                    Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/female_voice_virtual_reality_mode_enabled.wav");
                 }
                 else
                 {
@@ -3695,7 +3697,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         refresh_rate_sec_old = 0;
         exponential_moving_average_filter_for_refresh_rate_sec.Init_Mean_Value(1.0f / Screen.currentResolution.refreshRate);
         refresh_rate_sec_found_flag = false;
-       // Find_Exact_Monitor_Refreshrate();
+        // Find_Exact_Monitor_Refreshrate();
+
+        Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/female_voice_virtual_reality_mode_disabled.wav");
 
     }
     // ##################################################################################
