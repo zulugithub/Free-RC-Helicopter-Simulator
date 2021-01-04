@@ -62,7 +62,7 @@
 	<position>
 		<vect3>
 		  <x>-0.45</x>
-		  <y>0.5</y>
+		  <y>0.4</y>
 		  <z>5.31</z>
 		</vect3>
 	  </position>
@@ -70,7 +70,7 @@
 		<vect3>
 		  <x>0</x>
 		  <y>130</y>
-		  <z>0</z>
+		  <z>2</z>
       </vect3>
 	</orientation>
   </initial_position>
