@@ -1565,19 +1565,22 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
                 // enable wheel brake and speed brake, if helicopter has landing-gears to avoid rolling after startup
                 if (helicopter_ODE.par.transmitter_and_helicopter.helicopter.collision.positions_left_type.val == 1 ||
-                   helicopter_ODE.par.transmitter_and_helicopter.helicopter.collision.positions_right_type.val == 1) // 1:gear 0:skids
+                   helicopter_ODE.par.transmitter_and_helicopter.helicopter.collision.positions_right_type.val == 1) // 0:skids 1:gear 
                 {
                     // enable wheel brake
-                    helicopter_ODE.Wheel_Brake_Enable();
-                    wheel_brake_status = Wheel_Brake_Status_Variants.enabled;
-                    commentator_audio_source = GameObject.Find("Commentator/Commentator Sound").gameObject.GetComponent<AudioSource>();
-                    Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/female_voice_parking_brake_applied.wav");
+                    if(helicopter_ODE.par.simulation.gameplay.wheel_brake_on_after_heli_change.val)
+                    { 
+                        helicopter_ODE.Wheel_Brake_Enable();
+                        wheel_brake_status = Wheel_Brake_Status_Variants.enabled;
+                        commentator_audio_source = GameObject.Find("Commentator/Commentator Sound").gameObject.GetComponent<AudioSource>();
+                        Commentator_Play_Audio(Application.streamingAssetsPath + "/Audio/female_voice_parking_brake_applied.wav");
 
-                    // enable air brake (on Sikorsky S67-wings)
-                    if (animator_speed_brake != null)
-                    {
-                        animator_speed_brake.SetTrigger("Speed_Brake_Status");
-                        speed_brake_status = Animator_Speed_Brake_Status_Variants.opened;
+                        // enable air brake (on Sikorsky S67-wings)
+                        if (animator_speed_brake != null)
+                        {
+                            animator_speed_brake.SetTrigger("Speed_Brake_Status");
+                            speed_brake_status = Animator_Speed_Brake_Status_Variants.opened;
+                        }
                     }
                 }
                 else

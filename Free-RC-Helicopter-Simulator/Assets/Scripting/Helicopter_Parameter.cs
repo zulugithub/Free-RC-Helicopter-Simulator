@@ -229,6 +229,8 @@ namespace Parameter
         public stru_float delay_after_reset { get; set; } // [sec] deactivate user input duration after reset  
         public stru_float rotor_disk_transparency { get; set; } // [0...1]
         public stru_float rotor_blade_transparency { get; set; } // [0...1]
+        public stru_bool wheel_brake_on_after_heli_change { get; set; } // 
+        
 
         public stru_gameplay()
         {
@@ -237,7 +239,8 @@ namespace Parameter
             delay_after_reset = new stru_float();
             rotor_disk_transparency = new stru_float();
             rotor_blade_transparency = new stru_float();
-            
+            wheel_brake_on_after_heli_change = new stru_bool();
+
 
             show_pilot.val = true;
             show_pilot.hint = "Show pilot with transmitter";
@@ -274,6 +277,12 @@ namespace Parameter
             rotor_blade_transparency.comment = "Rotor blade transparency factor when rotating (1: full transparent)";
             rotor_blade_transparency.unit = "(0...1)";
             rotor_blade_transparency.save_under_player_prefs = true;
+
+            wheel_brake_on_after_heli_change.val = true;
+            wheel_brake_on_after_heli_change.hint = "Enable wheel brake automatically after helicopter change";
+            wheel_brake_on_after_heli_change.comment = "Enable wheel brake automatically after helicopter change";
+            wheel_brake_on_after_heli_change.unit = "-";
+            wheel_brake_on_after_heli_change.save_under_player_prefs = true;
         }
     }
 
@@ -392,7 +401,8 @@ namespace Parameter
             this.gameplay.delay_after_reset.val = PlayerPrefs.GetFloat("__simulation_" + "delay_after_reset", this.gameplay.delay_after_reset.val);
             this.gameplay.rotor_disk_transparency.val = PlayerPrefs.GetFloat("__simulation_" + "rotor_disk_transparency", this.gameplay.rotor_disk_transparency.val);
             this.gameplay.rotor_blade_transparency.val = PlayerPrefs.GetFloat("__simulation_" + "rotor_blade_transparency", this.gameplay.rotor_blade_transparency.val);
-         
+            this.gameplay.wheel_brake_on_after_heli_change.val = (PlayerPrefs.GetInt("__simulation_" + "wheel_brake_on_after_heli_change", this.gameplay.wheel_brake_on_after_heli_change.val == false ? 0 : 1)) == 0 ? false : true;
+
             this.graphic_quality.motion_blur.val = (PlayerPrefs.GetInt("__simulation_" + "motion_blur", this.graphic_quality.motion_blur.val == false ? 0 : 1)) == 0 ? false : true;
             this.graphic_quality.bloom.val = (PlayerPrefs.GetInt("__simulation_" + "bloom", this.graphic_quality.bloom.val == false ? 0 : 1)) == 0 ? false : true;  
             this.graphic_quality.quality_setting.val = (PlayerPrefs.GetInt("__simulation_" + "quality_setting", this.graphic_quality.quality_setting.val));
