@@ -55,7 +55,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     int selected_input_device_id = 0; // always use first connected device id
     bool calibration_abortable = false;
 
-    enum State_Calibration
+    public enum State_Calibration
     {
         not_running,
         starting,
@@ -73,7 +73,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         abort
     }
 
-    enum Channel_Type
+    public enum Channel_Type
     {
         is_not_defined,
         is_not_used,
@@ -81,7 +81,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         is_switch
     }
 
-    class Axis_Settings
+    public class Axis_Settings
     {
         public int direction = 0; // [-1,+1]
 
@@ -99,7 +99,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     //    two_states,
     //    three_states
     //}
-    class Switch_Settings
+    public class Switch_Settings
     {
         //public switch_type switch_type;
         public float state0 = 0;
@@ -107,14 +107,14 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         //public float state2 = 0;
     }
 
-    class Channel_Settings
+    public class Channel_Settings
     {
         public Channel_Type channel_Type = Channel_Type.is_not_defined;
         public Axis_Settings axis_settings = new Axis_Settings();
         public Switch_Settings switch_settings = new Switch_Settings();
     }
 
-    class stru_Controller_Setup
+    public class stru_Controller_Setup
     {
         public List<Channel_Settings> list_channel_settings = new List<Channel_Settings>();
         public int channel_collective; // which input channel should be collective,
@@ -126,16 +126,34 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
         public stru_Controller_Setup()
         {
+            list_channel_settings.Clear();
             for (int c = 0; c < 8; c++) // eight channels
-                list_channel_settings.Add(new Channel_Settings { });
+                list_channel_settings.Add(new Channel_Settings { }); // ???? do not use .Add(), because Deep_Clone the whole object would double them https://stackoverflow.com/questions/12128130/list-xml-serialization-doubling-elements
+        }
+
+        // ???? workaround, implement own deep_copy function 
+        public stru_Controller_Setup Deep_Copy()
+        {
+            stru_Controller_Setup deep_copy_stru_Controller_Setup = new stru_Controller_Setup();
+            deep_copy_stru_Controller_Setup.channel_collective = channel_collective;
+            deep_copy_stru_Controller_Setup.channel_yaw = channel_yaw;
+            deep_copy_stru_Controller_Setup.channel_pitch = channel_pitch;
+            deep_copy_stru_Controller_Setup.channel_roll = channel_roll;
+            deep_copy_stru_Controller_Setup.channel_switch0 = channel_switch0;
+            deep_copy_stru_Controller_Setup.channel_switch1 = channel_switch1;
+
+            for (int c = 0; c < 8; c++) // eight channels
+                deep_copy_stru_Controller_Setup.list_channel_settings[c] = list_channel_settings[c].Deep_Clone();
+
+            return deep_copy_stru_Controller_Setup;
         }
     }
 
     float switch0_status_old; // to detect flank
     float switch1_status_old; // to detect flank
 
-    stru_Controller_Setup stru_controller_settings;
-    stru_Controller_Setup stru_controller_settings_temp;
+    public stru_Controller_Setup stru_controller_settings_work;
+    public stru_Controller_Setup stru_controller_settings_temp;
     
     State_Calibration calibration_state = State_Calibration.not_running;
     List<int> available_channels;
@@ -176,7 +194,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     // ##################################################################################
     void Init_Controller()
     {
-        stru_controller_settings = new stru_Controller_Setup();
+        stru_controller_settings_work = new stru_Controller_Setup();
     }
     // ##################################################################################
 
@@ -298,19 +316,19 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             if (PlayerPrefs.HasKey(s)) { stru_controller_settings_temp.list_channel_settings[i].switch_settings.state1 = PlayerPrefs.GetFloat(s); } 
         }
 
-
-        if (k == (4 + 8 * 3) + (6 + 4)) // found all informations
+        if (k == (4 + 8 * 3) + (6 + 4) || k == (8 * 4) + (6 + 4)) // found all informations
         {
             // controller calibration data found
             //UnityEngine.Debug.Log("Controller calibration data found.");
-            stru_controller_settings = stru_controller_settings_temp;
+            stru_controller_settings_work = stru_controller_settings_temp.Deep_Copy();
             return true;
         }
         else
         {
             // controller calibration needed
             //UnityEngine.Debug.Log("Controller calibration needed.");
-            stru_controller_settings = new stru_Controller_Setup(); // stru_controller_settings_empty;
+            stru_controller_settings_work.list_channel_settings.Clear();
+            stru_controller_settings_work = new stru_Controller_Setup(); // stru_controller_settings_empty;
             return false;
         }
     }
@@ -325,14 +343,11 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     void Set_Controller_Calibration(stru_Controller_Setup stru_controller_settings)
     {
         string s, s0 = "CC___" + (connected_input_devices_names[selected_input_device_id]).Replace(' ', '_');
-        // get the transmitter channel min, center and max values
+        // set the transmitter channel min, center and max values
         for (int i = 0; i < 8; i++)
         {
-            if (stru_controller_settings.list_channel_settings[i].axis_settings.direction != 0)
-            {
-                s = s0 + "___Channel_" + i.ToString() + "___direction";
-                PlayerPrefs.SetInt(s, stru_controller_settings.list_channel_settings[i].axis_settings.direction);
-            }
+            s = s0 + "___Channel_" + i.ToString() + "___direction";
+            PlayerPrefs.SetInt(s, stru_controller_settings.list_channel_settings[i].axis_settings.direction);
             s = s0 + "___Channel_" + i.ToString() + "___min";
             PlayerPrefs.SetFloat(s, stru_controller_settings.list_channel_settings[i].axis_settings.min);
             s = s0 + "___Channel_" + i.ToString() + "___max";
@@ -341,7 +356,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             PlayerPrefs.SetFloat(s, stru_controller_settings.list_channel_settings[i].axis_settings.center);
         }
 
-        // get the right transmitter channel assignment
+        // set the transmitter channel assignment
         s = s0 + "___Collective";
         PlayerPrefs.SetInt(s, stru_controller_settings.channel_collective);
         s = s0 + "___Yaw";
@@ -356,23 +371,35 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         PlayerPrefs.SetInt(s, stru_controller_settings.channel_switch1);
 
 
-        // get switch states only possible, if channel_switch0 or channel_switch1 has valid channel-id values (0...7)
+        // set switch states only possible, if channel_switch0 or channel_switch1 has valid channel-id values (0...7)
         if (stru_controller_settings.channel_switch0 != -12345)
         {
-            int i = stru_controller_settings.channel_switch0;
             s = s0 + "___Switch0__OFF";
             PlayerPrefs.SetFloat(s, stru_controller_settings.list_channel_settings[stru_controller_settings.channel_switch0].switch_settings.state0);
             s = s0 + "___Switch0__ON";
             PlayerPrefs.SetFloat(s, stru_controller_settings.list_channel_settings[stru_controller_settings.channel_switch0].switch_settings.state1);
         }
+        else
+        {
+            s = s0 + "___Switch0__OFF";
+            PlayerPrefs.SetFloat(s, 0);
+            s = s0 + "___Switch0__ON";
+            PlayerPrefs.SetFloat(s, 0);
+        }
 
         if (stru_controller_settings.channel_switch1 != -12345)
         {
-            int i = stru_controller_settings.channel_switch1;
             s = s0 + "___Switch1__OFF";
             PlayerPrefs.SetFloat(s, stru_controller_settings.list_channel_settings[stru_controller_settings.channel_switch1].switch_settings.state0);
             s = s0 + "___Switch1__ON";
             PlayerPrefs.SetFloat(s, stru_controller_settings.list_channel_settings[stru_controller_settings.channel_switch1].switch_settings.state1);
+        }
+        else
+        {
+            s = s0 + "___Switch1__OFF";
+            PlayerPrefs.SetFloat(s, 0);
+            s = s0 + "___Switch1__ON";
+            PlayerPrefs.SetFloat(s, 0);
         }
     }
     // ##################################################################################
@@ -808,8 +835,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                             int c = available_channels[i];
                             stru_controller_settings_temp.list_channel_settings[c].channel_Type = Channel_Type.is_not_used;
                             stru_controller_settings_temp.channel_switch1 = -12345;
-                            stru_controller_settings_temp.list_channel_settings[c].switch_settings.state0 = -12345;
-                            stru_controller_settings_temp.list_channel_settings[c].switch_settings.state1 = -12345;
+                            stru_controller_settings_temp.list_channel_settings[c].switch_settings.state0 = 0;
+                            stru_controller_settings_temp.list_channel_settings[c].switch_settings.state1 = 0;
                         }
                         calibration_state = State_Calibration.finished;
                     }

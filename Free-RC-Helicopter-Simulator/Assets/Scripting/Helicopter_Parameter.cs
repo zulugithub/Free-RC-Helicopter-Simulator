@@ -2360,39 +2360,39 @@ namespace Parameter
 
 
             positions_usual.vect3 = new List<Vector3>(); // right handed: x forward, y top, z to right
-            //positions_usual.vect3.Add(new Vector3 { x = -0.93f, y = -0.16f, z = 0.0f });
+            //positions_usual.vect3.Add(new Vector3 { x = -0.93f, y = -0.16f, z = 0.0f });  // this parameter has to be set in the xml file, othervise every model would have this value  
             positions_usual.hint = "Contact position heli to ground";
             positions_usual.comment = "Contact position heli to ground";
             positions_usual.unit = "m";
 
             positions_left.vect3 = new List<Vector3>(); // right handed: x forward, y top, z to right
-            //positions_left.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = -0.1f });
-            //positions_left.vect3.Add(new Vector3 { x = -0.1f, y = -0.18f, z = -0.1f });
+            //positions_left.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = -0.1f });  // this parameter has to be set in the xml file, othervise every model would have this value  
+            //positions_left.vect3.Add(new Vector3 { x = -0.1f, y = -0.18f, z = -0.1f });  // this parameter has to be set in the xml file, othervise every model would have this value  
             positions_left.hint = "Contact position heli's left landing gear or skid to ground";
             positions_left.comment = "Contact position heli's left landing gear or skid to ground";
             positions_left.unit = "m";
 
             positions_right.vect3 = new List<Vector3>(); // right handed: x forward, y top, z to right
-            //positions_right.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = 0.1f }); 
-            //positions_right.vect3.Add(new Vector3 { x = -0.1f, y = -0.18f, z = 0.1f });
+            //positions_right.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = 0.1f });   // this parameter has to be set in the xml file, othervise every model would have this value  
+            //positions_right.vect3.Add(new Vector3 { x = -0.1f, y = -0.18f, z = 0.1f });  // this parameter has to be set in the xml file, othervise every model would have this value  
             positions_right.hint = "Contact position heli's right landing gear or skid to ground";
             positions_right.comment = "Contact position heli's right landing gear or skid to ground";
             positions_right.unit = "m";
 
             positions_steering_center.vect3 = new List<Vector3>(); // right handed: x forward, y top, z to right
-            //positions_steering_center.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = 0.1f }); 
+            //positions_steering_center.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = 0.1f });   // this parameter has to be set in the xml file, othervise every model would have this value  
             positions_steering_center.hint = "Contact position heli's center steering/landing gear or support to ground";
             positions_steering_center.comment = "Contact position heli's center steering/landing gear or support to ground";
             positions_steering_center.unit = "m";
 
             positions_steering_left.vect3 = new List<Vector3>(); // right handed: x forward, y top, z to right
-            //positions_steering_left.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = 0.1f }); 
+            //positions_steering_left.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = 0.1f });   // this parameter has to be set in the xml file, othervise every model would have this value  
             positions_steering_left.hint = "Contact position heli's left steering/landing gear or support to ground";
             positions_steering_left.comment = "Contact position heli's left steering/landing gear or support to ground";
             positions_steering_left.unit = "m";
 
             positions_steering_right.vect3 = new List<Vector3>(); // right handed: x forward, y top, z to right
-            //positions_steering_right.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = 0.1f }); 
+            //positions_steering_right.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = 0.1f });  // this parameter has to be set in the xml file, othervise every model would have this value   
             positions_steering_right.hint = "Contact position heli's right steering/landing gear or support to ground";
             positions_steering_right.comment = "Contact position heli's right steering/landing gear or support to ground";
             positions_steering_right.unit = "m";

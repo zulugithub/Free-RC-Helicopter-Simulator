@@ -1687,7 +1687,6 @@ namespace Common
 
                 return (T)serializer.Deserialize(stream);
             }
-
         }
 
 

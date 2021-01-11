@@ -2685,10 +2685,10 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             // ##################################################################################
             // get controller input axes and apply scaling, expo and dualrate 
             // ##################################################################################
-            u_inputs[0] = Expo_and_Dualrate(input_channel_used_in_game[stru_controller_settings.channel_collective], stru_controller_settings.list_channel_settings[stru_controller_settings.channel_collective].axis_settings);
-            u_inputs[1] = Expo_and_Dualrate(input_channel_used_in_game[stru_controller_settings.channel_yaw], stru_controller_settings.list_channel_settings[stru_controller_settings.channel_yaw].axis_settings);
-            u_inputs[2] = Expo_and_Dualrate(input_channel_used_in_game[stru_controller_settings.channel_pitch], stru_controller_settings.list_channel_settings[stru_controller_settings.channel_pitch].axis_settings);
-            u_inputs[3] = Expo_and_Dualrate(input_channel_used_in_game[stru_controller_settings.channel_roll], stru_controller_settings.list_channel_settings[stru_controller_settings.channel_roll].axis_settings);
+            u_inputs[0] = Expo_and_Dualrate(input_channel_used_in_game[stru_controller_settings_work.channel_collective], stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_collective].axis_settings);
+            u_inputs[1] = Expo_and_Dualrate(input_channel_used_in_game[stru_controller_settings_work.channel_yaw], stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_yaw].axis_settings);
+            u_inputs[2] = Expo_and_Dualrate(input_channel_used_in_game[stru_controller_settings_work.channel_pitch], stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_pitch].axis_settings);
+            u_inputs[3] = Expo_and_Dualrate(input_channel_used_in_game[stru_controller_settings_work.channel_roll], stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_roll].axis_settings);
 
             // u_inputs[4] = 0;  pusher propeller set by keys
             u_inputs[5] = 0;
@@ -2700,11 +2700,11 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             // ##################################################################################
             // get controller input switches
             // ##################################################################################
-            if (stru_controller_settings.channel_switch0 != -12345)
+            if (stru_controller_settings_work.channel_switch0 != -12345)
             {
-                float switch_value = input_channel_used_in_game[stru_controller_settings.channel_switch0];
-                float switch_state0 = stru_controller_settings.list_channel_settings[stru_controller_settings.channel_switch0].switch_settings.state0;
-                float switch_state1 = stru_controller_settings.list_channel_settings[stru_controller_settings.channel_switch0].switch_settings.state1;
+                float switch_value = input_channel_used_in_game[stru_controller_settings_work.channel_switch0];
+                float switch_state0 = stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_switch0].switch_settings.state0;
+                float switch_state1 = stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_switch0].switch_settings.state1;
                 int switch0_status = 0;
 
                 if (switch_value > (switch_state0 - 0.05f) && switch_value < (switch_state0 + 0.05f))
@@ -2731,11 +2731,11 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             }
 
 
-            if (stru_controller_settings.channel_switch1 != -12345)
+            if (stru_controller_settings_work.channel_switch1 != -12345)
             {
-                float switch_value = input_channel_used_in_game[stru_controller_settings.channel_switch1];
-                float switch_state0 = stru_controller_settings.list_channel_settings[stru_controller_settings.channel_switch1].switch_settings.state0;
-                float switch_state1 = stru_controller_settings.list_channel_settings[stru_controller_settings.channel_switch1].switch_settings.state1;
+                float switch_value = input_channel_used_in_game[stru_controller_settings_work.channel_switch1];
+                float switch_state0 = stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_switch1].switch_settings.state0;
+                float switch_state1 = stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_switch1].switch_settings.state1;
                 int switch1_status = 0;
 
                 if (switch_value > (switch_state0 - 0.05f) && switch_value < (switch_state0 + 0.05f))
