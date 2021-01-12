@@ -110,7 +110,7 @@
       <c>  <val>0.034</val>  </c>
       <J>  <val>0.008</val>  </J>
       <C_D0>  <val>0.016</val>  </C_D0>
-      <K_col>  <val>13.5</val>  </K_col>
+      <K_col>  <val>12.0</val>  </K_col>
       <Theta_col_0>  <val>0</val>  </Theta_col_0>
       <posLH>
         <vect3>  <x>0</x>  <y>0.09071549773216248</y>  <z>0</z>  </vect3>
@@ -186,8 +186,8 @@
     </gyro>
     <flybarless>
       <K_a>  <val>360</val>  </K_a>  <!--agil: 450-->  
-      <K_I>  <val>0.2</val>  </K_I>
-      <K_p>  <val>0.2</val>  </K_p>
+      <K_I>  <val>2.00</val>  </K_I>
+      <K_p>  <val>0.15</val>  </K_p>
       <direct_feadtrough_flybareless>  <val>false</val>  </direct_feadtrough_flybareless>
     </flybarless>
     <servo_damping>  		
