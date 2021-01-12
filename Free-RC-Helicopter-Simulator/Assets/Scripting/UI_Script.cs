@@ -16,7 +16,7 @@ using System.Text;
 using Parameter;
 using System.Diagnostics;
 using Common;
-
+using PlotKids.Infra; // automatic version numbering https://forum.unity.com/threads/get-build-number-from-a-script.641725/
 
 // ##################################################################################
 //    UUUUUUUU     UUUUUUUUIIIIIIIIII
@@ -208,6 +208,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
     bool UI_show_new_controller_name_flag = false;
     float UI_show_new_controller_name_time;
+
+    public PlotBuildSettings plot_build_setting;
     // ##################################################################################
     #endregion
 
@@ -685,26 +687,42 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     //                                                                                                                                                        ggg::::::ggg    
     // ##################################################################################                                                                        gggggg       
     #region ui_handling
+    GUIStyle style = new GUIStyle(); 
     public void OnGUI()
     {
+        // show version number
+        if (Time.time < 8)
+        {
+            style.fontSize = 40;
+            style.fontStyle = FontStyle.Bold;
+
+            style.normal.textColor = Color.black;
+            GUI.Label(new Rect(104, 44, 200, 100), "Version " + plot_build_setting.LastBuildTime + "", style);
+            style.normal.textColor = Color.white;
+            GUI.Label(new Rect(100, 40, 200, 100), "Version " + plot_build_setting.LastBuildTime + "", style);
+        }
+
+        // show connected controller
         if (UI_show_new_controller_name_flag == false)
             UI_show_new_controller_name_time = Time.time;
         else
-        { 
-            if( Time.time - UI_show_new_controller_name_time < 3 )
-            { 
+        {
+            if (Time.time - UI_show_new_controller_name_time < 5)
+            {
                 //Time.deltaTime
                 //Time.time >= currenttime
-
-                GUIStyle style = new GUIStyle(); // TODO: put into awake()
-                style.fontSize = 30;
+                style.fontSize = 40;
                 style.fontStyle = FontStyle.Bold;
-                style.normal.textColor = Color.black;
 
                 if (connected_input_devices_names.Count > 0)
-                { 
-                    GUI.Label(new Rect(104, 104, 200, 100), "Using controller \"" + connected_input_devices_names[selected_input_device_id] + "\"", style);
+                {
+                    style.normal.textColor = Color.black;
+                    GUI.Label(new Rect(104, 44, 200, 100), "Version " + plot_build_setting.LastBuildTime + "", style);
+                    style.normal.textColor = Color.white;
+                    GUI.Label(new Rect(100, 40, 200, 100), "Version " + plot_build_setting.LastBuildTime + "", style);
 
+                    style.normal.textColor = Color.black;
+                    GUI.Label(new Rect(104, 104, 200, 100), "Using controller \"" + connected_input_devices_names[selected_input_device_id] + "\"", style);
                     style.normal.textColor = Color.white;
                     GUI.Label(new Rect(100, 100, 200, 100), "Using controller \"" + connected_input_devices_names[selected_input_device_id] + "\"", style);
                 }
@@ -714,6 +732,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 UI_show_new_controller_name_flag = false;
             }
         }
+
     }
 
 

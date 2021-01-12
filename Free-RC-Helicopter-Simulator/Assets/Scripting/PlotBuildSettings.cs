@@ -1,4 +1,10 @@
-﻿// https://forum.unity.com/threads/get-build-number-from-a-script.641725/
+﻿// ##################################################################################
+// https://forum.unity.com/threads/get-build-number-from-a-script.641725/
+// see file Assets/Editor/PlotBuildTools.cs
+// see file Assets/Scripting/PlotBuildSettings.cs
+// they generate - Build_Settings.asset (Scriptable Object) that can be accessed in game to show the version/build info
+//               - Build/Version.txt that is used by InnoSetup when creating an installer (see InnoSetup.iss)
+// ##################################################################################
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
