@@ -1198,9 +1198,28 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
             // clean up
             File.Delete(fullpath_reduced_parameter_xml_file_copy);
+
+            // We want to load and prepare several additional pre-setup files for each helicopter. We need the names of additional files. These all are stored (if available) in "text_assets" and are filtered later.
+            foreach (var t in text_assets)
+            {
+                if (t.name.Contains(reduced_parameter_xml_file + "_"))
+                {  
+                    xmldoc.LoadXml(Resources.Load<TextAsset>(t.name).text);
+                    xmldoc.Save(fullpath_reduced_parameter_xml_file_copy);
+
+                    string fullpath_full_parameter_xml_file_additional = System.IO.Path.Combine(folder_saved_parameter_for_transmitter_and_helicopter, t.name.Replace("_parameter_file", "_default_parameter")); // to c:\Users\ .... \AppData\LocalLow\Free RC Helicopter Simulator\Free RC Helicopter Simulator\Resources\SavedHelicopterAndTransmitterParametersets\
+
+                    // merge xml files, merge individual reduced-parameters of selected helicoper and transmitter over default-full-parameter set   
+                    Helper.XmlMerging.TryMergeXmlFiles(fullpath_reduced_parameter_xml_file_copy, fullpath_full_parameter_xml_file, fullpath_full_parameter_xml_file_additional);
+
+                    // clean up
+                    File.Delete(fullpath_reduced_parameter_xml_file_copy);
+                }
+            }
+
         }
         // clean up
-        File.Delete(fullpath_default_full_parameter_xml_file);
+        //File.Delete(fullpath_default_full_parameter_xml_file);
         // ##################################################################################
 
 

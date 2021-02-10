@@ -1104,9 +1104,23 @@ namespace Common
         // write XML 
         // ############################################################################
         #region xml_io
-        public static void IO_XML_Serialize(object item, string path)
+        public static void IO_XML_Serialize(object item, string path, bool override_flag = false)
         {
-            XmlSerializer serializer = new XmlSerializer(item.GetType());
+            XmlSerializer serializer;
+
+            //if (override_flag)
+            //{
+            //    var attributes = new XmlAttributes { XmlIgnore = true };
+            //    var overrides = new XmlAttributeOverrides();
+            //    overrides.Add(item.GetType(), "transmitter/countdown_minutes", attributes);  // 
+            //    overrides.Add(item.GetType(), "helicopter", attributes);
+
+            //    serializer = new XmlSerializer(item.GetType(), overrides);
+            //}
+            //else
+            //  serializer = new XmlSerializer(item.GetType());
+
+            serializer = new XmlSerializer(item.GetType());
             StreamWriter writer = new StreamWriter(path);
             serializer.Serialize(writer.BaseStream, item);
             writer.Close();
