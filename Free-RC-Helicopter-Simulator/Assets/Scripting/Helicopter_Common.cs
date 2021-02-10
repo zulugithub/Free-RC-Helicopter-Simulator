@@ -17,10 +17,12 @@ using System.Xml.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using Parameter;
 using System.Collections;
-
+using System.Runtime.InteropServices;
+using System.Drawing;
 
 namespace Common
 {
+    enum Rotor_Type { mainrotor, tailrotor, propeller };
 
     // ############################################################################
     //    HHHHHHHHH     HHHHHHHHH                   lllllll                                                            
@@ -82,7 +84,7 @@ namespace Common
         public static int Clamp(stru_list stru_list)
         {
             if (stru_list.val.CompareTo(stru_list.str.Count) >= 0)
-                return stru_list.str.Count-1;
+                return stru_list.str.Count - 1;
             if (stru_list.val.CompareTo(0) < 0)
                 return 0;
             return stru_list.val;
@@ -106,7 +108,7 @@ namespace Common
         public static Quaternion ConvertLeftHandedToRightHandedQuaternion(Quaternion leftHandedQuaternion)
         {
             // works only for this here-used special coordinate definition that only the z axis is flipped
-            return new Quaternion( leftHandedQuaternion.x,
+            return new Quaternion(leftHandedQuaternion.x,
                                    leftHandedQuaternion.y,
                                   -leftHandedQuaternion.z,
                                   -leftHandedQuaternion.w);
@@ -154,7 +156,7 @@ namespace Common
         // ############################################################################
 
 
-            
+
 
         // ############################################################################
         // right handed cross product for vectors 
@@ -535,9 +537,9 @@ namespace Common
             float s3 = Mathf.Sin(psi);
 
             return new Vector3(
-                (c2 * c3)  * v3L.x + (s3 * c1 + c3 * s2 * s1) * v3L.y + (s3 * s1 - c3 * s2 * c1) * v3L.z,
+                (c2 * c3) * v3L.x + (s3 * c1 + c3 * s2 * s1) * v3L.y + (s3 * s1 - c3 * s2 * c1) * v3L.z,
                 (-c2 * s3) * v3L.x + (c3 * c1 - s3 * s2 * s1) * v3L.y + (c3 * s1 + s3 * s2 * c1) * v3L.z,
-                      (s2) * v3L.x +               (-c2 * s1) * v3L.y +                (c2 * c1) * v3L.z );
+                      (s2) * v3L.x + (-c2 * s1) * v3L.y + (c2 * c1) * v3L.z);
         }
         public static Vector3 A_RL(Vector3 phi_theta_psi, Vector3 v3R)
         {
@@ -568,9 +570,9 @@ namespace Common
             float s3 = Mathf.Sin(psi);
 
             return new Vector3(
-                               (c2 * c3) * v3R.x +               (-c2 * s3) * v3R.y +       (s2) * v3R.z,
+                               (c2 * c3) * v3R.x + (-c2 * s3) * v3R.y + (s2) * v3R.z,
                 (s3 * c1 + c3 * s2 * s1) * v3R.x + (c3 * c1 - s3 * s2 * s1) * v3R.y + (-c2 * s1) * v3R.z,
-                (s3 * s1 - c3 * s2 * c1) * v3R.x + (c3 * s1 + s3 * s2 * c1) * v3R.y +  (c2 * c1) * v3R.z );
+                (s3 * s1 - c3 * s2 * c1) * v3R.x + (c3 * s1 + s3 * s2 * c1) * v3R.y + (c2 * c1) * v3R.z);
 
         }
         public static Vector3 A_LR(Vector3 phi_theta_psi, Vector3 v3R)
@@ -645,7 +647,7 @@ namespace Common
         // ############################################################################
         public static Quaternion B321toQuat(float phi, float theta, float psi) // [deg]
         {
-            float c1 = Mathf.Cos(phi  * Mathf.Deg2Rad / 2);
+            float c1 = Mathf.Cos(phi * Mathf.Deg2Rad / 2);
             float c2 = Mathf.Cos(theta * Mathf.Deg2Rad / 2);
             float c3 = Mathf.Cos(psi * Mathf.Deg2Rad / 2);
 
@@ -701,13 +703,13 @@ namespace Common
         /// <param name="q"></param>
         /// <returns></returns>
         // ############################################################################
-        public static Vector3 Translational_Velocity_At_Local_Point_Expressed_In_Global_Frame(Vector3 translational_velocity_R, 
-                                                                      Vector3 rotational_velocity_omega_L, 
+        public static Vector3 Translational_Velocity_At_Local_Point_Expressed_In_Global_Frame(Vector3 translational_velocity_R,
+                                                                      Vector3 rotational_velocity_omega_L,
                                                                       Vector3 point_position_L,
-                                                                      Quaternion q)  
+                                                                      Quaternion q)
 
         {
-            return translational_velocity_R + Helper.A_RL(q, Helper.Cross(rotational_velocity_omega_L, point_position_L ));
+            return translational_velocity_R + Helper.A_RL(q, Helper.Cross(rotational_velocity_omega_L, point_position_L));
         }
         // ############################################################################
 
@@ -722,7 +724,7 @@ namespace Common
         /// <param name="q"></param>
         /// <returns></returns>
         // ############################################################################
-        public static Vector3 Rotational_Velocity_Expressed_In_Global_Frame( Vector3 rotational_velocity_omega_L,
+        public static Vector3 Rotational_Velocity_Expressed_In_Global_Frame(Vector3 rotational_velocity_omega_L,
                                                                              Quaternion q)
 
         {
@@ -947,7 +949,7 @@ namespace Common
 
 
 
- 
+
 
 
 
@@ -1154,7 +1156,7 @@ namespace Common
 
 
         // ############################################################################
-        // CODE by Wizbit
+        // merge XML - CODE by Wizbit
         //  https://stackoverflow.com/questions/1892336/merge-two-xelements
         // ############################################################################
         #region XmlMerging
@@ -1377,13 +1379,13 @@ namespace Common
         public class contact_info
         {
             public bool flag_has_contact { get; set; }
-            public Vector3 normal { get; set; }
+            public Vector3 normalR { get; set; }
             public float penetration { get; set; }
 
             public contact_info()
             {
                 flag_has_contact = false;
-                normal = new Vector3(0f, 1f, 0f);
+                normalR = new Vector3(0f, 1f, 0f); // in world space
                 penetration = 1000f; //[m]
             }
         }
@@ -1402,11 +1404,11 @@ namespace Common
         // ############################################################################
         #region AABB
         public static stru_AABB Set_AABB_Helicopter(List<Vector3> list_pointsLH)
-        { 
+        {
             float min_x = 1000, max_x = -1000, min_y = 1000, max_y = -1000, min_z = 1000, max_z = -1000;
 
             // find smallest and largest distances
-            for(int i = 0; i < list_pointsLH.Count; i++)
+            for (int i = 0; i < list_pointsLH.Count; i++)
             {
                 min_x = Mathf.Min(min_x, list_pointsLH[i].x); // [m]
                 max_x = Mathf.Max(max_x, list_pointsLH[i].x); // [m]
@@ -1426,12 +1428,12 @@ namespace Common
             extrema[5] = Mathf.Abs(max_z);
 
             const float additional_size = 0.10f; // [m] 
-            float r = extrema.Max() + additional_size; 
+            float r = extrema.Max() + additional_size;
             stru_AABB aabb = new stru_AABB();
             aabb.r[0] = r;
             aabb.r[1] = r;
             aabb.r[2] = r;
-            aabb.c = new Vector3(0,0,0);
+            aabb.c = new Vector3(0, 0, 0);
 
             return aabb;
         }
@@ -1449,8 +1451,12 @@ namespace Common
         public static List<contact_info> Collision_Point_To_Mesh(Vector3 vect_r_CHO_O, stru_AABB helicopters_aabb, GroundMesh mesh, List<Vector3> list_points)
         {
             List<contact_info> contact_informations = new List<contact_info>();
+            List<int> available_points = new List<int>();
             for (int j = 0; j < list_points.Count; j++)
+            { 
                 contact_informations.Add(new contact_info());
+                available_points.Add(j);
+            }
 
             Vector3 v0, v1, v2, n;
             int faces_count = mesh.vertices.Count() / 3;
@@ -1461,24 +1467,28 @@ namespace Common
             helicopters_aabb_translated.r[2] = helicopters_aabb.r[2];
             helicopters_aabb_translated.c = helicopters_aabb.c + vect_r_CHO_O;   // vect_r_CHO_O is the helicopters center of mass position CH from inertial frame O, expressed in inertial frame O
 
+
             //Debug.Log(triangles_count);
             for (int i = 0; i < faces_count; i++)
             {
-                if( TestAABBAABB(helicopters_aabb_translated, mesh.aabb[i]) != 0 )
-                { 
+                if (TestAABBAABB(helicopters_aabb_translated, mesh.aabb[i]) != 0)
+                {
                     v0 = mesh.vertices[i * 3 + 0];
                     v1 = mesh.vertices[i * 3 + 1];
                     v2 = mesh.vertices[i * 3 + 2];
                     n = mesh.normals[i];
 
-                    for (int j = 0; j < list_points.Count; j++)
+                    for (int p = 0; p < available_points.Count; p++)
                     {
+                        int j = available_points[p];
                         float distance = Point_To_Triangle_Distance(v0, v1, v2, n, list_points[j]);
+
                         if (distance < 0)
                         {
                             contact_informations[j].flag_has_contact = true;
-                            contact_informations[j].normal = n.normalized;
+                            contact_informations[j].normalR = n.normalized;
                             contact_informations[j].penetration = distance;
+                            available_points.RemoveAt(p--); // remove point because we found a collision. (we only allow one collision)
                         }
                         else
                         {
@@ -1487,15 +1497,26 @@ namespace Common
                             if (distance < 0)
                             {
                                 contact_informations[j].flag_has_contact = true;
-                                contact_informations[j].normal = n.normalized;
+                                contact_informations[j].normalR = n.normalized;
                                 contact_informations[j].penetration = distance;
+                                available_points.RemoveAt(p--); // remove point because we found a collision. (we only allow one collision)
+                            }
+                            else
+                            {
+                                // if we search a point above the ground, we search for the smallest distanced
+                                if (contact_informations[j].penetration > distance)
+                                {
+                                    contact_informations[j].flag_has_contact = false;
+                                    contact_informations[j].normalR = n.normalized; 
+                                    contact_informations[j].penetration = distance;
+                                }     
                             }
                         }
 
                     }
                 }
             }
-           
+
             return contact_informations;
         }
         // ############################################################################
@@ -1525,13 +1546,13 @@ namespace Common
             double sqr_distance; // [m]
             double inv_det = 0.00001f;
 
-            if ( (s+t) <= det )
+            if ((s + t) <= det)
             {
-                if( s >= 0 && t >= 0 )
+                if (s >= 0 && t >= 0)
                 {
                     // "region 0"
-                    if(det != 0)
-                         inv_det = 1 / det;
+                    if (det != 0)
+                        inv_det = 1 / det;
 
                     s *= inv_det;
                     t *= inv_det;
@@ -1637,10 +1658,10 @@ namespace Common
                 {
                     return average + 360;
                 }
-                else 
+                else
                 {
                     if (average > 360)
-                    { 
+                    {
                         return average - 360;
                     }
                     else
