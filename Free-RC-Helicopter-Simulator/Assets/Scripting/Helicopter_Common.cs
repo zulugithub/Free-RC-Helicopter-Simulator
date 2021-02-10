@@ -1639,6 +1639,93 @@ namespace Common
         #endregion
 
 
+
+        // ############################################################################
+        // bitmap pixel manipulation 
+        // ############################################################################
+        #region BitmapPixelManipulation 
+        // https://docs.unity3d.com/ScriptReference/Texture2D.GetRawTextureData.html
+        public static void SetTexturePixel(ref Texture2D texture, List<int> yy)
+        {
+            //GetComponent<Renderer>().material.mainTexture = texture;
+            var data = texture.GetRawTextureData<Color32>();
+
+            // fill texture data with a simple pattern
+            Color32 transparent = new Color32(0, 0, 0, 0);
+            Color32 white = new Color32(255, 255, 255, 255);
+            int index = 0;
+            for (int x = 0; x < texture.width; x++)
+            {
+                for (int y = 0; y < texture.height; y++)
+                {
+
+                    //data[index++] = ((x & y) == 0 ? transparent : white);
+                    if(yy.Count>x)
+                    { 
+                        if (y < yy[x])
+                            data[index++] = white;
+                        else
+                            data[index++] = transparent;
+                    }
+                    else
+                        data[index++] = transparent;
+                }
+            }
+            // upload to the GPU
+            texture.Apply();
+        }
+
+
+
+        /*
+        // - requires System.Drawing.dll 
+        // https://stackoverflow.com/questions/24701703/c-sharp-faster-alternatives-to-setpixel-and-getpixel-for-bitmaps-for-windows-f
+        // https://forum.unity.com/threads/the-type-or-namespace-name-bitmap-could-not-be-found.829026/
+        public class DirectBitmap : IDisposable
+        {
+            public Bitmap Bitmap { get; private set; }
+            public Int32[] Bits { get; private set; }
+            public bool Disposed { get; private set; }
+            public int Height { get; private set; }
+            public int Width { get; private set; }
+
+            protected GCHandle BitsHandle { get; private set; }
+
+            public DirectBitmap(int width, int height)
+            {
+                Width = width;
+                Height = height;
+                Bits = new Int32[width * height];
+                BitsHandle = GCHandle.Alloc(Bits, GCHandleType.Pinned);
+                Bitmap = new Bitmap(width, height, width * 4, PixelFormat.Format32bppPArgb, BitsHandle.AddrOfPinnedObject());
+            }
+
+            public void SetPixel(int x, int y, Color colour)
+            {
+                int index = x + (y * Width);
+                int col = colour.ToArgb();
+
+                Bits[index] = col;
+            }
+
+            public Color GetPixel(int x, int y)
+            {
+                int index = x + (y * Width);
+                int col = Bits[index];
+                Color result = Color.FromArgb(col);
+
+                return result;
+            }
+
+            public void Dispose()
+            {
+                if (Disposed) return;
+                Disposed = true;
+                Bitmap.Dispose();
+                BitsHandle.Free();
+            }
+        }*/
+        #endregion
     }
 
 
