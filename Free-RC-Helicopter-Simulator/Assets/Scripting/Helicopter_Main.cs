@@ -280,10 +280,10 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     const float RIGHT2LEFT_HANDED = -1.0f;
 
     private Coroutine co_hide_cursor;
-    float mouse_camera_fov;
+    float mouse_fov;
     float mouse_camera_yaw;
     float mouse_camera_pitch;
-    const float mouse_camera_fov_limit = 20.0f;
+    const float mouse_fov_limit = 20.0f;
     const float mouse_scroll_fov_increment = 0.015f;
     const float mouse_camera_speed_horizontaly = 0.25f;
     const float mouse_camera_speed_verticaly = 0.25f;
@@ -294,6 +294,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     Light directional_light;
 
     Camera main_camera;
+    Quaternion main_camera_rotation;
+    float main_camera_rotation_offset_during_debuging; // [rad]
+    float main_camera_rotation_offset_to_keep_ground_visible; // [rad]
     GameObject camera_offset;
     float xr_camera_vertical_position_offset = 0f; // [m] offset value for xr-camera: at loading of the scenery this offset ensures, that the xr-camera is at the same height, as the panoramic photo was taken
     //Camera sub_camera; // needed for projecting skymap to mesh
@@ -3469,8 +3472,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             ui_parameter_panel_flag == false && ui_welcome_panel_flag == false && ui_info_panel_flag == false &&
             ui_helicopter_selection_menu_flag == false && ui_scenery_selection_menu_flag == false)
         {
-            mouse_camera_fov += UnityEngine.InputSystem.Mouse.current.scroll.ReadValue().y * mouse_scroll_fov_increment;
-            mouse_camera_fov = Mathf.Clamp(mouse_camera_fov, -mouse_camera_fov_limit, +mouse_camera_fov_limit);
+            mouse_fov -= UnityEngine.InputSystem.Mouse.current.scroll.ReadValue().y * mouse_scroll_fov_increment;
+            mouse_fov = Mathf.Clamp(mouse_fov, -mouse_fov_limit, +mouse_fov_limit);
         }
         // ##################################################################################
 
@@ -3500,15 +3503,16 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // ##################################################################################
         // update camera position and view
         // ##################################################################################
+        float vertical_camera_angle;
         if (XRSettings.enabled)
         {
-            XRDevice.fovZoomFactor = Helper.Clamp(helicopter_ODE.par.simulation.camera.camera_xr_zoom_factor);
+            XRDevice.fovZoomFactor = Helper.Clamp(helicopter_ODE.par.simulation.camera.xr_zoom_factor);
 
             Correct_And_Limit_XR_Camera_Vertical_Position();
         }
         else
         {
-            if (helicopter_ODE.par.simulation.camera.camera_shaking.val > 0)
+            if (helicopter_ODE.par.simulation.camera.shaking.val > 0)
             {
                 // camera shaking
                 //Vector3 localPosition = UnityEngine.Random.insideUnitSphere * 0.05f;
@@ -3516,11 +3520,11 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 //float y = (float)exponential_moving_average_filter_for_camera_position_y.Calculate(100000, (double)localPosition.y) * 2000;
                 //float z = (float)exponential_moving_average_filter_for_camera_position_z.Calculate(100000, (double)localPosition.z) * 2000;
 
-                float factor = Helper.Clamp(helicopter_ODE.par.simulation.camera.camera_shaking) / 100f; // [%]->[0...1]
-                float camera_shaking_factor = 0.03f * factor;
-                float x = Mathf.PerlinNoise(Time.timeSinceLevelLoad / 4.0f + 1, Time.timeSinceLevelLoad / 2f + 100) * camera_shaking_factor;
-                float y = Mathf.PerlinNoise(Time.timeSinceLevelLoad / 3.0f + 10, 0) * camera_shaking_factor * 3;
-                float z = Mathf.PerlinNoise(Time.timeSinceLevelLoad / 2.0f + 100, 0) * camera_shaking_factor;
+                float factor = Helper.Clamp(helicopter_ODE.par.simulation.camera.shaking) / 100f; // [%]->[0...1]
+                float shaking_factor = 0.03f * factor;
+                float x = Mathf.PerlinNoise(Time.timeSinceLevelLoad / 4.0f + 1, Time.timeSinceLevelLoad / 2f + 100) * shaking_factor;
+                float y = Mathf.PerlinNoise(Time.timeSinceLevelLoad / 3.0f + 10, 0) * shaking_factor * 3;
+                float z = Mathf.PerlinNoise(Time.timeSinceLevelLoad / 2.0f + 100, 0) * shaking_factor;
 
                 main_camera.transform.position = new Vector3(x, helicopter_ODE.par.scenery.camera_height.val + y, z);
             }
@@ -3529,33 +3533,59 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 main_camera.transform.position = new Vector3(0, helicopter_ODE.par.scenery.camera_height.val, 0);
             }
             //main_camera.transform.position = new Vector3(0, helicopter_ODE.par.scenery.camera_height.val, 0);
-            float fieldOfView = Mathf.Clamp(helicopter_ODE.par.simulation.camera.camera_fov.val + mouse_camera_fov, 10, 60);
+            float fieldOfView = Mathf.Clamp(helicopter_ODE.par.simulation.camera.fov.val + mouse_fov, 10, 60);
             main_camera.fieldOfView = fieldOfView;
-            //sub_camera.fieldOfView = fieldOfView;
 
+            // filter camera movement and add offset (helicopter should not be in focus during debugging, or ground visibility)
             var camera_rotation = Quaternion.LookRotation(helicopters_available.transform.position - main_camera.transform.position);
-            // rotation.x = 0; This is for limiting the rotation to the y axis. I needed this for my project so just
-            // rotation.z = 0; delete or add the lines you need to have it behave the way you want.
             if (!UnityEngine.InputSystem.Mouse.current.middleButton.isPressed && !UnityEngine.InputSystem.Mouse.current.rightButton.isPressed && !UnityEngine.InputSystem.Keyboard.current.leftAltKey.isPressed)
-                main_camera.transform.rotation = Quaternion.Slerp(main_camera.transform.rotation, camera_rotation, Time.deltaTime * helicopter_ODE.par.simulation.camera.camera_stiffness.val);
+            {
+                main_camera_rotation = Quaternion.Slerp(main_camera_rotation, camera_rotation, Time.deltaTime * helicopter_ODE.par.simulation.camera.stiffness.val);
+
+                // if debugging is activated, the camrera should not focus on the heli, but show it on the right side of the screen
+                const float main_camera_rotation_offset_during_debuging_ = -8; // [deg]
+                if (ui_debug_panel_state <= 1)
+                    main_camera_rotation_offset_during_debuging -= Time.deltaTime * 1.5f;
+                else
+                    main_camera_rotation_offset_during_debuging += Time.deltaTime * 1.5f;
+                main_camera_rotation_offset_during_debuging = Mathf.Clamp01(Mathf.Abs(main_camera_rotation_offset_during_debuging));
+                float vertical_offset = Helper.Step(main_camera_rotation_offset_during_debuging, 0.1f, 0, 0.9f, main_camera_rotation_offset_during_debuging_);
+
+                // keep ground visible           
+                vertical_camera_angle = (-((main_camera.transform.eulerAngles.x + 180f) % 360f) + 180f);
+                float horizontal_offset = Helper.Step(vertical_camera_angle, 0, 0, (main_camera.fieldOfView / 2.0f), helicopter_ODE.par.simulation.camera.keep_ground_visible.val);
+
+                // apply all rotations to camera
+                main_camera.transform.rotation = Quaternion.Euler(0, vertical_offset * (main_camera.fieldOfView / 30f),0)  *
+                    main_camera_rotation * Quaternion.Euler(horizontal_offset * (main_camera.fieldOfView / 30f), 0, 0); // rotation order is essential
+              
+            }
             else
+            { 
                 main_camera.transform.eulerAngles += new Vector3(mouse_camera_pitch, mouse_camera_yaw, 0.0f);
+                main_camera_rotation = main_camera.transform.rotation;
+            }
+
+            // main_camera.transform.eulerAngles.x geos from ...+360° -> 0° -> neg values... thus has a discontinuity, if looking at the horizont. 
+            // Rearange values where looking above the horizont has positive, below negative values
+            vertical_camera_angle = (-((main_camera.transform.eulerAngles.x + 180f) % 360f) + 180f);
 
             // limit down view
-            if (main_camera.transform.eulerAngles.x > 50f && main_camera.transform.eulerAngles.x < 90)
+            if (vertical_camera_angle < -50f && vertical_camera_angle > -90)
             {
                 main_camera.transform.eulerAngles = new Vector3(50f, main_camera.transform.eulerAngles.y, main_camera.transform.eulerAngles.z);
                 mouse_camera_pitch = 0;
             }
         }
 
+        vertical_camera_angle = (-((main_camera.transform.eulerAngles.x + 180f) % 360f) + 180f);
         // lifting the transmitter
-        if (main_camera.transform.eulerAngles.x > 45f && main_camera.transform.eulerAngles.x < 90)
+        if (vertical_camera_angle < -30)
         {
             animator_pilot_with_transmitter.SetTrigger("lifting_arm");
             animator_pilot_with_transmitter.ResetTrigger("lowering_arm");
         }
-        if (main_camera.transform.eulerAngles.x < 360f && main_camera.transform.eulerAngles.x > 270)
+        if (vertical_camera_angle > -10)
         {
             animator_pilot_with_transmitter.SetTrigger("lowering_arm");
             animator_pilot_with_transmitter.ResetTrigger("lifting_arm");
