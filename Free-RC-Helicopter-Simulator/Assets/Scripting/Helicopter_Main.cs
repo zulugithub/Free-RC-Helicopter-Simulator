@@ -1343,8 +1343,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // ##################################################################################
         /// <summary> / UI debug panel's GraphManager position setup </summary> 
         // ##################################################################################
-        plot2D_graph_rect_1 = new Rect(0.01f * Screen.width, 0.3000f * Screen.height, 0.3f * Screen.width, 0.3f * Screen.height); // xPos, yPos, xSize, ySize
-        plot2D_graph_rect_2 = new Rect(0.01f * Screen.width, 0.6500f * Screen.height, 0.3f * Screen.width, 0.3f * Screen.height); // xPos, yPos, xSize, ySize
+        plot2D_graph_rect_1 = new Rect(0.01f * Screen.width, 0.3500f * Screen.height, 0.3f * Screen.width, 0.2f * Screen.height); // xPos, yPos, xSize, ySize
+        plot2D_graph_rect_2 = new Rect(0.01f * Screen.width, 0.5600f * Screen.height, 0.3f * Screen.width, 0.2f * Screen.height); // xPos, yPos, xSize, ySize
+        plot2D_graph_rect_3 = new Rect(0.01f * Screen.width, 0.7700f * Screen.height, 0.3f * Screen.width, 0.2f * Screen.height); // xPos, yPos, xSize, ySize
         // ##################################################################################
 
 
