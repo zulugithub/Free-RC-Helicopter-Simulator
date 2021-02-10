@@ -1,4 +1,4 @@
-﻿- quality settings 
+﻿x quality settings 
 	- separate menü
  	- presets and savable new sets
 	- bloom on off
@@ -7,16 +7,37 @@
 	- separate menü
  	- presets and savable new sets
 - docu
-- xr
-- calibration abort needed (with esc-key)
-- drop-down list for some parameter in options (e.g. rotor_system_definition "Single", "Tandem", instead of "0", "1")
+x xr
+x calibration abort needed (with esc-key)
+x drop-down list for some parameter in options (e.g. rotor_system_definition "Single", "Tandem", instead of "0", "1")
 - tandem helicopter: Mainrotor transparency overlapping issue
 - animation key "a" has to be pushed twice, if door opened, hten switch helicopter, then switch back
 - add low-pass-filter to wheel-rotation if in the air, thus rolling a little bit after liftoff
-- flybareless controller does not hold orianteation, if hub_stiffness_mr is small
+x flybareless controller does not hold orianteation, if hub_stiffness_mr is small
 - collision point copy ( due to concave mesh problem) should have its distance to original point define by size. of helicopter
 - UI button in options opens on windows systems 'regedit', what is the code to open regdit? in macIO? 
 - when skybox download finished, avoid lag in game
+- governor reenable inside e.g. 10sec after turn off with faster speed
+x add installer
+- phyiscs 
+	- vortex ring state
+	- turbulences
+	- ground effect
+	- autorotation
+	- wing equations (lookup tabel HFEHeli..)
+	- thrust limit / stall
+	- in fast forward flight flapping up
+	- gyroscopic rotor effects  	http://liu.diva-portal.org/smash/get/diva2:821251/FULLTEXT01.pdf
+	- inertial counter torque ?? 	http://liu.diva-portal.org/smash/get/diva2:821251/FULLTEXT01.pdf
+- hud
+	- show if rotation velocity is limited by controller's K_a factor oder by physics?
+	- show stall
+	
+x automatic version numbering
+- audio replay sounds weird 
+ -
+ 
+ 
  
 3d-modelling
 -

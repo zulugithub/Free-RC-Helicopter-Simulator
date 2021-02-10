@@ -44,9 +44,12 @@
     <rotor_sound_recorded_rpm>  <val>1000</val>  </rotor_sound_recorded_rpm>  <!--real1300rpm--> 
 	<motor_sound_recorded_rpm>  <val>1000</val>  </motor_sound_recorded_rpm> 
     <sound_volume>  <val>20</val>  </sound_volume>
-    <J_xyz>
+    <Jxx_Jyy_Jzz>
       <vect3>  <x>1.4</x>  <y>6</y>  <z>6</z>  </vect3>
-    </J_xyz>
+    </Jxx_Jyy_Jzz>
+    <Jxy_Jxz_Jyz>
+      <vect3>  <x>0.25</x>  <y>0.5</y>  <z>0.05</z>  </vect3>
+    </Jxy_Jxz_Jyz>
     <collision>
       <friction_coeff>  <val>0.6</val>  </friction_coeff>
       <friction_coeff_forward>  <val>0.3</val>  </friction_coeff_forward>
@@ -77,7 +80,7 @@
 	  <collision_force_max>  <val>800</val>  </collision_force_max>
     </collision>
 	<gyro>
-      <K_a>  <val>150</val>  </K_a>
+      <K_a>  <val>300</val>  </K_a>
       <K_I>  <val>0.5</val>  </K_I>
       <K_p>  <val>0.2</val>  </K_p>
       <direct_feadtrough_gyroscope>  <val>false</val>  </direct_feadtrough_gyroscope>
@@ -91,6 +94,7 @@
 	  <governor>
       <target_rpm_1>  <val>700</val>  </target_rpm_1>
       <target_rpm_2>  <val>850</val>  </target_rpm_2>
+      <target_rpm_3>  <val>900</val>  </target_rpm_3>
       <Kp>  <val>0.01</val>  </Kp>
       <Ki>  <val>0.1</val>  </Ki>
       <saturation_min>  <val>0</val>  </saturation_min>
@@ -117,7 +121,7 @@
 	  <i_gear_motor>  <val>13</val>  </i_gear_motor>
       <i_gear_maingear>  <val>106</val>  </i_gear_maingear>
       <i_gear_mainrotor>  <val>42</val>  </i_gear_mainrotor> <!-- to tailrotor -->
-      <i_gear_tailrotor>  <val>11</val>  </i_gear_tailrotor>
+      <i_gear_tailrotor>  <val>10</val>  </i_gear_tailrotor>
       <i_gear_propeller>  <val>1</val>  </i_gear_propeller>
       <k_freewheel>  <val>400</val>  </k_freewheel>  <!-- [Nm/rad] rotational stiffness-->
       <d_freewheel>  <val>20</val>  </d_freewheel>  <!-- [Nm/(rad/s)] rotational damping-->
@@ -155,7 +159,7 @@
       <c>  <val>0.080</val>  </c>
       <J>  <val>0.001</val>  </J>
       <C_D0>  <val>0.010</val>  </C_D0>
-      <K_col>  <val>20</val>  </K_col>
+      <K_col>  <val>21</val>  </K_col>
       <Theta_col_0>  <val>-3.0</val>  </Theta_col_0>
       <posLH>
         <vect3>  <x>-1.67169189453125</x>  <y>0.11037470102310182</y>  <z>0.06607602834701538</z>  </vect3>
@@ -164,6 +168,23 @@
         <vect3>  <x>90</x>  <y>0</y>  <z>0</z>  </vect3>
       </oriLH>
     </tailrotor>
+    <propeller>
+      <rotor_exists>  <val>false</val>  </rotor_exists>
+      <b>  <val>0</val>  </b>
+      <R>  <val>0</val>  </R>
+      <C_l_alpha>  <val>0</val>  </C_l_alpha>
+      <c>  <val>0</val>  </c>
+      <J>  <val>0</val>  </J>
+      <C_D0>  <val>0</val>  </C_D0>
+      <K_col>  <val>0</val>  </K_col>
+      <Theta_col_0>  <val>0.0</val>  </Theta_col_0>
+      <posLH>
+        <vect3>  <x>0</x>  <y>0</y>  <z>0.0</z>  </vect3>
+      </posLH>
+      <oriLH>
+        <vect3>  <x>0</x>  <y>0</y>  <z>0</z>  </vect3> 
+      </oriLH>  
+	</propeller>
     <fuselage>
       <S_fxyz>
         <vect3>  <x>0.1</x> <y>0.5</y> <z>0.8</z>  </vect3> <!--0.25*0.40  1.90*0.25   1.90*0.40 -->
@@ -201,6 +222,8 @@
       <mainrotor_idle_deformation>  <val>1.5</val>  </mainrotor_idle_deformation>
       <mainrotor_running_deformation>  <val>0.004</val>  </mainrotor_running_deformation>
       <landing_gear_or_skids_deflection_stiffness>  <val>200</val>  </landing_gear_or_skids_deflection_stiffness>
+	  <debug_force_arrow_scale>  <val>0.02</val>  </debug_force_arrow_scale>
+	  <debug_torque_arrow_scale>  <val>0.2</val>  </debug_torque_arrow_scale>
     </visual_effects>
   </helicopter>
 </stru_transmitter_and_helicopter>

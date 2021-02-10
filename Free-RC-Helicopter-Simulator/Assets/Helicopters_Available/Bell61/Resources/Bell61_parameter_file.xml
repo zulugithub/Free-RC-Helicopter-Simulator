@@ -39,9 +39,12 @@
     <rotor_sound_recorded_rpm>  <val>1000</val>  </rotor_sound_recorded_rpm> 
     <motor_sound_recorded_rpm>  <val>440</val>  </motor_sound_recorded_rpm> 
     <sound_volume>  <val>30</val>  </sound_volume>	
-    <J_xyz>
+    <Jxx_Jyy_Jzz>
       <vect3>  <x>10</x>  <y>30</y>  <z>30</z>  </vect3>
-    </J_xyz>
+    </Jxx_Jyy_Jzz>
+    <Jxy_Jxz_Jyz>
+      <vect3>  <x>2</x>  <y>5</y>  <z>0.5</z>  </vect3>
+    </Jxy_Jxz_Jyz>
 	<gyro>
       <K_a>  <val>100</val>  </K_a>
       <K_I>  <val>0.5</val>  </K_I>
@@ -63,6 +66,7 @@
 	<governor>
       <target_rpm_1>  <val>700</val>  </target_rpm_1>
       <target_rpm_2>  <val>750</val>  </target_rpm_2>
+      <target_rpm_3>  <val>750</val>  </target_rpm_3>
       <Kp>  <val>0.1</val>  </Kp>
       <Ki>  <val>0.1</val>  </Ki>
       <saturation_min>  <val>0</val>  </saturation_min>
@@ -117,6 +121,8 @@
       <B_lat>  <val>9.5</val>  </B_lat>
       <A_b_s>  <val>5</val>  </A_b_s>
       <B_a_s>  <val>5</val>  </B_a_s>
+      <A_a_r>  <val>0.05</val>  </A_a_r>
+      <B_a_r>  <val>0.05</val>  </B_a_r>
       <e>  <val>0.2</val>  </e>
       <I_flapping>  <val>1.3</val>  </I_flapping> 
     </flapping>
@@ -127,7 +133,7 @@
       <c>  <val>0.085</val>  </c>
       <J>  <val>4.00000</val>  </J>
       <C_D0>  <val>0.010</val>  </C_D0>
-      <K_col>  <val>10</val>  </K_col>
+      <K_col>  <val>14</val>  </K_col>
       <Theta_col_0>  <val>4.5</val>  </Theta_col_0>
       <posLH>
         <vect3> <x>-1.25</x> <y>0.6006914138793946</y> <z>0</z> </vect3>
@@ -136,6 +142,23 @@
         <vect3>  <x>0</x>  <y>0</y>  <z>0</z>  </vect3> 
       </oriLH>
     </tailrotor>
+    <propeller>
+      <rotor_exists>  <val>false</val>  </rotor_exists>
+      <b>  <val>0</val>  </b>
+      <R>  <val>0</val>  </R>
+      <C_l_alpha>  <val>0</val>  </C_l_alpha>
+      <c>  <val>0</val>  </c>
+      <J>  <val>0</val>  </J>
+      <C_D0>  <val>0</val>  </C_D0>
+      <K_col>  <val>0</val>  </K_col>
+      <Theta_col_0>  <val>0.0</val>  </Theta_col_0>
+      <posLH>
+        <vect3>  <x>0</x>  <y>0</y>  <z>0.0</z>  </vect3>
+      </posLH>
+      <oriLH>
+        <vect3>  <x>0</x>  <y>0</y>  <z>0</z>  </vect3> 
+      </oriLH>  
+	</propeller>
     <propeller>
       <rotor_exists>  <val>false</val>  </rotor_exists>
       <b>  <val>0</val>  </b>
@@ -261,6 +284,8 @@
       <landing_gear_main_transition_time_gear>  <val>2.5</val>  </landing_gear_main_transition_time_gear>
       <landing_gear_main_transition_time_bay>  <val>-0.5</val>  </landing_gear_main_transition_time_bay>
       <landing_gear_main_mechanism_tilted_forward>  <val>2</val>  </landing_gear_main_mechanism_tilted_forward> <!--[deg]-->
+	  <debug_force_arrow_scale>  <val>0.05</val>  </debug_force_arrow_scale>
+	  <debug_torque_arrow_scale>  <val>0.5</val>  </debug_torque_arrow_scale>
     </visual_effects>
   </helicopter>
 </stru_transmitter_and_helicopter>

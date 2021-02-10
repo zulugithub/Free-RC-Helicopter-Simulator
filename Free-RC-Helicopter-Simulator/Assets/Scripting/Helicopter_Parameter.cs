@@ -41,11 +41,11 @@ namespace Parameter
     public class stru_hint
     {
         /// <summary> Place for hints </summary>
-        public string hint { get; set; }
+        public string hint { get; set; } // 
         /// <summary> Comment shonw on parameter UI </summary>
-        public string comment { get; set; }
+        public string comment { get; set; } // 
         /// <summary> Phyiscal unit of the parameter </summary>
-        public string unit { get; set; } // ??? https://www.codeproject.com/Articles/787029/UnitConversionLib-Smart-Unit-Conversion-Library-in
+        public string unit { get; set; } // 
         /// <summary> Is the value calulated from other values (true) or a user input (false)  </summary>
         public bool calculated { get; set; }
         /// <summary> Shows parameter as overlay during sim to allow faster manipulation </summary>
@@ -121,7 +121,7 @@ namespace Parameter
             delta_t.min = 0.0001f;
             delta_t.max = 0.0100f;
             delta_t.hint = "Physics simulation step size";
-            delta_t.comment = "Physics simulation step size";
+            delta_t.comment = "";
             delta_t.unit = "sec";
             delta_t.save_under_player_prefs = true;
 
@@ -129,7 +129,7 @@ namespace Parameter
             timescale.max = 3.00f;
             timescale.min = 0.10f;
             timescale.hint = "Timescale factor";
-            timescale.comment = "Timescale factor";
+            timescale.comment = "";
             timescale.unit = "-";
             timescale.save_under_player_prefs = true;
         }
@@ -152,7 +152,7 @@ namespace Parameter
             master_sound_volume.min = 0.000f;
             master_sound_volume.max = 100.0f;
             master_sound_volume.hint = "Master audio volume";
-            master_sound_volume.comment = "Master audio volume";
+            master_sound_volume.comment = "";
             master_sound_volume.unit = "%";
             master_sound_volume.save_under_player_prefs = true;
 
@@ -160,14 +160,14 @@ namespace Parameter
             commentator_audio_source_volume.min = 0.000f;
             commentator_audio_source_volume.max = 100.0f;
             commentator_audio_source_volume.hint = "Commentator's audio volume";
-            commentator_audio_source_volume.comment = "Commentator's audio volume";
+            commentator_audio_source_volume.comment = "";
             commentator_audio_source_volume.unit = "%";
 
             crash_audio_source_volume.val = 70.00f;
             crash_audio_source_volume.min = 0.000f;
             crash_audio_source_volume.max = 100.0f;
             crash_audio_source_volume.hint = "Crash audio volume";
-            crash_audio_source_volume.comment = "Crash audio volume";
+            crash_audio_source_volume.comment = "";
             crash_audio_source_volume.unit = "%";
         }
     }
@@ -175,49 +175,61 @@ namespace Parameter
     [Serializable]
     public class stru_camera
     {
-        public stru_float camera_stiffness { get; set; } // [-]
-        public stru_float camera_fov { get; set; } // [deg]
-        public stru_float camera_shaking { get; set; } // [%]
-        public stru_float camera_xr_zoom_factor { get; set; } // []
+        public stru_float stiffness { get; set; } // [-]
+        public stru_float fov { get; set; } // [deg]
+        public stru_float shaking { get; set; } // [%]
+        public stru_float xr_zoom_factor { get; set; } // []
+        public stru_float keep_ground_visible { get; set; } // [deg]
 
         public stru_camera()
         {
-            camera_stiffness = new stru_float();
-            camera_fov = new stru_float();
-            camera_shaking = new stru_float();
-            camera_xr_zoom_factor = new stru_float();
+            stiffness = new stru_float();
+            fov = new stru_float();
+            shaking = new stru_float();
+            xr_zoom_factor = new stru_float();
+            keep_ground_visible = new stru_float();
 
-            camera_stiffness.val = 4.0f;
-            camera_stiffness.min = 0.0f;
-            camera_stiffness.max = 20f;
-            camera_stiffness.hint = "Stiffnes of the camera-helicopter following rotation";
-            camera_stiffness.comment = "Stiffnes of the camera-helicopter following rotation";
-            camera_stiffness.unit = "-";
-            camera_stiffness.save_under_player_prefs = true;
+            stiffness.val = 5.0f;
+            stiffness.min = 0.0f;
+            stiffness.max = 20f;
+            stiffness.hint = "Stiffnes of the camera-helicopter following rotation";
+            stiffness.comment = "";
+            stiffness.unit = "-";
+            stiffness.save_under_player_prefs = true;
 
-            camera_fov.val = 40f;
-            camera_fov.min = 1f;
-            camera_fov.max = 80.0f;
-            camera_fov.hint = "The field of view of the camera.";
-            camera_fov.comment = "The field of view of the camera.";
-            camera_fov.unit = "deg";
-            camera_fov.save_under_player_prefs = true;
+            fov.val = 40f;
+            fov.min = 1f;
+            fov.max = 80.0f;
+            fov.hint = "The field of view of the camera.";
+            fov.comment = "";
+            fov.unit = "deg";
+            fov.save_under_player_prefs = true;
 
-            camera_shaking.val = 100f;
-            camera_shaking.min = 0f;
-            camera_shaking.max = 500f;
-            camera_shaking.hint = "Imitates the pilot's motion.";
-            camera_shaking.comment = "Imitates the pilot's motion.";
-            camera_shaking.unit = "%";
-            camera_shaking.save_under_player_prefs = true;
+            shaking.val = 100f;
+            shaking.min = 0f;
+            shaking.max = 500f;
+            shaking.hint = "Imitates the pilot's motion.";
+            shaking.comment = "";
+            shaking.unit = "%";
+            shaking.save_under_player_prefs = true;
 
-            camera_xr_zoom_factor.val = 1f;
-            camera_xr_zoom_factor.min = 1f;
-            camera_xr_zoom_factor.max = 2f;
-            camera_xr_zoom_factor.hint = "Zooms the XR projection in virtual reality mode";
-            camera_xr_zoom_factor.comment = "Zooms the XR projection in virtual reality mode.";
-            camera_xr_zoom_factor.unit = "-";
-            camera_xr_zoom_factor.save_under_player_prefs = true;
+            xr_zoom_factor.val = 1.01f;
+            xr_zoom_factor.min = 1f;
+            xr_zoom_factor.max = 2f;
+            xr_zoom_factor.hint = "Zooms the XR projection in virtual reality mode";
+            xr_zoom_factor.comment = "";
+            xr_zoom_factor.unit = "-";
+            xr_zoom_factor.save_under_player_prefs = true;
+
+            keep_ground_visible.val = 6f;
+            keep_ground_visible.min = 1f;
+            keep_ground_visible.max = 2f;
+            keep_ground_visible.hint = "Try to keep horizont visible.";
+            keep_ground_visible.comment = "";
+            keep_ground_visible.unit = "deg";
+            keep_ground_visible.save_under_player_prefs = true;
+
+            
         }
     }
 
@@ -244,13 +256,13 @@ namespace Parameter
 
             show_pilot.val = true;
             show_pilot.hint = "Show pilot with transmitter";
-            show_pilot.comment = "Show pilot with transmitter";
+            show_pilot.comment = "";
             show_pilot.unit = "-";
             show_pilot.save_under_player_prefs = true;
 
             show_fps.val = false;
             show_fps.hint = "Show frame rate";
-            show_fps.comment = "Show frame rate";
+            show_fps.comment = "";
             show_fps.unit = "-";
             show_fps.save_under_player_prefs = true;
 
@@ -258,7 +270,7 @@ namespace Parameter
             delay_after_reset.max = 5.00f;
             delay_after_reset.min = 0.00f;
             delay_after_reset.hint = "Deactivates user input after resetting helicopter for this amount of time.";
-            delay_after_reset.comment = "Deactivates user input after resetting helicopter for this amount of time.";
+            delay_after_reset.comment = "";
             delay_after_reset.unit = "sec";
             delay_after_reset.save_under_player_prefs = true;
 
@@ -266,7 +278,7 @@ namespace Parameter
             rotor_disk_transparency.min = 0f;
             rotor_disk_transparency.max = 1f;
             rotor_disk_transparency.hint = "Rotor disk transparency factor (1: full transparent)";
-            rotor_disk_transparency.comment = "Rotor disk transparency factor (1: full transparent)";
+            rotor_disk_transparency.comment = "";
             rotor_disk_transparency.unit = "(0...1)";
             rotor_disk_transparency.save_under_player_prefs = true;
 
@@ -274,13 +286,13 @@ namespace Parameter
             rotor_blade_transparency.min = 0f;
             rotor_blade_transparency.max = 1f;
             rotor_blade_transparency.hint = "Rotor blade transparency factor when rotating (1: full transparent)";
-            rotor_blade_transparency.comment = "Rotor blade transparency factor when rotating (1: full transparent)";
+            rotor_blade_transparency.comment = "";
             rotor_blade_transparency.unit = "(0...1)";
             rotor_blade_transparency.save_under_player_prefs = true;
 
             wheel_brake_on_after_heli_change.val = true;
             wheel_brake_on_after_heli_change.hint = "Enable wheel brake automatically after helicopter change";
-            wheel_brake_on_after_heli_change.comment = "Enable wheel brake automatically after helicopter change";
+            wheel_brake_on_after_heli_change.comment = "";
             wheel_brake_on_after_heli_change.unit = "-";
             wheel_brake_on_after_heli_change.save_under_player_prefs = true;
         }
@@ -305,20 +317,20 @@ namespace Parameter
             
             motion_blur.val = true;
             motion_blur.hint = "Enables or disables motion blur effect.";
-            motion_blur.comment = "Enables or disables motion blur effect.";
+            motion_blur.comment = "";
             motion_blur.unit = "-";
             motion_blur.save_under_player_prefs = true;
 
             bloom.val = true;
             bloom.hint = "Enables or disables bloom effect. (stength see under scenery -> sun_bloom_intensity)";
-            bloom.comment = "Enables or disables bloom effect. (stength see under scenery -> sun_bloom_intensity)";
+            bloom.comment = "";
             bloom.unit = "-";
             bloom.save_under_player_prefs = true;
 
             quality_setting.val = 3;
             quality_setting.str = new List<string> { "Low", "High", "Very High", "Ultra" };
             quality_setting.hint = "Sets graphics quality level.";
-            quality_setting.comment = "Sets graphics quality level.";
+            quality_setting.comment = "";
             quality_setting.unit = ""; 
             quality_setting.save_under_player_prefs = true;
 
@@ -335,7 +347,7 @@ namespace Parameter
             if(resolution_setting.str.Count > 0) // set highest resolution as default
                 resolution_setting.val = resolution_setting.str.Count-1;
             resolution_setting.hint = "Change monitor resolution.";
-            resolution_setting.comment = "Change monitor resolution.";
+            resolution_setting.comment = "";
             resolution_setting.unit = "";
             resolution_setting.save_under_player_prefs = true;
         }
@@ -391,10 +403,11 @@ namespace Parameter
             this.audio.commentator_audio_source_volume.val = PlayerPrefs.GetFloat("__simulation_" + "commentator_audio_source_volume", this.audio.commentator_audio_source_volume.val);
             this.audio.crash_audio_source_volume.val = PlayerPrefs.GetFloat("__simulation_" + "crash_audio_source_volume", this.audio.crash_audio_source_volume.val);
             
-            this.camera.camera_stiffness.val = PlayerPrefs.GetFloat("__simulation_" + "camera_stiffness", this.camera.camera_stiffness.val);
-            this.camera.camera_fov.val = PlayerPrefs.GetFloat("__simulation_" + "camera_fov", this.camera.camera_fov.val);
-            this.camera.camera_shaking.val = PlayerPrefs.GetFloat("__simulation_" + "camera_shaking", this.camera.camera_shaking.val);
-            this.camera.camera_xr_zoom_factor.val = PlayerPrefs.GetFloat("__simulation_" + "camera_xr_zoom_factor", this.camera.camera_xr_zoom_factor.val);
+            this.camera.stiffness.val = PlayerPrefs.GetFloat("__simulation_" + "stiffness", this.camera.stiffness.val);
+            this.camera.fov.val = PlayerPrefs.GetFloat("__simulation_" + "fov", this.camera.fov.val);
+            this.camera.shaking.val = PlayerPrefs.GetFloat("__simulation_" + "shaking", this.camera.shaking.val);
+            this.camera.xr_zoom_factor.val = PlayerPrefs.GetFloat("__simulation_" + "xr_zoom_factor", this.camera.xr_zoom_factor.val);
+            this.camera.keep_ground_visible.val = PlayerPrefs.GetFloat("__simulation_" + "keep_ground_visible", this.camera.keep_ground_visible.val);
 
             this.gameplay.show_pilot.val = (PlayerPrefs.GetInt("__simulation_" + "show_pilot", this.gameplay.show_pilot.val == false ? 0 : 1)) == 0 ? false : true;
             this.gameplay.show_fps.val = (PlayerPrefs.GetInt("__simulation_" + "show_fps", this.gameplay.show_fps.val == false ? 0 : 1)) == 0 ? false : true;
@@ -450,21 +463,21 @@ namespace Parameter
             gravity.max = 0.00f;
             gravity.min = 20.0f;
             gravity.hint = "Gravity";
-            gravity.comment = "Gravity";
+            gravity.comment = "";
             gravity.unit = "m/s^2";
 
             camera_height.val = 1.4f; // [m]
             camera_height.max = 0.00f;
             camera_height.min = 3.0f;
             camera_height.hint = "Camera height";
-            camera_height.comment = "Camera height";
+            camera_height.comment = "";
             camera_height.unit = "m";
 
             ambient_sound_volume.val = 50.00f;
             ambient_sound_volume.min = 0.000f;
             ambient_sound_volume.max = 100.0f;
             ambient_sound_volume.hint = "Ambient sound volume";
-            ambient_sound_volume.comment = "Ambient sound volume";
+            ambient_sound_volume.comment = "";
             ambient_sound_volume.unit = "%";
         }
     }
@@ -497,35 +510,35 @@ namespace Parameter
             rho_air.max = 2.00f;
             rho_air.min = 0.50f;
             rho_air.hint = "Air density";
-            rho_air.comment = "Air density";
+            rho_air.comment = "";
             rho_air.unit = "kg/m^3";
 
             temperature.val = 20.0f;
             temperature.max = 0.00f;
             temperature.min = 40.0f;
             temperature.hint = "Air temperature";
-            temperature.comment = "Air temperature";
+            temperature.comment = "";
             temperature.unit = "°C";
 
             wind_direction.val = 0f;
             wind_direction.max = 0f;
             wind_direction.min = 360f;
             wind_direction.hint = "Wind direction";
-            wind_direction.comment = "Wind direction";
+            wind_direction.comment = "";
             wind_direction.unit = "deg";
 
             wind_speed.val = 0f;
             wind_speed.max = 0f;
             wind_speed.min = 100f;
             wind_speed.hint = "Wind speed in horizontal direction";
-            wind_speed.comment = "Wind speed in horizontal direction";
+            wind_speed.comment = "";
             wind_speed.unit = "m/sec";
 
             wind_speed_vertical.val = 0f;
             wind_speed_vertical.max = 0f;
             wind_speed_vertical.min = 100f;
             wind_speed_vertical.hint = "Wind speed in vertical direction";
-            wind_speed_vertical.comment = "Wind speed in vertical direction";
+            wind_speed_vertical.comment = "";
             wind_speed_vertical.unit = "m/sec";
         }
     }
@@ -556,14 +569,14 @@ namespace Parameter
             number_of_bird_flocks.max = 0;
             number_of_bird_flocks.min = 5;
             number_of_bird_flocks.hint = "Number of bird flocks";
-            number_of_bird_flocks.comment = "Number of bird flocks";
+            number_of_bird_flocks.comment = "";
             number_of_bird_flocks.unit = "-";
 
             number_of_insect_flocks.val = 1;
             number_of_insect_flocks.max = 0;
             number_of_insect_flocks.min = 5;
             number_of_insect_flocks.hint = "Number of insects flocks";
-            number_of_insect_flocks.comment = "Number of insects flocks";
+            number_of_insect_flocks.comment = "";
             number_of_insect_flocks.unit = "-";
         }
     }
@@ -627,103 +640,103 @@ namespace Parameter
             number_of_animals.min = 0;
             number_of_animals.max = 50;
             number_of_animals.hint = "Number of birds";
-            number_of_animals.comment = "Number of birds";
+            number_of_animals.comment = "";
             number_of_animals.unit = "-";
 
             area_size.val = 300;
             area_size.min = 50;
             area_size.max = 1000;
             area_size.hint = "Squared area length/2 for birds to fly in";
-            area_size.comment = "Squared area length/2 for birds to fly in";
+            area_size.comment = "";
             area_size.unit = "m";
 
             area_height_min.val = 25;
             area_height_min.min = 0;
             area_height_min.max = 500;
             area_height_min.hint = "Minimum flight height of birds";
-            area_height_min.comment = "Minimum flight height of birds";
+            area_height_min.comment = "";
             area_height_min.unit = "m";
 
             area_height_max.val = 55;
             area_height_max.min = 0;
             area_height_max.max = 500;
             area_height_max.hint = "Maximum flight height of birds";
-            area_height_max.comment = "Maximum flight height of birds";
+            area_height_max.comment = "";
             area_height_max.unit = "m";
 
             animal_scale_variation.val = 25f;
             animal_scale_variation.min = 0;
             animal_scale_variation.max = 500;
             animal_scale_variation.hint = "Variation in size of birds";
-            animal_scale_variation.comment = "Variation in size of birds";
+            animal_scale_variation.comment = "";
             animal_scale_variation.unit = "%";
 
             animal_animation_speed.val = 200f;
             animal_animation_speed.min = 0;
             animal_animation_speed.max = 10000;
             animal_animation_speed.hint = "Animation speed factor";
-            animal_animation_speed.comment = "Animation speed factor";
+            animal_animation_speed.comment = "";
             animal_animation_speed.unit = "%";
 
             animal_speed_min.val = 3;
             animal_speed_min.min = 0;
             animal_speed_min.max = 1;
             animal_speed_min.hint = "Minimum flight speed of birds";
-            animal_speed_min.comment = "Minimum flight speed of birds";
+            animal_speed_min.comment = "";
             animal_speed_min.unit = "m/sec";
 
             animal_speed_max.val = 20;
             animal_speed_max.min = 0;
             animal_speed_max.max = 40;
             animal_speed_max.hint = "Maximum flight speed of birds";
-            animal_speed_max.comment = "Maximum flight speed of birds";
+            animal_speed_max.comment = "";
             animal_speed_max.unit = "m/sec";
 
             animal_rotation_speed.val = 0.5f;
             animal_rotation_speed.min = 0.1f;
             animal_rotation_speed.max = 10;
             animal_rotation_speed.hint = "Maximum turning speed of birds";
-            animal_rotation_speed.comment = "Maximum turning speed of birds";
+            animal_rotation_speed.comment = "";
             animal_rotation_speed.unit = "rad/sec?";
 
             animal_neighbour_distance.val = 75;
             animal_neighbour_distance.min = 0.1f;
             animal_neighbour_distance.max = 500;
             animal_neighbour_distance.hint = "Distance between two birds below where they start to build flocks";
-            animal_neighbour_distance.comment = "Distance between two birds below where they start to build flocks";
+            animal_neighbour_distance.comment = "";
             animal_neighbour_distance.unit = "m";
 
             target_update_value.val = 20;
             target_update_value.min = 0.1f;
             target_update_value.max = 50;
             target_update_value.hint = "How often the target is updated";
-            target_update_value.comment = "How often the target is updated";
+            target_update_value.comment = "";
             target_update_value.unit = "-";
 
             apply_rules_value.val = 7;
             apply_rules_value.min = 0.1f;
             apply_rules_value.max = 20;
             apply_rules_value.hint = "How often the flocking algorithm should be updated for each bird";
-            apply_rules_value.comment = "How often the flocking algorithm should be updated for each bird";
+            apply_rules_value.comment = "";
             apply_rules_value.unit = "-";
 
             avoid_animal_distance.val = 25;
             avoid_animal_distance.min = 0.1f;
             avoid_animal_distance.max = 20;
             avoid_animal_distance.hint = "Distance under where birds try to avoid collision each other";
-            avoid_animal_distance.comment = "Distance under where birds try to avoid collision each other";
+            avoid_animal_distance.comment = "";
             avoid_animal_distance.unit = "m";
 
             avoid_helicopter_distance.val = 30;
             avoid_helicopter_distance.min = 10;
             avoid_helicopter_distance.max = 200;
             avoid_helicopter_distance.hint = "Distance under where birds try to avoid collision with the helicopter";
-            avoid_helicopter_distance.comment = "Distance under where birds try to avoid collision with the helicopter";
+            avoid_helicopter_distance.comment = "";
             avoid_helicopter_distance.unit = "m";
 
             show_flock_target.val = false;
             show_flock_target.hint = "Show flock target as white sphere";
-            show_flock_target.comment = "Show flock target as white sphere";
+            show_flock_target.comment = "";
             show_flock_target.unit = "-";
     
         }
@@ -744,28 +757,28 @@ namespace Parameter
             number_of_animals.min = 0;
             number_of_animals.max = 200;
             number_of_animals.hint = "Number of insects";
-            number_of_animals.comment = "Number of insects";
+            number_of_animals.comment = "";
             number_of_animals.unit = "-";
 
             area_size.val = 2.5f;
             area_size.min = 1;
             area_size.max = 1000;
             area_size.hint = "Squared area length/2 for insects to fly in";
-            area_size.comment = "Squared area length/2 for insects to fly in";
+            area_size.comment = "";
             area_size.unit = "m";
 
             area_height_min.val = 1.25f;
             area_height_min.min = 0;
             area_height_min.max = 2;
             area_height_min.hint = "Minimum flight height of insects";
-            area_height_min.comment = "Minimum flight height of insects";
+            area_height_min.comment = "";
             area_height_min.unit = "m";
 
             area_height_max.val = 2.5f;
             area_height_max.min = 0;
             area_height_max.max = 10;
             area_height_max.hint = "Maximum flight height of insects";
-            area_height_max.comment = "Maximum flight height of insects";
+            area_height_max.comment = "";
             area_height_max.unit = "m";
 
             animal_scale_variation.val = 25;
@@ -779,68 +792,68 @@ namespace Parameter
             animal_animation_speed.min = 0;
             animal_animation_speed.max = 10000;
             animal_animation_speed.hint = "Animation speed factor";
-            animal_animation_speed.comment = "Animation speed factor";
+            animal_animation_speed.comment = "";
             animal_animation_speed.unit = "%";
 
             animal_speed_min.val = 0.3f;
             animal_speed_min.min = 0;
             animal_speed_min.max = 1;
             animal_speed_min.hint = "Minimum flight speed of insects";
-            animal_speed_min.comment = "Minimum flight speed of insects";
+            animal_speed_min.comment = "";
             animal_speed_min.unit = "m/sec";
 
             animal_speed_max.val = 0.6f;
             animal_speed_max.min = 0;
             animal_speed_max.max = 4;
             animal_speed_max.hint = "Maximum flight speed of insects";
-            animal_speed_max.comment = "Maximum flight speed of insects";
+            animal_speed_max.comment = "";
             animal_speed_max.unit = "m/sec";
 
             animal_rotation_speed.val = 1.0f;
             animal_rotation_speed.min = 0.1f;
             animal_rotation_speed.max = 5;
             animal_rotation_speed.hint = "Maximum turning speed of insects";
-            animal_rotation_speed.comment = "Maximum turning speed of insects";
+            animal_rotation_speed.comment = "";
             animal_rotation_speed.unit = "rad/sec?";
 
             animal_neighbour_distance.val = 0.6f;
             animal_neighbour_distance.min = 0.1f;
             animal_neighbour_distance.max = 5;
             animal_neighbour_distance.hint = "Distance between two insects below where they start to build flocks";
-            animal_neighbour_distance.comment = "Distance between two insects below where they start to build flocks";
+            animal_neighbour_distance.comment = "";
             animal_neighbour_distance.unit = "m";
 
             target_update_value.val = 20;
             target_update_value.min = 0.1f;
             target_update_value.max = 50;
             target_update_value.hint = "How often the target is updated";
-            target_update_value.comment = "How often the target is updated";
+            target_update_value.comment = "";
             target_update_value.unit = "-";
 
             apply_rules_value.val = 10;
             apply_rules_value.min = 0.1f;
             apply_rules_value.max = 20;
             apply_rules_value.hint = "How often the flocking algorithm should be updated for each insect";
-            apply_rules_value.comment = "How often the flocking algorithm should be updated for each insect";
+            apply_rules_value.comment = "";
             apply_rules_value.unit = "-";
 
             avoid_animal_distance.val = 0.4f;
             avoid_animal_distance.min = 0.1f;
             avoid_animal_distance.max = 10;
             avoid_animal_distance.hint = "Distance under where insects try to avoid collision each other";
-            avoid_animal_distance.comment = "Distance under where insects try to avoid collision each other";
+            avoid_animal_distance.comment = "";
             avoid_animal_distance.unit = "m";
 
             avoid_helicopter_distance.val = 4;
             avoid_helicopter_distance.min = 1;
             avoid_helicopter_distance.max = 200;
             avoid_helicopter_distance.hint = "Distance under where insects try to avoid collision with the helicopter";
-            avoid_helicopter_distance.comment = "Distance under where insects try to avoid collision with the helicopter";
+            avoid_helicopter_distance.comment = "";
             avoid_helicopter_distance.unit = "m";
 
             show_flock_target.val = false;
             show_flock_target.hint = "Show flock target as white sphere";
-            show_flock_target.comment = "Show flock target as white sphere";
+            show_flock_target.comment = "";
             show_flock_target.unit = "-";
         }
     }
@@ -877,47 +890,47 @@ namespace Parameter
 
             sun_position.vect3 = new Vector3 { x = 10.55f, y = 9.64f, z = 0.48f }; // [m]
             sun_position.hint = "Sun position";
-            sun_position.comment = "Sun position";
+            sun_position.comment = "";
             sun_position.unit = "m";
 
             sun_intensity.val = 3.0f;
             sun_intensity.max = 0.00f;
             sun_intensity.min = 10.0f;
             sun_intensity.hint = "Sun intensity";
-            sun_intensity.comment = "Sun intensity";
+            sun_intensity.comment = "";
             sun_intensity.unit = "-";
 
             sun_shadow_strength.val = 0.4f;
             sun_shadow_strength.max = 0f;
             sun_shadow_strength.min = 1f;
             sun_shadow_strength.hint = "Shadow strength";
-            sun_shadow_strength.comment = "Shadow strength";
+            sun_shadow_strength.comment = "";
             sun_shadow_strength.unit = "0...1";
 
             sun_bloom_intensity.val = 1.2f;
             sun_bloom_intensity.max = 0f;
             sun_bloom_intensity.min = 10f;
             sun_bloom_intensity.hint = "Sun bloom effect intensity";
-            sun_bloom_intensity.comment = "Sun bloom effect intensity";
+            sun_bloom_intensity.comment = "";
             sun_bloom_intensity.unit = " ";
 
             sun_bloom_blinded_by_sun_intensity.val = 18.0f;
             sun_bloom_blinded_by_sun_intensity.max = 0f;
             sun_bloom_blinded_by_sun_intensity.min = 30f;
             sun_bloom_blinded_by_sun_intensity.hint = "Sun bloom effect intensity while blinded by sun";
-            sun_bloom_blinded_by_sun_intensity.comment = "Sun bloom effect intensity while blinded by sun";
+            sun_bloom_blinded_by_sun_intensity.comment = "";
             sun_bloom_blinded_by_sun_intensity.unit = " ";
 
             ambient_light_color.vect3 = new Vector3 { x = 191.0f / 255.0f, y = 191.0f / 255.0f, z = 191.0f / 255.0f }; // []
             ambient_light_color.hint = "Ambient light color";
-            ambient_light_color.comment = "Ambient light color";
+            ambient_light_color.comment = "";
             ambient_light_color.unit = "rgb";
 
             ambient_light_intensity.val = 1.0f; // []
             ambient_light_intensity.max = 0.00f;
             ambient_light_intensity.min = 10.0f;
             ambient_light_intensity.hint = "Ambient light intensity";
-            ambient_light_intensity.comment = "Ambient light intensity";
+            ambient_light_intensity.comment = "";
             ambient_light_intensity.unit = "-";
 
         }
@@ -947,26 +960,26 @@ namespace Parameter
 
             skybox_tint_color.vect3 = new Vector3 { x = 1, y = 1, z = 1 };
             skybox_tint_color.hint = "Tint color";
-            skybox_tint_color.comment = "Tint color";
+            skybox_tint_color.comment = "";
             skybox_tint_color.unit = "rgb";
 
             skybox_exposure.val = 0.5f;
             skybox_exposure.max = 0.00f;
             skybox_exposure.min = 2.0f;
             skybox_exposure.hint = "Exposure";
-            skybox_exposure.comment = "Exposure";
+            skybox_exposure.comment = "";
             skybox_exposure.unit = "-";
 
             skybox_flipping_horizontally.val = true;
             skybox_flipping_horizontally.hint = "Flipping horizontally";
-            skybox_flipping_horizontally.comment = "Flipping horizontally";
+            skybox_flipping_horizontally.comment = "";
             skybox_flipping_horizontally.unit = "-";
 
             skybox_rotation.val = 0;
             skybox_rotation.max = 0.00f;
             skybox_rotation.min = 360f;
             skybox_rotation.hint = "Rotate horizontally";
-            skybox_rotation.comment = "Rotate horizontally";
+            skybox_rotation.comment = "";
             skybox_rotation.unit = "-";
         }
     }
@@ -993,14 +1006,14 @@ namespace Parameter
             bump_height.max = 0.000f;
             bump_height.min = 0.100f;
             bump_height.hint = "Bump height of ground.";
-            bump_height.comment = "Bump height of ground.";
+            bump_height.comment = "";
             bump_height.unit = "m";
 
             bump_density_scale.val = 7.00f;
             bump_density_scale.max = 0.00f;
             bump_density_scale.min = 0.10f;
             bump_density_scale.hint = "Bump density factor of ground.";
-            bump_density_scale.comment = "Bump density factor of ground.";
+            bump_density_scale.comment = "";
             bump_density_scale.unit = "1/m";
         }
     }
@@ -1023,7 +1036,7 @@ namespace Parameter
 
             S_fxyz.vect3 = new Vector3 { x = 0.02f, y = 0.08f, z = 0.09f };
             S_fxyz.hint = "Effective cross section area";
-            S_fxyz.comment = "Effective cross section area";
+            S_fxyz.comment = "";
             S_fxyz.unit = "m^2";
         }
     }
@@ -1069,66 +1082,66 @@ namespace Parameter
  
             wing_exists.val = false;
             wing_exists.hint = "Wing exists.";
-            wing_exists.comment = "Wing exists.";
+            wing_exists.comment = "";
             wing_exists.unit = "-";
 
             horizontal0_or_vertical1.val = false;
             horizontal0_or_vertical1.hint = "Wing orientation.";
-            horizontal0_or_vertical1.comment = "Wing orientation.";
+            horizontal0_or_vertical1.comment = "";
             horizontal0_or_vertical1.unit = "-";
 
             area.val = 0.10f * 0.05f; // [m^2]
             area.min = 0.000000f;
             area.max = 1.000000f;
             area.hint = "Effective cross section area (of a planar surface)";
-            area.comment = "Effective cross section area (of a planar surface)";
+            area.comment = "";
             area.unit = "m^2";
 
             drag_coeff.val = 1.00f;
             drag_coeff.min = 0.02f;
             drag_coeff.max = 1.20f;
             drag_coeff.hint = "Drag coefficient (of a planar surface)";
-            drag_coeff.comment = "Drag coefficient (of a planar surface)";
+            drag_coeff.comment = "";
             drag_coeff.unit = "-";
 
             C_l_alpha.val = 5.50f; // TODO find parameter
             C_l_alpha.min = 0.10f;
             C_l_alpha.max = 10.0f;
             C_l_alpha.hint = "Wing lift curve slope";
-            C_l_alpha.comment = "Wing lift curve slope";
+            C_l_alpha.comment = "";
             C_l_alpha.unit = "1/rad";
 
             alpha_stall.val = 20;  // TODO find parameter
             alpha_stall.min = 5.0f;
             alpha_stall.max = 45.0f;
             alpha_stall.hint = "Critical angle of attack in stall";
-            alpha_stall.comment = "Critical angle of attack in stall";
+            alpha_stall.comment = "";
             alpha_stall.unit = "deg";
 
             downwash_factor_mainrotor.val = 0.2f;
             downwash_factor_mainrotor.min = 0.0f;
             downwash_factor_mainrotor.max = 1.0f;
             downwash_factor_mainrotor.hint = "Wing is hit by mainrotor downwash";
-            downwash_factor_mainrotor.comment = "Wing is hit by mainrotor downwash";
+            downwash_factor_mainrotor.comment = "";
             downwash_factor_mainrotor.unit = "[0...1]";
 
             downwash_factor_tailrotor.val = 0.0f;
             downwash_factor_tailrotor.min = 0.0f;
             downwash_factor_tailrotor.max = 1.0f;
             downwash_factor_tailrotor.hint = "Wing is hit by tailrotor downwash";
-            downwash_factor_tailrotor.comment = "Wing is hit by mainrotor downwash";
+            downwash_factor_tailrotor.comment = "";
             downwash_factor_tailrotor.unit = "[0...1]";
 
             downwash_factor_propeller.val = 0.0f;
             downwash_factor_propeller.min = 0.0f;
             downwash_factor_propeller.max = 1.0f;
             downwash_factor_propeller.hint = "Wing is hit by propeller downwash";
-            downwash_factor_propeller.comment = "Wing is hit by propeller downwash";
+            downwash_factor_propeller.comment = "";
             downwash_factor_propeller.unit = "[0...1]";
 
             posLH.vect3 = new Vector3 { x = -0.660f, y = -0.01f, z = 0.000f };
             posLH.hint = "Wing position relative to center of gravity in local coordinate system";
-            posLH.comment = "Wing position relative to center of gravity in local coordinate system";
+            posLH.comment = "";
             posLH.unit = "m";
         }
     }
@@ -1146,66 +1159,66 @@ namespace Parameter
         {
             wing_exists.val = true;
             wing_exists.hint = "Wing exists.";
-            wing_exists.comment = "Wing exists.";
+            wing_exists.comment = "";
             wing_exists.unit = "-";
 
             horizontal0_or_vertical1.val = false;
             horizontal0_or_vertical1.hint = "Wing orientation.";
-            horizontal0_or_vertical1.comment = "Wing orientation.";
+            horizontal0_or_vertical1.comment = "";
             horizontal0_or_vertical1.unit = "-";
 
-            area.val = 0.10f * 0.05f; // [m^2]
+            area.val = 1.00f * 0.05f; // [m^2]
             area.min = 0.000000f;
             area.max = 1.000000f;
             area.hint = "Effective cross section area (of a planar surface)";
-            area.comment = "Effective cross section area (of a planar surface)";
+            area.comment = "";
             area.unit = "m^2";
 
             drag_coeff.val = 1.00f;
             drag_coeff.min = 0.02f;
             drag_coeff.max = 1.20f;
             drag_coeff.hint = "Drag coefficient (of a planar surface)";
-            drag_coeff.comment = "Drag coefficient (of a planar surface)";
+            drag_coeff.comment = "";
             drag_coeff.unit = "-";
 
             C_l_alpha.val = 5.50f; // TODO find parameter
             C_l_alpha.min = 0.10f;
             C_l_alpha.max = 10.0f;
             C_l_alpha.hint = "Wing lift curve slope";
-            C_l_alpha.comment = "Wing lift curve slope";
+            C_l_alpha.comment = "";
             C_l_alpha.unit = "1/rad";
 
             alpha_stall.val = 20;  // TODO find parameter
             alpha_stall.min = 5.0f;
             alpha_stall.max = 45.0f;
             alpha_stall.hint = "Critical angle of attack in stall";
-            alpha_stall.comment = "Critical angle of attack in stall";
+            alpha_stall.comment = "";
             alpha_stall.unit = "deg";
 
             downwash_factor_mainrotor.val = 0.2f;
             downwash_factor_mainrotor.min = 0.0f;
             downwash_factor_mainrotor.max = 1.0f;
             downwash_factor_mainrotor.hint = "Wing is hit by mainrotor downwash";
-            downwash_factor_mainrotor.comment = "Wing is hit by mainrotor downwash";
+            downwash_factor_mainrotor.comment = "";
             downwash_factor_mainrotor.unit = "[0...1]";
 
             downwash_factor_tailrotor.val = 0.0f;
             downwash_factor_tailrotor.min = 0.0f;
             downwash_factor_tailrotor.max = 1.0f;
             downwash_factor_tailrotor.hint = "Wing is hit by tailrotor downwash";
-            downwash_factor_tailrotor.comment = "Wing is hit by mainrotor downwash";
+            downwash_factor_tailrotor.comment = "";
             downwash_factor_tailrotor.unit = "[0...1]";
 
             downwash_factor_propeller.val = 0.0f;
             downwash_factor_propeller.min = 0.0f;
             downwash_factor_propeller.max = 1.0f;
             downwash_factor_propeller.hint = "Wing is hit by propeller downwash";
-            downwash_factor_propeller.comment = "Wing is hit by propeller downwash";
+            downwash_factor_propeller.comment = "";
             downwash_factor_propeller.unit = "[0...1]";
 
             posLH.vect3 = new Vector3 { x = -0.660f, y = -0.01f, z = 0.000f };
             posLH.hint = "Wing position relative to center of gravity in local coordinate system";
-            posLH.comment = "Wing position relative to center of gravity in local coordinate system";
+            posLH.comment = "";
             posLH.unit = "m";
 
         }
@@ -1222,66 +1235,66 @@ namespace Parameter
         {
             wing_exists.val = true;
             wing_exists.hint = "Wing exists.";
-            wing_exists.comment = "Wing exists.";
+            wing_exists.comment = "";
             wing_exists.unit = "-";
 
             horizontal0_or_vertical1.val = true;
             horizontal0_or_vertical1.hint = "Wing orientation.";
-            horizontal0_or_vertical1.comment = "Wing orientation.";
+            horizontal0_or_vertical1.comment = "";
             horizontal0_or_vertical1.unit = "-";
 
             area.val = 0.15f * 0.05f; // [m^2]
             area.min = 0.000000f;
             area.max = 1.000000f;
             area.hint = "Effective cross section area (of a planar surface)";
-            area.comment = "Effective cross section area (of a planar surface)";
+            area.comment = "";
             area.unit = "m^2";
 
             drag_coeff.val = 1.00f;
             drag_coeff.min = 0.02f;
             drag_coeff.max = 1.20f;
             drag_coeff.hint = "Drag coefficient (of a planar surface)";
-            drag_coeff.comment = "Drag coefficient (of a planar surface)";
+            drag_coeff.comment = "";
             drag_coeff.unit = "-";
 
             C_l_alpha.val = 6.00f; // TODO find parameter
             C_l_alpha.min = 0.10f;
             C_l_alpha.max = 10.0f;
             C_l_alpha.hint = "Fin lift curve slope";
-            C_l_alpha.comment = "Fin lift curve slope";
+            C_l_alpha.comment = "";
             C_l_alpha.unit = "1/rad";
 
             alpha_stall.val = 20; // TODO find parameter
             alpha_stall.min = 5.0f;
             alpha_stall.max = 45.0f;
             alpha_stall.hint = "Critical angle of attack in stall";
-            alpha_stall.comment = "Critical angle of attack in stall";
+            alpha_stall.comment = "";
             alpha_stall.unit = "deg";
 
             downwash_factor_mainrotor.val = 0.0f;
             downwash_factor_mainrotor.min = 0.0f;
             downwash_factor_mainrotor.max = 1.0f;
             downwash_factor_mainrotor.hint = "Wing is hit by mainrotor downwash";
-            downwash_factor_mainrotor.comment = "Wing is hit by mainrotor downwash";
+            downwash_factor_mainrotor.comment = "";
             downwash_factor_mainrotor.unit = "[0...1]";
 
             downwash_factor_tailrotor.val = 0.5f;
             downwash_factor_tailrotor.min = 0.0f;
             downwash_factor_tailrotor.max = 1.0f;
             downwash_factor_tailrotor.hint = "Wing is hit by tailrotor downwash";
-            downwash_factor_tailrotor.comment = "Wing is hit by mainrotor downwash";
+            downwash_factor_tailrotor.comment = "";
             downwash_factor_tailrotor.unit = "[0...1]";
 
             downwash_factor_propeller.val = 0.0f;
             downwash_factor_propeller.min = 0.0f;
             downwash_factor_propeller.max = 1.0f;
             downwash_factor_propeller.hint = "Wing is hit by propeller downwash";
-            downwash_factor_propeller.comment = "Wing is hit by propeller downwash";
+            downwash_factor_propeller.comment = "";
             downwash_factor_propeller.unit = "[0...1]";
 
             posLH.vect3 = new Vector3 { x = -0.900f, y = -0.01f, z = -0.03f };
             posLH.hint = "Fin position relative to center of gravity in local coordinate system";
-            posLH.comment = "Fin position relative to center of gravity in local coordinate system";
+            posLH.comment = "";
             posLH.unit = "m";             
         }
     }
@@ -1344,78 +1357,78 @@ namespace Parameter
         {
             rotor_exists.val = true;
             rotor_exists.hint = "Mainrotor exists";
-            rotor_exists.comment = "Mainrotor exists";
+            rotor_exists.comment = "";
             rotor_exists.unit = "-";
 
             b.val = 2;
             b.min = 2;
             b.max = 6;
             b.hint = "Number of main rotor blades";
-            b.comment = "Number of main rotor blades";
+            b.comment = "";
             b.unit = "-";
 
             R.val = 0.775f;
             R.min = 0.01f;
             R.max = 3.00f;
             R.hint = "Main rotor blade radius";
-            R.comment = "Main rotor blade radius";
+            R.comment = "";
             R.unit = "m";
 
             C_l_alpha.val = 4.00f;
             C_l_alpha.min = 0.01f;
             C_l_alpha.max = 10.0f;
             C_l_alpha.hint = "Lift curve slope of the main rotor blades";
-            C_l_alpha.comment = "Lift curve slope of the main rotor blades";
+            C_l_alpha.comment = "";
             C_l_alpha.unit = "rad^-1";
 
             c.val = 0.058f;
             c.min = 0.005f;
             c.max = 0.100f;
             c.hint = "Chord length of the main rotor blade";
-            c.comment = "Chord length of the main rotor blade";
+            c.comment = "";
             c.unit = "m";
 
-            J.val = 0.10008f;
+            J.val = 0.15000f;
             J.min = 0.00100f;
             J.max = 1.00000f;
             J.hint = "Rotor inertia w.r.t. main rotor's rotation axis";
-            J.comment = "Rotor inertia w.r.t. main rotor's rotation axis";
+            J.comment = "";
             J.unit = "kg*m^2";
 
             C_D0.val = 0.016f;
             C_D0.min = 0.005f;
             C_D0.max = 0.050f;
             C_D0.hint = "Drag coefficient of main rotor blade";
-            C_D0.comment = "Drag coefficient of main rotor blade";
+            C_D0.comment = "";
             C_D0.unit = "-";
 
             K_col.val = 12f;
             K_col.min = 0.01f;
             K_col.max = 10.0f;
             K_col.hint = "Ratio of mainrotor blade collective pitch angle to collective pitch servo deflection";
-            K_col.comment = "Ratio of mainrotor blade collective pitch angle to collective pitch servo deflection";
+            K_col.comment = "";
             K_col.unit = "deg";
 
             Theta_col_0.val = 0.00f;
             Theta_col_0.min = -13f;
             Theta_col_0.max = 13f;
             Theta_col_0.hint = "Offset angle for mainrotor blade collective pitch angle";
-            Theta_col_0.comment = "Offset angle for mainrotor blade collective pitch angle";
+            Theta_col_0.comment = "";
             Theta_col_0.unit = "deg";
 
             posLH.vect3 = new Vector3 { x = 0.00f, y = 0.182387f, z = 0.00f };
             posLH.hint = "Rotor position relative to center of gravity in local coordinate system";
-            posLH.comment = "Rotor position relative to center of gravity in local coordinate system";
+            posLH.comment = "";
             posLH.unit = "m";
 
             oriLH.vect3 = new Vector3 { x = 0.0f, y = 0.0f, z = 0.0f };
             oriLH.hint = "Rotor coordinate system orientation, relative to helicopter local coordinate system. (right handed, S123 or B321)";
-            oriLH.comment = "Rotor coordinate system orientation, relative to helicopter local coordinate system. (right handed, S123 or B321)";
+            oriLH.comment = "";
             oriLH.unit = "deg";
 
             dirLH.calculated = true; // see Update_Calculated_Parameter()
             dirLH.hint = "Rotor y-axis direction unit vector, relative to helicopter's local coordinate system.";
-            dirLH.comment = "Rotor y-axis direction unit vector, relative to helicopter's local coordinate system.";
+            dirLH.comment = "";
             dirLH.unit = "-";
         }
     }
@@ -1436,7 +1449,7 @@ namespace Parameter
         {
             rotor_exists.val = true;
             rotor_exists.hint = "Tailrotor exists";
-            rotor_exists.comment = "Tailrotor exists";
+            rotor_exists.comment = "";
             rotor_exists.unit = "-";
 
             //K_ped = new stru_float();
@@ -1452,42 +1465,42 @@ namespace Parameter
             b.min = 2;
             b.max = 6;
             b.hint = "Number of tail rotor blades";
-            b.comment = "Number of tail rotor blades";
+            b.comment = "";
             b.unit = "-";
 
             R.val = 0.138f;
             R.min = 0.01f;
             R.max = 0.50f;
             R.hint = "Tail rotor blade radius";
-            R.comment = "Tail rotor blade radius";
+            R.comment = "";
             R.unit = "m";
 
-            C_l_alpha.val = 4.00f;
+            C_l_alpha.val = 5.50f;
             C_l_alpha.min = 0.01f;
             C_l_alpha.max = 10.0f;
             C_l_alpha.hint = "Lift curve slope of the tail rotor blades";
-            C_l_alpha.comment = "Lift curve slope of the tail rotor blades";
+            C_l_alpha.comment = "";
             C_l_alpha.unit = "rad^-1";
 
             c.val = 0.03f;
             c.min = 0.005f;
             c.max = 0.100f;
             c.hint = "Chord length of the tail rotor blades";
-            c.comment = "Chord length of the tail rotor blades";
+            c.comment = "";
             c.unit = "m";
 
             J.val = 0.000115f;
             J.min = 0.000010f;
             J.max = 0.001000f;
             J.hint = "Rotor inertia w.r.t. tail rotor's rotation axis";
-            J.comment = "Rotor inertia w.r.t. tail rotor's rotation axis";
+            J.comment = "";
             J.unit = "kg*m^2";
 
             C_D0.val = 0.016f;
             C_D0.min = 0.005f;
             C_D0.max = 0.050f;
             C_D0.hint = "Drag coefficient of tail rotor blade";
-            C_D0.comment = "Drag coefficient of tail rotor blade";
+            C_D0.comment = "";
             C_D0.unit = "-";
 
             //e.val = 0.03f;
@@ -1497,33 +1510,33 @@ namespace Parameter
             //e.comment = "Effective hinge offset of rotor blade - not used";
             //e.unit = "m";
 
-            K_col.val = 15f;
-            K_col.min = -20.0f;
-            K_col.max = 20.0f;
+            K_col.val = 23f;
+            K_col.min = -30.0f;
+            K_col.max = 30.0f;
             K_col.hint = "Ratio of tail rotor blade collective pitch angle to collective pitch servo deflection";
-            K_col.comment = "Ratio of tail rotor blade collective pitch angle to collective pitch servo deflection";
+            K_col.comment = "";
             K_col.unit = "deg";
 
             Theta_col_0.val = -7.5f;
             Theta_col_0.min = -20f;
             Theta_col_0.max = 20f;
             Theta_col_0.hint = "Offset angle for tail rotor blade collective pitch angle";
-            Theta_col_0.comment = "Offset angle for tail rotor blade collective pitch angle";
+            Theta_col_0.comment = "";
             Theta_col_0.unit = "deg";
 
             posLH.vect3 = new Vector3 { x = -0.9005973f, y = -0.01054892f, z = 0.053341444f };
             posLH.hint = "Rotor position relative to center of gravity in local coordinate system";
-            posLH.comment = "Rotor position relative to center of gravity in local coordinate system";
+            posLH.comment = "";
             posLH.unit = "m";
 
             oriLH.vect3 = new Vector3 { x = 90.0f, y = 0.0f, z = 0.0f };
             oriLH.hint = "Rotor coordinate system orientation, relative to helicopter local coordinate system. (right handed, S123 or B321)";
-            oriLH.comment = "Rotor coordinate system orientation, relative to helicopter local coordinate system. (right handed, S123 or B321)";
+            oriLH.comment = "";
             oriLH.unit = "deg";
 
             dirLH.calculated = true; // see Update_Calculated_Parameter()
             dirLH.hint = "Rotor y-axis direction unit vector, relative to helicopter's local coordinate system.";
-            dirLH.comment = "Rotor y-axis direction unit vector, relative to helicopter's local coordinate system.";
+            dirLH.comment = "";
             dirLH.unit = "-";
         }
     }
@@ -1544,7 +1557,7 @@ namespace Parameter
         {
             rotor_exists.val = false;
             rotor_exists.hint = "Pusher propeller exists (AH56 Cheyenne)";
-            rotor_exists.comment = "Pusher propeller exists (AH56 Cheyenne)";
+            rotor_exists.comment = "";
             rotor_exists.unit = "-";
 
             //K_ped = new stru_float();
@@ -1561,42 +1574,42 @@ namespace Parameter
             b.min = 2;
             b.max = 6;
             b.hint = "Number of propeller blades";
-            b.comment = "Number of propeller blades";
+            b.comment = "";
             b.unit = "-";
 
             R.val = 0.30f;
             R.min = 0.01f;
             R.max = 0.50f;
             R.hint = "Propeller blade radius";
-            R.comment = "Propeller blade radius";
+            R.comment = "";
             R.unit = "m";
 
             C_l_alpha.val = 5.00f;
             C_l_alpha.min = 0.01f;
             C_l_alpha.max = 10.0f;
             C_l_alpha.hint = "Lift curve slope of the propeller blades";
-            C_l_alpha.comment = "Lift curve slope of the propeller blades";
+            C_l_alpha.comment = "";
             C_l_alpha.unit = "rad^-1";
 
             c.val = 0.060f;
             c.min = 0.005f;
             c.max = 0.100f;
             c.hint = "Chord length of the propeller blades";
-            c.comment = "Chord length of the propeller blades";
+            c.comment = "";
             c.unit = "m";
 
             J.val = 0.000300f; 
             J.min = 0.000010f;
             J.max = 0.001000f;
             J.hint = "Propeller's inertia w.r.t. propeller's rotation axis";
-            J.comment = "Propeller's inertia w.r.t. propeller's rotation axis";
+            J.comment = "";
             J.unit = "kg*m^2";
 
             C_D0.val = 0.016f;
             C_D0.min = 0.005f;
             C_D0.max = 0.050f;
             C_D0.hint = "Drag coefficient of propeller blade";
-            C_D0.comment = "Drag coefficient of propeller blade";
+            C_D0.comment = "";
             C_D0.unit = "-";
 
             //e.val = 0.03f;
@@ -1610,29 +1623,29 @@ namespace Parameter
             K_col.min = 0.01f;
             K_col.max = 10.0f;
             K_col.hint = "Ratio of propeller blade collective pitch angle to collective pitch servo deflection";
-            K_col.comment = "Ratio of propeller blade collective pitch angle to collective pitch servo deflection";
+            K_col.comment = "";
             K_col.unit = "deg";
 
             Theta_col_0.val = 0.0f;
             Theta_col_0.min = -15f;
             Theta_col_0.max = 15f;
             Theta_col_0.hint = "Offset angle for propeller blade collective pitch angle";
-            Theta_col_0.comment = "Offset angle for propeller blade collective pitch angle";
+            Theta_col_0.comment = "";
             Theta_col_0.unit = "deg";
 
             posLH.vect3 = new Vector3 { x = -1.9517f, y = 0.00f, z = 0.00f };
             posLH.hint = "Propeller position relative to center of gravity in local coordinate system";
-            posLH.comment = "Propeller position relative to center of gravity in local coordinate system";
+            posLH.comment = "";
             posLH.unit = "m";
 
             oriLH.vect3 = new Vector3 { x = 00.0f, y = 0.0f, z = 270.0f };
             oriLH.hint = "Rotor coordinate system orientation, relative to helicopter local coordinate system. (right handed, B123)";
-            oriLH.comment = "Rotor coordinate system orientation, relative to helicopter local coordinate system. (right handed, B123)";
+            oriLH.comment = "";
             oriLH.unit = "deg";
 
             dirLH.calculated = true; // see Update_Calculated_Parameter()
             dirLH.hint = "Rotor y-axis direction unit vector, relative to helicopter's local coordinate system.";
-            dirLH.comment = "Rotor y-axis direction unit vector, relative to helicopter's local coordinate system.";
+            dirLH.comment = "";
             dirLH.unit = "-";
         }
     }
@@ -1653,6 +1666,8 @@ namespace Parameter
         public stru_float B_lat { get; set; } // [deg] Linkage gain ratio of θcyc,bs to δlat
         public stru_float A_b_s { get; set; } // [1/sec] Coupling effect from b_s to a_s
         public stru_float B_a_s { get; set; } // [1/sec] Coupling effect from a_s to b_s
+        public stru_float A_a_r { get; set; } // [1/sec] Large advance ratio tilts rotor (forward)
+        public stru_float B_a_r { get; set; } // [1/sec] Large advance ratio tilts rotor (sideward)
         public stru_float e { get; set; } // [-] Effective hinge offset of main rotor 
         public stru_float I_flapping { get; set; } // [-] Rotor inertia w.r.t. rotor's flapping axis in rotor hub
 
@@ -1663,6 +1678,8 @@ namespace Parameter
             B_lat = new stru_float();
             A_b_s = new stru_float();
             B_a_s = new stru_float();
+            A_a_r = new stru_float();
+            B_a_r = new stru_float();
             e = new stru_float();
             I_flapping = new stru_float();
 
@@ -1670,22 +1687,22 @@ namespace Parameter
             e.min = 0.01f;
             e.max = 0.20f;
             e.hint = "Effective hinge offset of mainrotor blade";
-            e.comment = "Effective hinge offset of mainrotor blade";
+            e.comment = "";
             e.unit = "m";
 
             I_flapping.val = 0.03487f; // 0.055 kg*m^2  
             I_flapping.min = 0.00100f;
             I_flapping.max = 1.00000f;
             I_flapping.hint = "One rotorblade's inertia w.r.t. rotorblade's effective hinge offset axis";
-            I_flapping.comment = "One rotorblade's inertia w.r.t. rotorblade's effective hinge offset axis";
+            I_flapping.comment = "";
             I_flapping.unit = "kg*m^2";
 
 
-            hub_stiffness_mr.val = 100f;
+            hub_stiffness_mr.val = 60f;
             hub_stiffness_mr.min = 0.001f;
             hub_stiffness_mr.max = 1000f;
             hub_stiffness_mr.hint = "Hub stiffness in rotor head. (O-ring)";
-            hub_stiffness_mr.comment = "Hub stiffness in rotor head. (O-ring)";
+            hub_stiffness_mr.comment = "";
             hub_stiffness_mr.unit = "Nm/rad";
 
 
@@ -1693,21 +1710,21 @@ namespace Parameter
             A_lon.min = 0.001f;
             A_lon.max = 1f;
             A_lon.hint = "Linkage gain ratio of θcyc,as to δlon";
-            A_lon.comment = "Linkage gain ratio of θcyc,as to δlon";
+            A_lon.comment = "";
             A_lon.unit = "deg";
 
             B_lat.val = 10f; // 0.2
             B_lat.min = 0.001f;
             B_lat.max = 1f;
             B_lat.hint = "Linkage gain ratio of θcyc,bs to δlat";
-            B_lat.comment = "Linkage gain ratio of θcyc,bs to δlat";
+            B_lat.comment = "";
             B_lat.unit = "deg";
 
             A_b_s.val = 5f;// ~10?
             A_b_s.min = 0.0f;
             A_b_s.max = 100f;
             A_b_s.hint = "Coupling effect from b_s to a_s";
-            A_b_s.comment = "Coupling effect from b_s to a_s";
+            A_b_s.comment = "";
             A_b_s.unit = "1/sec";
 
             B_a_s.val = 5f; // ~10?
@@ -1717,10 +1734,54 @@ namespace Parameter
             B_a_s.comment = "Coupling effect from a_s to b_s";
             B_a_s.unit = "1/sec";
 
+
+            A_a_r.val = 0.02f;
+            A_a_r.min = 0.0f;
+            A_a_r.max = 100f;
+            A_a_r.hint = "Fast forward flight (large advance ratio) tilts rotor disc to \"nose up\".";
+            A_a_r.comment = "";
+            A_a_r.unit = "rad/m";
+
+            B_a_r.val = 0.02f; 
+            B_a_r.min = 0.0f;
+            B_a_r.max = 100f;
+            B_a_r.hint = "Fast sideward flight (large advance ratio) tilts rotor disc to \"side up\".";
+            B_a_r.comment = "";
+            B_a_r.unit = "rad/m";
         }
     }
     // ##################################################################################
 
+
+
+
+    // ##################################################################################
+    // physics - tunining varaibles
+    // ##################################################################################
+    [Serializable]
+    public class stru_tuning
+    {
+        public stru_float vortex_ring_state_v_horizontal { get; set; } // [m/sec] 
+        public stru_float vortex_ring_state_v_vertical { get; set; } // [m/sec] 
+
+        public stru_tuning()
+        {
+            vortex_ring_state_v_horizontal = new stru_float();
+            vortex_ring_state_v_vertical = new stru_float();
+
+            vortex_ring_state_v_horizontal.val = 5f;
+            vortex_ring_state_v_horizontal.hint = "Horizontal velocity where vortex-ring-state grows at most.";
+            vortex_ring_state_v_horizontal.comment = "";
+            vortex_ring_state_v_horizontal.unit = "m/sec";
+
+            vortex_ring_state_v_vertical.val = -7f;
+            vortex_ring_state_v_vertical.hint = "Vertical velocity where vortex-ring-state grows at most.";
+            vortex_ring_state_v_vertical.comment = "";
+            vortex_ring_state_v_vertical.unit = "m/sec";
+        }
+
+       
+    }
 
 
 
@@ -1758,21 +1819,21 @@ namespace Parameter
             R_a.min = 0.001f;
             R_a.max = 0.200f;
             R_a.hint = "El. resistance brushless motor + connector + controller";
-            R_a.comment = "El. resistance brushless motor + connector + controller";
+            R_a.comment = "";
             R_a.unit = "ohm";
 
             B_M.val = 4.5E-05f;
             B_M.min = 1.0E-06f;
             B_M.max = 1.0E-04f;
             B_M.hint = "Rotational friction";
-            B_M.comment = "Rotational friction";
+            B_M.comment = "";
             B_M.unit = "Nm/(rad/sec)";
 
             ns.val = 560.0f;    // 560ns[rpm/Volt] == 560kV[rpm/Volt] ==>   560[rpm/Volt] * pi/30 --> 58.6430[(rad/sec)/Volt] 
             ns.min = 1.0f;
             ns.max = 200f;
             ns.hint = "Ideal specific no load speed";
-            ns.comment = "Ideal specific no load speed";
+            ns.comment = "";
             ns.unit = "rpm/Volt";
 
             Ke.calculated = true; // see Update_Calculated_Parameter()
@@ -1788,7 +1849,7 @@ namespace Parameter
             Kt.min = 0f;
             Kt.max = 0f;
             Kt.hint = "Torque constant";
-            Kt.comment = "Torque constant";
+            Kt.comment = "";
             Kt.unit = "Nm/A";
 
             k.calculated = true; // see Update_Calculated_Parameter()
@@ -1803,7 +1864,7 @@ namespace Parameter
             J.min = 1E-06f;
             J.max = 1E-03f;
             J.hint = "Motor inertia w.r.t. motor hub";
-            J.comment = "Motor inertia w.r.t. motor hub";
+            J.comment = "";
             J.unit = "kg*m^2";
 
         }
@@ -1822,49 +1883,62 @@ namespace Parameter
     {
         public stru_float target_rpm_1 { get; set; } // first target rotational speed of mainrotor
         public stru_float target_rpm_2 { get; set; } // second target rotational speed of mainrotor
+        public stru_float target_rpm_3 { get; set; } // third target rotational speed of mainrotor
         public stru_float Kp { get; set; } // rotational speed controller proportional gain
         public stru_float Ki { get; set; } // rotational speed controller Helicopter_Integrator gain
         [XmlIgnore]
         public stru_float saturation_max { get; set; } // [Volt] 
         public stru_float saturation_min { get; set; } // [Volt]
         public stru_float soft_start_factor { get; set; } // []
+        public stru_float engine_restart_time { get; set; } // [sec]
+        public stru_float engine_restart_factor { get; set; } // []
 
         public stru_governor()
         {
             target_rpm_1 = new stru_float();
             target_rpm_2 = new stru_float();
+            target_rpm_3 = new stru_float();
             Kp = new stru_float();
             Ki = new stru_float();
             saturation_max = new stru_float();
             saturation_min = new stru_float();
             soft_start_factor = new stru_float();
+            engine_restart_time = new stru_float();
+            engine_restart_factor = new stru_float();
 
             target_rpm_1.val = 1050f;
-            target_rpm_1.min = 600f;
-            target_rpm_1.max = 3000f;
+            target_rpm_1.min = 500f;
+            target_rpm_1.max = 5000f;
             target_rpm_1.hint = "First target rotational speed of mainrotor";
-            target_rpm_1.comment = "First target rotational speed of mainrotor";
+            target_rpm_1.comment = "";
             target_rpm_1.unit = "rpm";
 
             target_rpm_2.val = 1300f;
-            target_rpm_2.min = 600f;
-            target_rpm_2.max = 3000f;
+            target_rpm_2.min = 500f;
+            target_rpm_2.max = 5000f;
             target_rpm_2.hint = "Second target rotational speed of mainrotor";
-            target_rpm_2.comment = "Second target rotational speed of mainrotor";
+            target_rpm_2.comment = "";
             target_rpm_2.unit = "rpm";
+
+            target_rpm_3.val = 1400f;
+            target_rpm_3.min = 500f;
+            target_rpm_3.max = 5000f;
+            target_rpm_3.hint = "Third target rotational speed of mainrotor";
+            target_rpm_3.comment = "";
+            target_rpm_3.unit = "rpm";
 
             Kp.val = 0.01f;
             Kp.min = 0.01f;
             Kp.max = 10.0f;
             Kp.hint = "Rotational speed controller proportional gain";
-            Kp.comment = "Rotational speed controller proportional gain";
+            Kp.comment = "";
             Kp.unit = "-";
 
             Ki.val = 0.10f;
             Ki.min = 0.01f;
             Ki.max = 10.0f;
             Ki.hint = "Rotational speed controller Helicopter_Integrator gain";
-            Ki.comment = "Rotational speed controller Helicopter_Integrator gain";
+            Ki.comment = "";
             Ki.unit = "-";
 
             saturation_max.calculated = true; // see Update_Calculated_Parameter()
@@ -1872,14 +1946,14 @@ namespace Parameter
             saturation_max.min = 0f;
             saturation_max.max = 0f;
             saturation_max.hint = "Maximum voltage at governor output";
-            saturation_max.comment = "Maximum voltage at governor output";
+            saturation_max.comment = "";
             saturation_max.unit = "Volt";
 
             saturation_min.val = 0f;
             saturation_min.min = 0f;
             saturation_min.max = 0f;
             saturation_min.hint = "Minimum voltage at governor output";
-            saturation_min.comment = "Minimum voltage at governor output";
+            saturation_min.comment = "";
             saturation_min.unit = "Volt";
 
             soft_start_factor.val = 0.10f;
@@ -1888,6 +1962,20 @@ namespace Parameter
             soft_start_factor.hint = "Governor soft start factor";
             soft_start_factor.comment = "Governor soft start factor";
             soft_start_factor.unit = "-";
+
+            engine_restart_time.val = 5f;
+            engine_restart_time.min = 0.01f;
+            engine_restart_time.max = 10.0f;
+            engine_restart_time.hint = "Within this time period after motor stop, the motor will rapidly start up.";
+            engine_restart_time.comment = "";
+            engine_restart_time.unit = "sec";
+
+            engine_restart_factor.val = 10f;
+            engine_restart_factor.min = 0.01f;
+            engine_restart_factor.max = 10.000f;
+            engine_restart_factor.hint = "Factor to fast restart the motor and accelerate to the full speed.";
+            engine_restart_factor.comment = "";
+            engine_restart_factor.unit = "-";
         }
     }
     // ##################################################################################
@@ -1924,35 +2012,35 @@ namespace Parameter
             voltage_per_cell.min = 2.0f;
             voltage_per_cell.max = 4.5f;
             voltage_per_cell.hint = "Singe cell nominal voltage";
-            voltage_per_cell.comment = "Singe cell nominal voltage";
+            voltage_per_cell.comment = "";
             voltage_per_cell.unit = "Volt";
 
             cell_count.val = 6;
             cell_count.min = 1;
             cell_count.max = 14;
             cell_count.hint = "Number of cells in accu";
-            cell_count.comment = "Number of cells in accu";
+            cell_count.comment = "";
             cell_count.unit = "-";
 
             Ri.val = 0.0040f;
             Ri.min = 0.0001f;
             Ri.max = 0.0500f;
             Ri.hint = "Inner resistance";
-            Ri.comment = "Inner resistance";
+            Ri.comment = "";
             Ri.unit = "Ohm";
 
             I_max.val = 120f;
             I_max.min = 0f;
             I_max.max = 250f;
             I_max.hint = "Maximal current";
-            I_max.comment = "Maximal current";
+            I_max.comment = "";
             I_max.unit = "A";
 
             capacity.val = 5000f;
             capacity.min = 100f;
             capacity.max = 10000f;
             capacity.hint = "Capacity";
-            capacity.comment = "Capacity";
+            capacity.comment = "";
             capacity.unit = "mAh";
 
             voltage.calculated = true; // see Update_Calculated_Parameter()
@@ -1960,7 +2048,7 @@ namespace Parameter
             voltage.min = 0;
             voltage.max = 0;
             voltage.hint = "Nominal voltage of accu";
-            voltage.comment = "Nominal voltage of accu";
+            voltage.comment = "";
             voltage.unit = "Volt";
         }
     }
@@ -2036,43 +2124,43 @@ namespace Parameter
 
             invert_mainrotor_rotation_direction.val = true;
             invert_mainrotor_rotation_direction.hint = "Invert mainrotor rotational direction";
-            invert_mainrotor_rotation_direction.comment = "Invert mainrotor rotational direction";
+            invert_mainrotor_rotation_direction.comment = "";
             invert_mainrotor_rotation_direction.unit = "-";
 
             invert_motor2maingear_transmission.val = true;
             invert_motor2maingear_transmission.hint = "Invert maingear rotational direction";
-            invert_motor2maingear_transmission.comment = "Invert maingear rotational direction";
+            invert_motor2maingear_transmission.comment = "";
             invert_motor2maingear_transmission.unit = "-";
 
             invert_mainrotor2tailrotor_transmission.val = false;
             invert_mainrotor2tailrotor_transmission.hint = "Invert tailrotor rotational direction";
-            invert_mainrotor2tailrotor_transmission.comment = "Invert tailrotor rotational direction";
+            invert_mainrotor2tailrotor_transmission.comment = "";
             invert_mainrotor2tailrotor_transmission.unit = "-";
 
             invert_mainrotor2propeller_transmission.val = false;
             invert_mainrotor2propeller_transmission.hint = "Invert propeller rotational direction";
-            invert_mainrotor2propeller_transmission.comment = "Invert propeller rotational direction";
+            invert_mainrotor2propeller_transmission.comment = "";
             invert_mainrotor2propeller_transmission.unit = "-";
 
             i_gear_motor.val = 13;
             i_gear_motor.min = 5;
             i_gear_motor.max = 50;
             i_gear_motor.hint = "Motor's gear teeth count";
-            i_gear_motor.comment = "Motor's gear teeth count";
+            i_gear_motor.comment = "";
             i_gear_motor.unit = "-";
 
             i_gear_maingear.val = 106; // maingear
             i_gear_maingear.min = 10;
             i_gear_maingear.max = 200;
             i_gear_maingear.hint = "Mainrotor's gear teeth count - to motor";
-            i_gear_maingear.comment = "Mainrotor's gear teeth coun - to motor";
+            i_gear_maingear.comment = "";
             i_gear_maingear.unit = "-";
 
             i_gear_mainrotor.val = 42;
             i_gear_mainrotor.min = 10;
             i_gear_mainrotor.max = 200;
             i_gear_mainrotor.hint = "Mainrotor's gear teeth count - to tailrotor";
-            i_gear_mainrotor.comment = "Mainrotor's gear teeth count - to tailrotor";
+            i_gear_mainrotor.comment = "";
             i_gear_mainrotor.unit = "-";
 
             //i_gear_mainrotor2propeller.val = 42;
@@ -2086,35 +2174,35 @@ namespace Parameter
             i_gear_tailrotor.min = 5;
             i_gear_tailrotor.max = 50;
             i_gear_tailrotor.hint = "Tailrotor's gear teeth count - to mainrotor";
-            i_gear_tailrotor.comment = "Tailrotor's gear teeth count - to mainrotor";
+            i_gear_tailrotor.comment = "";
             i_gear_tailrotor.unit = "-";
 
             i_gear_propeller.val = 9;
             i_gear_propeller.min = 5;
             i_gear_propeller.max = 50;
             i_gear_propeller.hint = "Propeller's gear teeth count - to mainrotor";
-            i_gear_propeller.comment = "Propeller's gear teeth count - to mainrotor";
+            i_gear_propeller.comment = "";
             i_gear_propeller.unit = "-";
 
-            k_freewheel.val = 10f; // very weak stiffness for numerical "stability"
+            k_freewheel.val = 5f; // very weak stiffness for numerical "stability"
             k_freewheel.min = 0;
             k_freewheel.max = 0;
             k_freewheel.hint = "Freewheel (between maingear and mainrotor) rotational stiffness";
-            k_freewheel.comment = "Freewheel (between maingear and mainrotor) rotational stiffness";
+            k_freewheel.comment = "";
             k_freewheel.unit = "Nm/rad";
 
-            d_freewheel.val = 1f; // damping for numerical "stability"
+            d_freewheel.val = 0.25f; // damping for numerical "stability"
             d_freewheel.min = 0;
             d_freewheel.max = 0;
             d_freewheel.hint = "Freewheel (between maingear and mainrotor) rotational damping";
-            d_freewheel.comment = "Freewheel (between maingear and mainrotor) rotational damping";
+            d_freewheel.comment = "";
             d_freewheel.unit = "Nm/(rad/sec)";
 
             J_mg.val = 0.000200f; 
             J_mg.min = 0;
             J_mg.max = 0;
             J_mg.hint = "Maingear inertia w.r.t. maingear";
-            J_mg.comment = "Maingear inertia w.r.t. maingear";
+            J_mg.comment = "";
             J_mg.unit = "kg*m^2";
 
             J_momg_mo.calculated = true; // see Update_Calculated_Parameter()
@@ -2122,7 +2210,7 @@ namespace Parameter
             J_momg_mo.min = 0;
             J_momg_mo.max = 0;
             J_momg_mo.hint = "Motor and maingear inertia w.r.t. motor";
-            J_momg_mo.comment = "Motor and maingear inertia w.r.t. motor";
+            J_momg_mo.comment = "";
             J_momg_mo.unit = "kg*m^2";
 
             J_mrtrpr_mr.calculated = true; // see Update_Calculated_Parameter()
@@ -2130,7 +2218,7 @@ namespace Parameter
             J_mrtrpr_mr.min = 0;
             J_mrtrpr_mr.max = 0;
             J_mrtrpr_mr.hint = "Mainrotor, tailrotor and propeller inertia w.r.t. mainrotor";
-            J_mrtrpr_mr.comment = "Mainrotor, tailrotor and propeller inertia w.r.t. mainrotor";
+            J_mrtrpr_mr.comment = "";
             J_mrtrpr_mr.unit = "kg*m^2";
 
             //J_all.calculated = true;
@@ -2146,7 +2234,7 @@ namespace Parameter
             n_mo2mr.min = 0;
             n_mo2mr.max = 0;
             n_mo2mr.hint = "Gear ratio motor-mainrotor";
-            n_mo2mr.comment = "Gear ratio motor-mainrotor";
+            n_mo2mr.comment = "";
             n_mo2mr.unit = "-";
 
             n_mr2tr.calculated = true; // see Update_Calculated_Parameter()
@@ -2154,7 +2242,7 @@ namespace Parameter
             n_mr2tr.min = 0;
             n_mr2tr.max = 0;
             n_mr2tr.hint = "Gear ratio mainrotor-tailrotor";
-            n_mr2tr.comment = "Gear ratio mainrotor-tailrotor";
+            n_mr2tr.comment = "";
             n_mr2tr.unit = "-";
 
             n_mo2tr.calculated = true; // see Update_Calculated_Parameter()
@@ -2162,7 +2250,7 @@ namespace Parameter
             n_mo2tr.min = 0;
             n_mo2tr.max = 0;
             n_mo2tr.hint = "Gear ratio motor-tailrotor";
-            n_mo2tr.comment = "Gear ratio motor-tailrotor";
+            n_mo2tr.comment = "";
             n_mo2tr.unit = "-";
 
             n_mr2pr.calculated = true; // see Update_Calculated_Parameter()
@@ -2170,7 +2258,7 @@ namespace Parameter
             n_mr2pr.min = 0;
             n_mr2pr.max = 0;
             n_mr2pr.hint = "Gear ratio mainrotor-propeller";
-            n_mr2pr.comment = "Gear ratio mainrotor-propeller";
+            n_mr2pr.comment = "";
             n_mr2pr.unit = "-";
 
             n_mo2pr.calculated = true; // see Update_Calculated_Parameter()
@@ -2178,7 +2266,7 @@ namespace Parameter
             n_mo2pr.min = 0;
             n_mo2pr.max = 0;
             n_mo2pr.hint = "Gear ratio motor-propeller";
-            n_mo2pr.comment = "Gear ratio motor-propeller";
+            n_mo2pr.comment = "";
             n_mo2pr.unit = "-";
 
 
@@ -2252,73 +2340,73 @@ namespace Parameter
             friction_coeff.min = 0.01f;
             friction_coeff.max = 0.80f;
             friction_coeff.hint = "Friction coefficient between ground plane and heli";
-            friction_coeff.comment = "Friction coefficient between ground plane and heli";
+            friction_coeff.comment = "";
             friction_coeff.unit = "-";
 
             friction_coeff_forward.val = 0.30f;
             friction_coeff_forward.min = 0.01f;
             friction_coeff_forward.max = 0.80f;
             friction_coeff_forward.hint = "Friction coefficient (ground <-> heli) in heli's forward direction"; // for gears or skids
-            friction_coeff_forward.comment = "Friction coefficient (ground <-> heli) in heli's forward direction";
+            friction_coeff_forward.comment = "";
             friction_coeff_forward.unit = "-";
 
             friction_coeff_sideward.val = 0.50f;
             friction_coeff_sideward.min = 0.01f;
             friction_coeff_sideward.max = 0.80f;
             friction_coeff_sideward.hint = "Friction coefficient (ground <-> heli) in heli's sideward direction"; // for gears or skids
-            friction_coeff_sideward.comment = "Friction coefficient (ground <-> heli) in heli's sideward direction";
+            friction_coeff_sideward.comment = "";
             friction_coeff_sideward.unit = "-";
 
             friction_coeff_steering.val = 0.01f;
             friction_coeff_steering.min = 0.01f;
             friction_coeff_steering.max = 0.80f;
             friction_coeff_steering.hint = "Friction coefficient (ground <-> heli) for rear gear"; // for gears 
-            friction_coeff_steering.comment = "Friction coefficient (ground <-> heli) for rear gear";
+            friction_coeff_steering.comment = "";
             friction_coeff_steering.unit = "-";
 
-            stiffness_factor.val = 5000.0f;
+            stiffness_factor.val = 4000.0f;
             stiffness_factor.max = 100000f;
             stiffness_factor.min = 20.0f;
             stiffness_factor.hint = "Contact stiffness factor";
-            stiffness_factor.comment = "Contact stiffness factor";
+            stiffness_factor.comment = "";
             stiffness_factor.unit = "N/m";
 
             damping_factor.val = 100.0f;
             damping_factor.max = 1000f;
             damping_factor.min = 20.0f;
             damping_factor.hint = "Contact damping factor";
-            damping_factor.comment = "Contact damping factor";
+            damping_factor.comment = "";
             damping_factor.unit = "N*(m/s)";
 
 
             positions_left_type.val = 0;
             positions_left_type.str = new List<string> { "Skids", "Grear" };
             positions_left_type.hint = "Contact type";
-            positions_left_type.comment = "Contact type";
+            positions_left_type.comment = "";
             positions_left_type.unit = "";
 
             positions_right_type.val = 0;
             positions_right_type.str = new List<string> { "Skids", "Grear" };
             positions_right_type.hint = "Contact type";
-            positions_right_type.comment = "Contact type";
+            positions_right_type.comment = "";
             positions_right_type.unit = "";
 
             positions_steering_center_type.val = 0;
             positions_steering_center_type.str = new List<string> { "Skids", "Grear" };
             positions_steering_center_type.hint = "Contact type";
-            positions_steering_center_type.comment = "Contact type";
+            positions_steering_center_type.comment = "";
             positions_steering_center_type.unit = "";
 
             positions_steering_left_type.val = 0;
             positions_steering_left_type.str = new List<string> { "Skids", "Grear" };
             positions_steering_left_type.hint = "Contact type";
-            positions_steering_left_type.comment = "Contact type";
+            positions_steering_left_type.comment = "";
             positions_steering_left_type.unit = "";
 
             positions_steering_right_type.val = 0;
             positions_steering_right_type.str = new List<string> { "Skids", "Grear" };
             positions_steering_right_type.hint = "Contact type";
-            positions_steering_right_type.comment = "Contact type";
+            positions_steering_right_type.comment = "";
             positions_steering_right_type.unit = "";
 
 
@@ -2327,81 +2415,81 @@ namespace Parameter
             positions_left_rised_offset.max = 1;
             positions_left_rised_offset.min = 0;
             positions_left_rised_offset.hint = "If left landing gear or skid is rised their collision point is moved in y-direction by this value.";
-            positions_left_rised_offset.comment = "If left landing gear or skid is rised their collision point is moved in y-direction by this value.";
+            positions_left_rised_offset.comment = "";
             positions_left_rised_offset.unit = "[m]";
 
             positions_right_rised_offset.val = 0;
             positions_right_rised_offset.max = 1;
             positions_right_rised_offset.min = 0;
             positions_right_rised_offset.hint = "If right landing gear or skid is rised their collision point is moved in y-direction by this value.";
-            positions_right_rised_offset.comment = "If right landing gear or skid is rised their collision point is moved in y-direction by this value.";
+            positions_right_rised_offset.comment = "";
             positions_right_rised_offset.unit = "[m]";
 
             positions_steering_center_rised_offset.val = 0;
             positions_steering_center_rised_offset.max = 1;
             positions_steering_center_rised_offset.min = 0;
             positions_steering_center_rised_offset.hint = "If center steering/landing gear or skid is rised their collision point is moved in y-direction by this value.";
-            positions_steering_center_rised_offset.comment = "If center steering/landing gear or skid is rised their collision point is moved in y-direction by this value.";
+            positions_steering_center_rised_offset.comment = "";
             positions_steering_center_rised_offset.unit = "[m]";
 
             positions_steering_left_rised_offset.val = 0;
             positions_steering_left_rised_offset.max = 1;
             positions_steering_left_rised_offset.min = 0;
             positions_steering_left_rised_offset.hint = "If left steering/landing gear or skid is rised their collision point is moved in y-direction by this value.";
-            positions_steering_left_rised_offset.comment = "If left steering/landing gear or skid is rised their collision point is moved in y-direction by this value.";
+            positions_steering_left_rised_offset.comment = "";
             positions_steering_left_rised_offset.unit = "[m]";
 
             positions_steering_right_rised_offset.val = 0;
             positions_steering_right_rised_offset.max = 1;
             positions_steering_right_rised_offset.min = 0;
             positions_steering_right_rised_offset.hint = "If right steering/landing gear or skid is rised their collision point is moved in y-direction by this value.";
-            positions_steering_right_rised_offset.comment = "If right steering/landing gear or skid is rised their collision point is moved in y-direction by this value.";
+            positions_steering_right_rised_offset.comment = "";
             positions_steering_right_rised_offset.unit = "[m]";
 
 
             positions_usual.vect3 = new List<Vector3>(); // right handed: x forward, y top, z to right
             //positions_usual.vect3.Add(new Vector3 { x = -0.93f, y = -0.16f, z = 0.0f });  // this parameter has to be set in the xml file, othervise every model would have this value  
             positions_usual.hint = "Contact position heli to ground";
-            positions_usual.comment = "Contact position heli to ground";
+            positions_usual.comment = "";
             positions_usual.unit = "m";
 
             positions_left.vect3 = new List<Vector3>(); // right handed: x forward, y top, z to right
             //positions_left.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = -0.1f });  // this parameter has to be set in the xml file, othervise every model would have this value  
             //positions_left.vect3.Add(new Vector3 { x = -0.1f, y = -0.18f, z = -0.1f });  // this parameter has to be set in the xml file, othervise every model would have this value  
             positions_left.hint = "Contact position heli's left landing gear or skid to ground";
-            positions_left.comment = "Contact position heli's left landing gear or skid to ground";
+            positions_left.comment = "";
             positions_left.unit = "m";
 
             positions_right.vect3 = new List<Vector3>(); // right handed: x forward, y top, z to right
             //positions_right.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = 0.1f });   // this parameter has to be set in the xml file, othervise every model would have this value  
             //positions_right.vect3.Add(new Vector3 { x = -0.1f, y = -0.18f, z = 0.1f });  // this parameter has to be set in the xml file, othervise every model would have this value  
             positions_right.hint = "Contact position heli's right landing gear or skid to ground";
-            positions_right.comment = "Contact position heli's right landing gear or skid to ground";
+            positions_right.comment = "";
             positions_right.unit = "m";
 
             positions_steering_center.vect3 = new List<Vector3>(); // right handed: x forward, y top, z to right
             //positions_steering_center.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = 0.1f });   // this parameter has to be set in the xml file, othervise every model would have this value  
             positions_steering_center.hint = "Contact position heli's center steering/landing gear or support to ground";
-            positions_steering_center.comment = "Contact position heli's center steering/landing gear or support to ground";
+            positions_steering_center.comment = "";
             positions_steering_center.unit = "m";
 
             positions_steering_left.vect3 = new List<Vector3>(); // right handed: x forward, y top, z to right
             //positions_steering_left.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = 0.1f });   // this parameter has to be set in the xml file, othervise every model would have this value  
             positions_steering_left.hint = "Contact position heli's left steering/landing gear or support to ground";
-            positions_steering_left.comment = "Contact position heli's left steering/landing gear or support to ground";
+            positions_steering_left.comment = "";
             positions_steering_left.unit = "m";
 
             positions_steering_right.vect3 = new List<Vector3>(); // right handed: x forward, y top, z to right
             //positions_steering_right.vect3.Add(new Vector3 { x = 0.2f, y = -0.16f, z = 0.1f });  // this parameter has to be set in the xml file, othervise every model would have this value   
             positions_steering_right.hint = "Contact position heli's right steering/landing gear or support to ground";
-            positions_steering_right.comment = "Contact position heli's right steering/landing gear or support to ground";
+            positions_steering_right.comment = "";
             positions_steering_right.unit = "m";
 
             collision_force_max.val = 500f;
             collision_force_max.min = 1.00f;
             collision_force_max.max = 10000f;
             collision_force_max.hint = "If a collision force is larger then this value, the heli will crash.";
-            collision_force_max.comment = "If a collision force is larger then this value, the heli will crash.";
+            collision_force_max.comment = "";
             collision_force_max.unit = "N";
         }
     }
@@ -2426,12 +2514,12 @@ namespace Parameter
 
             position.vect3 = new Vector3 { x = 0.0f, y = 0.00f, z = 5.0f };
             position.hint = "Initial position in unity's left handed system.";
-            position.comment = "Initial position in unity's left handed system.";
+            position.comment = "";
             position.unit = "m";
 
             orientation.vect3 = new Vector3 { x = 0.0f, y = 30.0f, z = 0.0f };
             orientation.hint = "Initial orientation, left handed, intrinsic rotation z-x-y (S312 or B213)";
-            orientation.comment = "Initial orientation, left handed, intrinsic rotation z-x-y (S312 or B213)";
+            orientation.comment = "";
             orientation.unit = "deg";
         }
     }
@@ -2455,12 +2543,12 @@ namespace Parameter
 
             position.vect3 = new Vector3 { x = 0.0f, y = 0.275f, z = 0.0f }; // [m]     
             position.hint = "Helicopter's reference point to center of mass in helicopters's local coordiante system. (Bright handed)";
-            position.comment = "Helicopter's reference point to center of mass in helicopters's local coordiante system. (right handed)";
+            position.comment = "";
             position.unit = "m";
 
             orientation.vect3 = new Vector3 { x = 0.0f, y = 0.0f, z = -3.0f }; // [deg]
             orientation.hint = "Center of mass coordinate system orientation relative to inital frame. Right handed, extrinsic rotation z-y-x (B321 or S123)";
-            orientation.comment = "Center of mass coordinate system orientation relative to inital frame. Right handed, extrinsic rotation z-y-x (B321 or S123)";
+            orientation.comment = "";
             orientation.unit = "deg";
         }
     }
@@ -2482,6 +2570,8 @@ namespace Parameter
         public stru_float landing_gear_main_transition_time_gear { get; set; } // [sec] 
         public stru_float landing_gear_main_transition_time_bay { get; set; } // [sec] 
         public stru_float landing_gear_main_mechanism_tilted_forward { get; set; } // [deg] 
+        public stru_float debug_force_arrow_scale { get; set; } // [m/N] 
+        public stru_float debug_torque_arrow_scale { get; set; } // [m/N] 
 
 
         public stru_visual_effects()
@@ -2493,56 +2583,71 @@ namespace Parameter
             landing_gear_main_transition_time_gear = new stru_float();
             landing_gear_main_transition_time_bay = new stru_float();
             landing_gear_main_mechanism_tilted_forward = new stru_float();
+            debug_force_arrow_scale = new stru_float();
+            debug_torque_arrow_scale = new stru_float();
 
             mainrotor_idle_deformation.val = 2.0f;
             mainrotor_idle_deformation.max = 0.00f;
             mainrotor_idle_deformation.min = 10.0f;
             mainrotor_idle_deformation.hint = "Mainrotor deformation during ideling due to gravity.";
-            mainrotor_idle_deformation.comment = "Mainrotor deformation during ideling due to gravity.";
+            mainrotor_idle_deformation.comment = "";
             mainrotor_idle_deformation.unit = "deg";
 
             mainrotor_running_deformation.val = 0.02f;
             mainrotor_running_deformation.max = 0.00f;
             mainrotor_running_deformation.min = 10.0f;
             mainrotor_running_deformation.hint = "Mainrotor deformation due to lifting force.";
-            mainrotor_running_deformation.comment = "Mainrotor deformation due to lifting force.";
+            mainrotor_running_deformation.comment = "";
             mainrotor_running_deformation.unit = "deg/N";
 
             landing_gear_or_skids_deflection_stiffness.val = 100f;
             landing_gear_or_skids_deflection_stiffness.max = 0.00f;
             landing_gear_or_skids_deflection_stiffness.min = 100000.0f;
             landing_gear_or_skids_deflection_stiffness.hint = "Normalized stiffness parameter for deformation of landing gear or skids.";
-            landing_gear_or_skids_deflection_stiffness.comment = "Normalized stiffness parameter for deformation of landing gear or skids.";
+            landing_gear_or_skids_deflection_stiffness.comment = "";
             landing_gear_or_skids_deflection_stiffness.unit = "-";
 
             landing_gear_main_radius.val = 0.00f;
             landing_gear_main_radius.max = 1.00f;
             landing_gear_main_radius.min = 0.001f;
             landing_gear_main_radius.hint = "Radius of main landing gear.";
-            landing_gear_main_radius.comment = "Radius of main landing gear.";
+            landing_gear_main_radius.comment = "";
             landing_gear_main_radius.unit = "m";
 
             landing_gear_main_transition_time_gear.val = 2.00f;
             landing_gear_main_transition_time_gear.max = 10.00f;
             landing_gear_main_transition_time_gear.min = 0.000f;
             landing_gear_main_transition_time_gear.hint = "Transition time for rising/lowering gear (only collision detection, animation duration is not effected).";
-            landing_gear_main_transition_time_gear.comment = "Transition time for rising/lowering gear (only collision detection, animation duration is not effected).";
+            landing_gear_main_transition_time_gear.comment = "";
             landing_gear_main_transition_time_gear.unit = "sec";
 
             landing_gear_main_transition_time_bay.val = 0.3f;
             landing_gear_main_transition_time_bay.max = 10.00f;
             landing_gear_main_transition_time_bay.min = 0.000f;
             landing_gear_main_transition_time_bay.hint = "Transition time for closing/opening gear bay doors (only collision detection, animation duration is not effected).";
-            landing_gear_main_transition_time_bay.comment = "Transition time for closing/opening gear bay door (only collision detection, animation duration is not effected).";
+            landing_gear_main_transition_time_bay.comment = "";
             landing_gear_main_transition_time_bay.unit = "sec";
 
             landing_gear_main_mechanism_tilted_forward.val = 10f;
             landing_gear_main_mechanism_tilted_forward.max = 90.00f;
             landing_gear_main_mechanism_tilted_forward.min = -90.00f;
             landing_gear_main_mechanism_tilted_forward.hint = "How much is the gear mechnism tilted forward (relative to vertical) if lowered.";
-            landing_gear_main_mechanism_tilted_forward.comment = "How much is the gear mechnism tilted forward (relative to vertical) if lowered.";
+            landing_gear_main_mechanism_tilted_forward.comment = "";
             landing_gear_main_mechanism_tilted_forward.unit = "deg";
-            
+
+            debug_force_arrow_scale.val = 0.05f;
+            debug_force_arrow_scale.max = 100f;
+            debug_force_arrow_scale.min = 0.001f;
+            debug_force_arrow_scale.hint = "Size of the force arrows if debugging is enabled (key d x2).";
+            debug_force_arrow_scale.comment = "";
+            debug_force_arrow_scale.unit = "N/m";
+
+            debug_torque_arrow_scale.val = 0.50f;
+            debug_torque_arrow_scale.max = 100f;
+            debug_torque_arrow_scale.min = 0.001f;
+            debug_torque_arrow_scale.hint = "Size of the toruqe arrows if debugging is enabled (key d x2).";
+            debug_torque_arrow_scale.comment = "";
+            debug_torque_arrow_scale.unit = "N/m";
         }
     }
     // ##################################################################################
@@ -2575,21 +2680,21 @@ namespace Parameter
             clearance.min = 0.00f;
             clearance.max = 0.50f;
             clearance.hint = "Stick center position clearance";
-            clearance.comment = "Stick center position clearance";
+            clearance.comment = "";
             clearance.unit = "0...1";
 
-            expo.val = 20f;
+            expo.val = 10f;
             expo.min = 0.00f;
             expo.max = 100f;
             expo.hint = "Stick expo";
-            expo.comment = "Stick expo";
+            expo.comment = "";
             expo.unit = "%";
 
             dualrate.val = 100f;
             dualrate.min = 0f;
             dualrate.max = 100f;
             dualrate.hint = "Stick dualrate";
-            dualrate.comment = "Stick dualrate";
+            dualrate.comment = "";
             dualrate.unit = "%";
         }
     }
@@ -2625,7 +2730,7 @@ namespace Parameter
             type.val = 1;
             type.str = new List<string> { "Switch", "Button"};
             type.hint = "Switch-0 type: 0=>switch, 1=>button  (rising flank trigger)";
-            type.comment = "Switch-0 type: 0=>switch, 1=>button (rising flank trigger)";
+            type.comment = "";
             type.unit = "";
         }
     }
@@ -2645,7 +2750,7 @@ namespace Parameter
             type.val = 1;
             type.str = new List<string> { "Switch", "Button" };
             type.hint = "Switch-1 type: 0=>switch, 1=>button  (rising flank trigger)";
-            type.comment = "Switch-1 type: 0=>switch, 1=>button (rising flank trigger)";
+            type.comment = "";
             type.unit = "";
         }
     }
@@ -2678,14 +2783,14 @@ namespace Parameter
             countdown_minutes.min = 0.00f;
             countdown_minutes.max = 30.0f;
             countdown_minutes.hint = "Transmitter countdown timer";
-            countdown_minutes.comment = "Transmitter countdown timer";
+            countdown_minutes.comment = "";
             countdown_minutes.unit = "min";
 
             countdown_volume.val = 70.00f;
             countdown_volume.min = 0.000f;
             countdown_volume.max = 100.0f;
             countdown_volume.hint = "Transmitter's audio volume";
-            countdown_volume.comment = "Transmitter's audio volume";
+            countdown_volume.comment = "";
             countdown_volume.unit = "%";
 
             stick_roll = new stru_stick();
@@ -2726,33 +2831,33 @@ namespace Parameter
             K_a.min = 100f;
             K_a.max = 2000f;
             K_a.hint = "Tailrotor maximum rotation velocity.";
-            K_a.comment = "Tailrotor maximum rotation velocity.";
+            K_a.comment = "";
             K_a.unit = "deg/sec";
 
-            K_I.val = 3.0f;
+            K_I.val = 2.0f;
             K_I.min = 0.01f;
             K_I.max = 100f;
             K_I.hint = "Tailrotor integral gain (Heading Hold)";
-            K_I.comment = "Tailrotor integral gain (Heading Hold)";
+            K_I.comment = "";
             K_I.unit = "1/sec";
 
-            K_p.val = 0.3f;
+            K_p.val = 0.15f;
             K_p.min = 0.01f;
             K_p.max = 100f;
             K_p.hint = "Tailrotor proportional gain";
-            K_p.comment = "Tailrotor proportional gain";
+            K_p.comment = "";
             K_p.unit = "-";
 
             K_d.val = 0.0001f;
             K_d.min = 0.0001f;
             K_d.max = 100f;
             K_d.hint = "Tailrotor differential gain";
-            K_d.comment = "Tailrotor differential gain";
+            K_d.comment = "";
             K_d.unit = "-";
             
             direct_feadtrough_gyroscope.val = false;
             direct_feadtrough_gyroscope.hint = "Turn off gyro.";
-            direct_feadtrough_gyroscope.comment = "Turn off gyro.";
+            direct_feadtrough_gyroscope.comment = "";
             direct_feadtrough_gyroscope.unit = "-";
 
         }
@@ -2787,33 +2892,33 @@ namespace Parameter
             K_a.min = 0.01f;
             K_a.max = 100f;
             K_a.hint = "Flybarless maximum rotation velocity.";
-            K_a.comment = "Flybarless maximum rotation velocity.";
+            K_a.comment = "";
             K_a.unit = "deg/sec";
 
-            K_I.val = 3.0f;
+            K_I.val = 2.0f;
             K_I.min = 0.01f;
             K_I.max = 10f;
             K_I.hint = "Flybarless integral gain";
-            K_I.comment = "Flybarless integral gain";
+            K_I.comment = "";
             K_I.unit = "1/sec";
 
             K_p.val = 0.1f;
             K_p.min = 0.01f;
             K_p.max = 10f;
             K_p.hint = "Flybarless proportional gain";
-            K_p.comment = "Flybarless proportional gain";
+            K_p.comment = "";
             K_p.unit = "-";
 
             K_d.val = 0.0001f;
             K_d.min = 0.0001f;
             K_d.max = 100f;
             K_d.hint = "Flybarless differential gain";
-            K_d.comment = "Flybarless differential gain";
+            K_d.comment = "";
             K_d.unit = "-";
 
             direct_feadtrough_flybareless.val = false;
             direct_feadtrough_flybareless.hint = "Turn off flybareless.";
-            direct_feadtrough_flybareless.comment = "Turn off flybareless.";
+            direct_feadtrough_flybareless.comment = "";
             direct_feadtrough_flybareless.unit = "-";
         }
     }
@@ -2851,21 +2956,21 @@ namespace Parameter
             servo_col_mr_time_constant.min = 0.010f;
             servo_col_mr_time_constant.max = 1.000f;
             servo_col_mr_time_constant.hint = "PT1-time constant for damping of mainrotor collective movement (Collective).";
-            servo_col_mr_time_constant.comment = "PT1-time constant for damping of mainrotor collective movement (Collective).";
+            servo_col_mr_time_constant.comment = "";
             servo_col_mr_time_constant.unit = "sec";
 
             servo_lat_mr_time_constant.val = 0.025f;
             servo_lat_mr_time_constant.min = 0.010f;
             servo_lat_mr_time_constant.max = 1.000f;
             servo_lat_mr_time_constant.hint = "PT1-time constant for damping of mainrotor lateral movement (Roll).";
-            servo_lat_mr_time_constant.comment = "PT1-time constant for damping of mainrotor lateral movement (Roll).";
+            servo_lat_mr_time_constant.comment = "";
             servo_lat_mr_time_constant.unit = "sec";
 
             servo_lon_mr_time_constant.val = 0.025f;
             servo_lon_mr_time_constant.min = 0.010f;
             servo_lon_mr_time_constant.max = 1.000f;
             servo_lon_mr_time_constant.hint = "PT1-time constant for damping of mainrotor longitudial movement (Pitch).";
-            servo_lon_mr_time_constant.comment = "PT1-time constant for damping of mainrotor longitudial movement (Pitch).";
+            servo_lon_mr_time_constant.comment = "";
             servo_lon_mr_time_constant.unit = "sec";
 
 
@@ -2873,21 +2978,21 @@ namespace Parameter
             servo_col_tr_time_constant.min = 0.010f;
             servo_col_tr_time_constant.max = 1.000f;
             servo_col_tr_time_constant.hint = "PT1-time constant for damping of tailrotor collective movement (Yaw).";
-            servo_col_tr_time_constant.comment = "PT1-time constant for damping of tailrotor collective movement (Yaw).";
+            servo_col_tr_time_constant.comment = "";
             servo_col_tr_time_constant.unit = "sec";
 
             servo_lat_tr_time_constant.val = 0.025f;
             servo_lat_tr_time_constant.min = 0.010f;
             servo_lat_tr_time_constant.max = 1.000f;
             servo_lat_tr_time_constant.hint = "PT1-time constant for damping of tailrotor lateral movement (Roll).";
-            servo_lat_tr_time_constant.comment = "PT1-time constant for damping of tailrotor lateral movement (Roll).";
+            servo_lat_tr_time_constant.comment = "";
             servo_lat_tr_time_constant.unit = "sec";
 
             servo_lon_tr_time_constant.val = 0.025f;
             servo_lon_tr_time_constant.min = 0.010f;
             servo_lon_tr_time_constant.max = 1.000f;
             servo_lon_tr_time_constant.hint = "PT1-time constant for damping of tailrotor longitudial movement (Pitch).";
-            servo_lon_tr_time_constant.comment = "PT1-time constant for damping of tailrotor longitudial movement (Pitch).";
+            servo_lon_tr_time_constant.comment = "";
             servo_lon_tr_time_constant.unit = "sec";
         }
     }
@@ -2909,7 +3014,8 @@ namespace Parameter
         public stru_list rotor_systems_configuration { get; set; } 
 
         public stru_float mass_total { get; set; }// [kg] total mass of the whole heli
-        public stru_Vector3 J_xyz { get; set; } // [kg*m²] forward up right
+        public stru_Vector3 Jxx_Jyy_Jzz { get; set; } // [kg*m²] forward up right
+        public stru_Vector3 Jxy_Jxz_Jyz { get; set; } // [kg*m²] 
         public stru_float sound_volume { get; set; } // [%]
         public stru_float rotor_sound_recorded_rpm { get; set; } // [rpm]
         public stru_float motor_sound_recorded_rpm { get; set; } // [rpm]
@@ -2928,6 +3034,7 @@ namespace Parameter
         public stru_flapping flapping { get; set; }
         public stru_tailrotor tailrotor { get; set; }
         public stru_propeller propeller { get; set; }
+        public stru_tuning tuning { get; set; }
         public stru_fuselage fuselage { get; set; }
         public stru_horizontal_fin horizontal_fin { get; set; }
         public stru_vertical_fin vertical_fin { get; set; }
@@ -2943,7 +3050,8 @@ namespace Parameter
             rotor_systems_configuration = new stru_list();
 
             mass_total = new stru_float();
-            J_xyz = new stru_Vector3();
+            Jxx_Jyy_Jzz = new stru_Vector3();
+            Jxy_Jxz_Jyz = new stru_Vector3();
             sound_volume = new stru_float();
             rotor_sound_recorded_rpm = new stru_float();
             motor_sound_recorded_rpm = new stru_float();
@@ -2961,6 +3069,7 @@ namespace Parameter
             flapping = new stru_flapping();
             tailrotor = new stru_tailrotor();
             propeller = new stru_propeller();
+            tuning = new stru_tuning();
             fuselage = new stru_fuselage();
             horizontal_fin = new stru_horizontal_fin();       // tail
             vertical_fin = new stru_vertical_fin();         // tail
@@ -2973,40 +3082,45 @@ namespace Parameter
             rotor_systems_configuration.val = 0;
             rotor_systems_configuration.str = new List<string> { "Single main rotor", "Tandem rotor"};
             rotor_systems_configuration.hint = "Rotor system type"; // (2:Coaxial, 3:Intermeshing rotors)";
-            rotor_systems_configuration.comment = "Rotor system type"; // (2:Coaxial, 3:Intermeshing rotors)";
+            rotor_systems_configuration.comment = "";
             rotor_systems_configuration.unit = "";
 
             mass_total.val = 3.6f;
             mass_total.min = 0.1f;
             mass_total.max = 100f;
             mass_total.hint = "Total mass of heli";
-            mass_total.comment = "Total mass of heli";
+            mass_total.comment = "";
             mass_total.unit = "kg";
 
-            J_xyz.vect3 = new Vector3 { x = 0.05f, y = 0.2f, z = 0.2f };
-            J_xyz.hint = "Moment of inertia heli";
-            J_xyz.comment = "Moment of inertia heli";
-            J_xyz.unit = "kg m^2";
+            Jxx_Jyy_Jzz.vect3 = new Vector3 { x = 0.0373f, y = 0.2637f, z = 0.2916f }; //  0.040791 0.1872171  0.2238604
+            Jxx_Jyy_Jzz.hint = "Moment of inertia heli. (diagonal elements)";
+            Jxx_Jyy_Jzz.comment = "";
+            Jxx_Jyy_Jzz.unit = "kg m^2";
+
+            Jxy_Jxz_Jyz.vect3 = new Vector3 { x = 0.006f, y = 0.005f, z = 0.001f }; // 0.006  -0.0011598  0.0002123
+            Jxy_Jxz_Jyz.hint = "Moment of inertia heli. (off-diagonal elements)";
+            Jxy_Jxz_Jyz.comment = "";
+            Jxy_Jxz_Jyz.unit = "kg m^2";
 
             sound_volume.val = 15.00f;
             sound_volume.min = 0.000f;
             sound_volume.max = 100.0f;
             sound_volume.hint = "Helicopter's audio volume";
-            sound_volume.comment = "Helicopter's audio volume";
-            sound_volume.unit = "%";
+            sound_volume.comment = "";
+            sound_volume.unit = "%"; 
 
             rotor_sound_recorded_rpm.val = 1280f;
             rotor_sound_recorded_rpm.min = 0.000f;
             rotor_sound_recorded_rpm.max = 10000.0f;
             rotor_sound_recorded_rpm.hint = "Helicopter's rotor audio file recorded rpm";
-            rotor_sound_recorded_rpm.comment = "Helicopter's rotor audio file recorded rpm";
+            rotor_sound_recorded_rpm.comment = "";
             rotor_sound_recorded_rpm.unit = "rpm";
 
             motor_sound_recorded_rpm.val = 1280f;
             motor_sound_recorded_rpm.min = 0.000f;
             motor_sound_recorded_rpm.max = 10000.0f;
             motor_sound_recorded_rpm.hint = "Helicopter's motor audio file recorded rpm";
-            motor_sound_recorded_rpm.comment = "Helicopter's motor audio file recorded rpm";
+            motor_sound_recorded_rpm.comment = "";
             motor_sound_recorded_rpm.unit = "rpm";
 
         }

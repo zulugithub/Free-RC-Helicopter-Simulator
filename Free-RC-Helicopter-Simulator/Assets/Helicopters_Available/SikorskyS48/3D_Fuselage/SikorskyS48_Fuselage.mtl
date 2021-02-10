@@ -1,4 +1,4 @@
-# Blender MTL File: 'SikorskyS48_035.blend'
+# Blender MTL File: 'SikorskyS48_037.blend'
 # Material Count: 7
 
 newmtl ALU
@@ -74,4 +74,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd SikorskyS48_pilot.png
+map_Kd Textures\\SikorskyS48_pilot.png

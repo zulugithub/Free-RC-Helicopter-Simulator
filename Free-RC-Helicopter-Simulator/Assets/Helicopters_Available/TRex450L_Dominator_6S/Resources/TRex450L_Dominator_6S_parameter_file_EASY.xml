@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<stru_transmitter_and_helicopter xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <helicopter>
+      <gyro>
+      <K_a>  <val>400</val>  </K_a>  
+      <K_I>  <val>2.0</val>  </K_I>
+      <K_p>  <val>0.2</val>  </K_p>
+      <K_d>  <val>0.0001</val>  </K_d>
+      <direct_feadtrough_gyroscope>  <val>false</val>  </direct_feadtrough_gyroscope>
+    </gyro>
+    <flybarless>
+      <K_a>  <val>260</val>  </K_a> 
+      <K_I>  <val>2.0</val>  </K_I>
+      <K_p>  <val>0.15</val>  </K_p>
+	  <K_d>  <val>0.0001</val>  </K_d>
+      <direct_feadtrough_flybareless>  <val>false</val>  </direct_feadtrough_flybareless>
+    </flybarless>
+  </helicopter>
+</stru_transmitter_and_helicopter>
