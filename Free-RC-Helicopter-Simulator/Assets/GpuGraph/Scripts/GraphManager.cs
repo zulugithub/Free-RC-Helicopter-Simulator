@@ -19,7 +19,8 @@ public class GraphManager : MonoBehaviour
     static bool IsInVR()
     {
         //return UnityEngine.XR.XRDevice.isPresent;
-        return true;
+        //return true;
+        return false;
     }
 
     public class Matrix4x4Wrapper
@@ -243,10 +244,11 @@ public class GraphManager : MonoBehaviour
                 MinValue = Mathf.Min(MinValue, currentDataPoint);
                 MaxValue = Mathf.Max(MaxValue, currentDataPoint);
 
-                AverageValue += currentDataPoint;
+                //AverageValue += currentDataPoint;
+                AverageValue = currentDataPoint;
             }
 
-            AverageValue /= DataPairs.Count;
+            //AverageValue /= DataPairs.Count;
             CurrentValue = dataPoint;
 
             CurrentRange = MaxValue - MinValue;
@@ -363,6 +365,7 @@ public class GraphManager : MonoBehaviour
                             MaxText.color = Color.white;
                             MaxText.font = (Font)Resources.GetBuiltinResource(typeof(Font), "Arial.ttf");
                             MaxText.alignment = TextAnchor.UpperLeft;
+                            MaxText.horizontalOverflow = HorizontalWrapMode.Overflow;
                         }
                         else
                         {
@@ -642,7 +645,7 @@ public class GraphManager : MonoBehaviour
         {
             if (MaxText)
             {
-                MaxText.text = string.Format("{0}", MaxValue);
+                MaxText.text = string.Format("{0} " + Name, MaxValue);
             }
 
             if (MinText)
@@ -673,7 +676,7 @@ public class GraphManager : MonoBehaviour
             }
         }
 
-        public GPUGraphData Retrieve(string key, float value)
+        public GPUGraphData Retrieve(string key)
         {
             GPUGraphData graphData;
 
@@ -719,24 +722,24 @@ public class GraphManager : MonoBehaviour
         // screen space plot
         public void Plot(string key, float value)
         {
-            Retrieve(key, value).AddPair(value);
+            Retrieve(key).AddPair(value);
         }
 
         // world space
         public void Plot(string key, float value, Matrix4x4Wrapper trs)
         {
-            Retrieve(key, value).AddPair(value, trs);
+            Retrieve(key).AddPair(value, trs);
         }
 
         public void Plot(string key, float value, Color color)
         {
-            Retrieve(key, value).AddPair(value, color);
+            Retrieve(key).AddPair(value, color);
         }
 
         // screen space plot
         public void Plot(string key, float value, Color color, Rect rectangle)
         {
-            Retrieve(key, value).AddPair(value, color, rectangle);
+            Retrieve(key).AddPair(value, color, rectangle);
         }
         // screen space plot
         //public void Plot(string key, float[] value, Color color, Rect rectangle)
@@ -761,7 +764,7 @@ public class GraphManager : MonoBehaviour
         // world space plot
         public void Plot(string key, float value, Color color, Matrix4x4Wrapper trs)
         {
-            Retrieve(key, value).AddPair(value, color, trs);
+            Retrieve(key).AddPair(value, color, trs);
         }
 
         public Dictionary<string, GPUGraphData> Graphs;

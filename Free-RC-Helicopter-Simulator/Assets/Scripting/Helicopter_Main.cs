@@ -270,6 +270,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     // Debug 2D plot figures
     private Rect plot2D_graph_rect_1;
     private Rect plot2D_graph_rect_2;
+    private Rect plot2D_graph_rect_3;
 
     // game logic flag
     [HideInInspector]
@@ -3369,18 +3370,21 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // plot 2d graph
         if (ui_debug_panel_state > 2 && GraphManager.Graph != null)
         {
-            GraphManager.Graph.Plot("Test_ScreenSpace1", helicopter_ODE.ODEDebug.mainrotor_forceLH.y, Color.yellow, plot2D_graph_rect_1);
-            //GraphManager.Graph.Plot("Test_ScreenSpace1", helicopter_ODE.ODEDebug.mainrotor_torqueLH.y, Color.yellow, plot2D_graph_rect_1);
-            GraphManager.Graph.Plot("Test_ScreenSpace2", helicopter_ODE.ODEDebug.tailrotor_forceLH.y, Color.yellow, plot2D_graph_rect_2);
+            GraphManager.Graph.Plot("mainrotor_forceLH [N]", helicopter_ODE.ODEDebug.mainrotor_forceLH.y, Color.yellow, plot2D_graph_rect_1);
+            GraphManager.Graph.Plot("mainrotor_torqueLH [Nm]", helicopter_ODE.ODEDebug.mainrotor_torqueLH.y, Color.yellow, plot2D_graph_rect_2);
+            //GraphManager.Graph.Plot("tailrotor_forceLH", helicopter_ODE.ODEDebug.tailrotor_forceLH.z, Color.yellow, plot2D_graph_rect_2);
+            //GraphManager.Graph.Plot("Test_ScreenSpace2", helicopter_ODE.ODEDebug.mainrotor_v_i, Color.yellow, plot2D_graph_rect_2);
             //GraphManager.Graph.Plot("Test_ScreenSpace2", (float)msec_per_thread_call, Color.yellow, plot2D_graph_rect_2);
+            GraphManager.Graph.Plot("omega_mr [rpm]", omega_mr * Helper.RadPerSec_to_Rpm , Color.yellow, plot2D_graph_rect_3);
 
         }
         else
         {
             if (ui_debug_panel_state_old != ui_debug_panel_state)
             {
-                GraphManager.Graph.Reset("Test_ScreenSpace1");
-                GraphManager.Graph.Reset("Test_ScreenSpace2");
+                GraphManager.Graph.Reset("mainrotor_forceLH [N]");
+                GraphManager.Graph.Reset("mainrotor_torqueLH [Nm]");
+                GraphManager.Graph.Reset("omega_mr [rpm]");
             }
         }
         ui_debug_panel_state_old = ui_debug_panel_state;
