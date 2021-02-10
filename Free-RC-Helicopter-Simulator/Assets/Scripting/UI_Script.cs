@@ -493,7 +493,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         }
         if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter)
         {
-            if (ui_dropdown_load.options[ui_dropdown_load.value].text != (helicopter_name + "_default_parameter" + ".xml"))
+            //if (ui_dropdown_load.options[ui_dropdown_load.value].text != (helicopter_name + "_default_parameter" + ".xml"))
+            if (!ui_dropdown_load.options[ui_dropdown_load.value].text.Contains(helicopter_name + "_default_parameter"))
             {
                 // delete selected file
                 File.Delete(System.IO.Path.Combine(folder_saved_parameter_for_transmitter_and_helicopter, ui_dropdown_load.options[ui_dropdown_load.value].text));
@@ -537,7 +538,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     // ##################################################################################
     // save parameter (serialize them into xml)
     // ##################################################################################
-    void IO_Save_Parameter(object select_object, string folder, string filename)
+    void IO_Save_Parameter(object select_object, string folder, string filename, bool overrides_flag = true)
     {
         // setup folder to save parameter setup (as xml)
         string targetDataFile = System.IO.Path.Combine(folder, filename);
@@ -561,7 +562,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         //UnityEngine.Debug.Log("folder_saved_parameter_for_transmitter_and_helicopter = " + folder_saved_parameter_for_transmitter_and_helicopter);
 
         // serialize parameter data as xml-file
-        Helper.IO_XML_Serialize(select_object, targetDataFile); //helicopter_ODE.par.transmitter_and_helicopter or helicopter_ODE.par.scenery
+        Helper.IO_XML_Serialize(select_object, targetDataFile, overrides_flag); //helicopter_ODE.par.transmitter_and_helicopter or helicopter_ODE.par.scenery
     }
     // ##################################################################################
 
@@ -1194,7 +1195,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
 
 
-        //UnityEngine.Debug.Log("xxxxxx wind speed   " + gl_pause_flag + "    fov:" + helicopter_ODE.par_temp.simulation.camera_fov.val  + "        expo:" +   helicopter_ODE.par_temp.transmitter_and_helicopter.transmitter.stick_roll.expo.val + "        " + helicopter_ODE.par_temp.scenery.weather.wind_speed.val + "    " + helicopter_ODE.par_temp.scenery.weather.wind_speed.val + "    " + helicopter_ODE.par_temp.transmitter_and_helicopter.helicopter.mass_total.val + "    " + helicopter_ODE.par_temp.transmitter_and_helicopter.helicopter.mass_total.val);
+        //UnityEngine.Debug.Log("xxxxxx wind speed   " + gl_pause_flag + "    fov:" + helicopter_ODE.par_temp.simulation.fov.val  + "        expo:" +   helicopter_ODE.par_temp.transmitter_and_helicopter.transmitter.stick_roll.expo.val + "        " + helicopter_ODE.par_temp.scenery.weather.wind_speed.val + "    " + helicopter_ODE.par_temp.scenery.weather.wind_speed.val + "    " + helicopter_ODE.par_temp.transmitter_and_helicopter.helicopter.mass_total.val + "    " + helicopter_ODE.par_temp.transmitter_and_helicopter.helicopter.mass_total.val);
 
         // recalulate parameter 
         helicopter_ODE.par_temp.transmitter_and_helicopter.Update_Calculated_Parameter();
@@ -1227,27 +1228,24 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         prefabs_vertical_position_on_scroll_view_ui = prefabs_vertical_position_on_scroll_view_ui_START_VALUE; // start at this vertical position to put prefabs on Croll View's Content 
         prefabs_vertical_position_on_screen_overlay_ui = prefabs_vertical_position_on_screen_overlay_ui_START_VALUE;
 
-        string str=""; // TODO string is not needed
+        
         // generate UI elements from prefabs
         if (ui_which_tab_is_selected == Available_Tabs.simulation)
-            str = ParameterObject_To_UIPrefab(ui_scroll_view_content, Ui_Styles.ui_scroll_view_content, (object)helicopter_ODE.par_temp.simulation); // TODO string is not needed
+            ParameterObject_To_UIPrefab(ui_scroll_view_content, Ui_Styles.ui_scroll_view_content, (object)helicopter_ODE.par_temp.simulation); 
         if (ui_which_tab_is_selected == Available_Tabs.scenery)
-            str = ParameterObject_To_UIPrefab(ui_scroll_view_content, Ui_Styles.ui_scroll_view_content, (object)helicopter_ODE.par_temp.scenery); // TODO string is not needed
+            ParameterObject_To_UIPrefab(ui_scroll_view_content, Ui_Styles.ui_scroll_view_content, (object)helicopter_ODE.par_temp.scenery); 
         if (ui_which_tab_is_selected == Available_Tabs.transmitter)
-            str = ParameterObject_To_UIPrefab(ui_scroll_view_content, Ui_Styles.ui_scroll_view_content, (object)helicopter_ODE.par_temp.transmitter_and_helicopter.transmitter); // TODO string is not needed
+            ParameterObject_To_UIPrefab(ui_scroll_view_content, Ui_Styles.ui_scroll_view_content, (object)helicopter_ODE.par_temp.transmitter_and_helicopter.transmitter); 
         if (ui_which_tab_is_selected == Available_Tabs.helicopter)
-            str = ParameterObject_To_UIPrefab(ui_scroll_view_content, Ui_Styles.ui_scroll_view_content, (object)helicopter_ODE.par_temp.transmitter_and_helicopter.helicopter); // TODO string is not needed
-        //UnityEngine.Debug.Log(str);
-
-        str = ParameterObject_To_UIPrefab(ui_overlaid_parameterlist, Ui_Styles.ui_overlaid_parameterlist, (object)helicopter_ODE.par_temp); // TODO string is not needed
-        // UnityEngine.Debug.Log(str);
+             ParameterObject_To_UIPrefab(ui_scroll_view_content, Ui_Styles.ui_scroll_view_content, (object)helicopter_ODE.par_temp.transmitter_and_helicopter.helicopter); 
+        
+        ParameterObject_To_UIPrefab(ui_overlaid_parameterlist, Ui_Styles.ui_overlaid_parameterlist, (object)helicopter_ODE.par_temp);
 
         // resize rect-transform area now to fit all UI-prefabs into
         ui_scroll_view_content.GetComponent<RectTransform>().sizeDelta = new Vector2(0, prefabs_vertical_position_on_scroll_view_ui + 100);
        
         // change/apply scenery parameter
         Change_Skybox_Sun_Sound_Camera_Parameter();
-
 
         // change ODE timing parameter
         thread_ODE_deltat = Helper.Clamp(helicopter_ODE.par.simulation.physics.delta_t);
@@ -1279,9 +1277,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     // https://stackoverflow.com/questions/20554103/recursively-get-properties-child-properties-of-a-class 
     // the string output is not used here and could be removed
     // ##################################################################################
-    public string ParameterObject_To_UIPrefab(Transform parent_ui_container, Ui_Styles ui_style, object obj, int indent = 0)
+    public void ParameterObject_To_UIPrefab(Transform parent_ui_container, Ui_Styles ui_style, object obj, int indent = 0)
     {
-        var sb = new StringBuilder();
+        //var sb = new StringBuilder();
 
         if (obj != null)
         {
@@ -1307,66 +1305,67 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                     {
                         foreach (var item in elems)
                         {
-                            sb.Append($"{indent_string}- {prop.Name} :\n");
-                            sb.Append(ParameterObject_To_UIPrefab(parent_ui_container, ui_style, item, indent + 4));  // recursive call 
+                            //sb.Append($"{indent_string}- {prop.Name} :\n");
+                            //sb.Append(ParameterObject_To_UIPrefab(parent_ui_container, ui_style, item, indent + 4));  // recursive call 
+                            ParameterObject_To_UIPrefab(parent_ui_container, ui_style, item, indent + 4);  // recursive call 
                         }
                     }
                     else if (prop.Name != "ExtensionData")
                     {
-                        sb.Append($" {indent_string}O {prop.Name} = {prop_value}\n");
+                        //sb.Append($" {indent_string}O {prop.Name} = {prop_value}\n");
 
                         if (prop.PropertyType.Assembly == objType.Assembly)
                         {
                             if (prop_value.GetType() == null)
                             {
-                                sb.Append(ParameterObject_To_UIPrefab(parent_ui_container, ui_style, prop_value, indent + 4)); // recursive call 
+                                //sb.Append(ParameterObject_To_UIPrefab(parent_ui_container, ui_style, prop_value, indent + 4)); // recursive call 
                             }
                             else if (prop_value.GetType() == typeof(stru_bool))
                             {
                                 CreatePrefab_Parameter_Instance(parent_ui_container, ui_style, prop, prop_value, indent_string);
-                                sb.Append($"{indent_string}   - {prop.Name} val = { ((stru_bool)prop_value).val }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} hint = { ((stru_bool)prop_value).hint }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} comment = { ((stru_bool)prop_value).comment }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} unit = { ((stru_bool)prop_value).unit }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} val = { ((stru_bool)prop_value).val }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} hint = { ((stru_bool)prop_value).hint }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} comment = { ((stru_bool)prop_value).comment }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} unit = { ((stru_bool)prop_value).unit }\n");
                             }
                             else if (prop_value.GetType() == typeof(stru_int))
                             {
                                 CreatePrefab_Parameter_Instance(parent_ui_container, ui_style, prop, prop_value, indent_string);
-                                sb.Append($"{indent_string}   - {prop.Name} val = { ((stru_int)prop_value).val }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} min = { ((stru_int)prop_value).min }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} max = { ((stru_int)prop_value).max }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} hint = { ((stru_int)prop_value).hint }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} comment = { ((stru_int)prop_value).comment }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} unit = { ((stru_int)prop_value).unit }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} val = { ((stru_int)prop_value).val }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} min = { ((stru_int)prop_value).min }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} max = { ((stru_int)prop_value).max }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} hint = { ((stru_int)prop_value).hint }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} comment = { ((stru_int)prop_value).comment }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} unit = { ((stru_int)prop_value).unit }\n");
                             }
                             else if (prop_value.GetType() == typeof(stru_float))
                             {
                                 CreatePrefab_Parameter_Instance(parent_ui_container, ui_style, prop, prop_value, indent_string);
-                                sb.Append($"{indent_string}   - {prop.Name} val = { ((stru_float)prop_value).val }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} min = { ((stru_float)prop_value).min }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} max = { ((stru_float)prop_value).max }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} hint = { ((stru_float)prop_value).hint }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} comment = { ((stru_float)prop_value).comment }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} unit = { ((stru_float)prop_value).unit }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} val = { ((stru_float)prop_value).val }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} min = { ((stru_float)prop_value).min }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} max = { ((stru_float)prop_value).max }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} hint = { ((stru_float)prop_value).hint }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} comment = { ((stru_float)prop_value).comment }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} unit = { ((stru_float)prop_value).unit }\n");
                             }
                             else if (prop_value.GetType() == typeof(stru_Vector3))
                             {
                                 CreatePrefab_Parameter_Instance(parent_ui_container, ui_style, prop, prop_value, indent_string);
-                                sb.Append($"{indent_string}   - {prop.Name} val = { ((stru_Vector3)prop_value).vect3.x} { ((stru_Vector3)prop_value).vect3.y} { ((stru_Vector3)prop_value).vect3.z}\n");
-                                sb.Append($"{indent_string}   - {prop.Name} hint = { ((stru_Vector3)prop_value).hint }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} comment = { ((stru_Vector3)prop_value).comment }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} unit = { ((stru_Vector3)prop_value).unit }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} val = { ((stru_Vector3)prop_value).vect3.x} { ((stru_Vector3)prop_value).vect3.y} { ((stru_Vector3)prop_value).vect3.z}\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} hint = { ((stru_Vector3)prop_value).hint }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} comment = { ((stru_Vector3)prop_value).comment }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} unit = { ((stru_Vector3)prop_value).unit }\n");
                             }
                             else if (prop_value.GetType() == typeof(stru_Vector3_list))
                             {
                                 CreatePrefab_Parameter_Instance(parent_ui_container, ui_style, prop, prop_value, indent_string);
-                                for (int i = 0; i < ((stru_Vector3_list)prop_value).vect3.Count; i++)
-                                {
-                                    sb.Append($"{indent_string}   - {prop.Name} val[{i}] = { ((stru_Vector3_list)prop_value).vect3[i].x} { ((stru_Vector3_list)prop_value).vect3[i].y} { ((stru_Vector3_list)prop_value).vect3[i].z}\n");
-                                }
-                                sb.Append($"{indent_string}   - {prop.Name} hint = { ((stru_Vector3_list)prop_value).hint }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} comment = { ((stru_Vector3_list)prop_value).comment }\n");
-                                sb.Append($"{indent_string}   - {prop.Name} unit = { ((stru_Vector3_list)prop_value).unit }\n");
+                                //for (int i = 0; i < ((stru_Vector3_list)prop_value).vect3.Count; i++)
+                                //{
+                                //    sb.Append($"{indent_string}   - {prop.Name} val[{i}] = { ((stru_Vector3_list)prop_value).vect3[i].x} { ((stru_Vector3_list)prop_value).vect3[i].y} { ((stru_Vector3_list)prop_value).vect3[i].z}\n");
+                                //}
+                                //sb.Append($"{indent_string}   - {prop.Name} hint = { ((stru_Vector3_list)prop_value).hint }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} comment = { ((stru_Vector3_list)prop_value).comment }\n");
+                                //sb.Append($"{indent_string}   - {prop.Name} unit = { ((stru_Vector3_list)prop_value).unit }\n");
                             }
                             else if (prop_value.GetType() == typeof(stru_list))
                             {
@@ -1375,7 +1374,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                             else
                             {
                                 CreatePrefab_Headline_Instance(parent_ui_container, ui_style, prop, prop_value, indent_string);
-                                sb.Append(ParameterObject_To_UIPrefab(parent_ui_container, ui_style, prop_value, indent + 4));  // recursive call         
+                                ParameterObject_To_UIPrefab(parent_ui_container, ui_style, prop_value, indent + 4);  // recursive call   
+                                //sb.Append(ParameterObject_To_UIPrefab(parent_ui_container, ui_style, prop_value, indent + 4));  // recursive call         
                             }
                         }
                     }
@@ -1384,7 +1384,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             }
         }
 
-        return sb.ToString();
+        //return sb.ToString();
     }
     // ##################################################################################
 
