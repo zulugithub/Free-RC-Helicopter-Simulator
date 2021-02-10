@@ -707,7 +707,6 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
         // load specific helicopters setup's missile
         helicopter_setup_missile_gameobject = Resources.Load(setup_foldername + "Prefabs/" + helicopter_name + "_setup_00" + helicopter_canopy_material_ID + "_Missile Variant", typeof(GameObject)) as GameObject;
-
     }
     // ##################################################################################
 
@@ -895,12 +894,26 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             {
                 animator_wheels_left.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
                 animator_wheels_left.Play("Transition.wheels_lowered", -1, 0.0f);
+                collision_positions_landing_gear_left_rising_offset_target = 0; // [0...1]
+                helicopter_ODE.collision_positions_landing_gear_left_rising_offset = 0; // [0...1]
+            }
+            else
+            {
+                collision_positions_landing_gear_left_rising_offset_target = 1; // [0...1]
+                helicopter_ODE.collision_positions_landing_gear_left_rising_offset = 1; // [0...1]
             }
 
             if (System.Array.Exists(animator_wheels_right.parameters, p => p.name == "Wheel_Status"))
             {
                 animator_wheels_right.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
                 animator_wheels_right.Play("Transition.wheels_lowered", -1, 0.0f);
+                collision_positions_landing_gear_right_rising_offset_target = 0; // [0...1]
+                helicopter_ODE.collision_positions_landing_gear_right_rising_offset = 0; // [0...1]
+            }
+            else
+            {
+                collision_positions_landing_gear_right_rising_offset_target = 1; // [0...1]
+                helicopter_ODE.collision_positions_landing_gear_right_rising_offset = 1; // [0...1]
             }
 
             if (animator_wheels_steering_center != null)
@@ -909,6 +922,13 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 {
                     animator_wheels_steering_center.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
                     animator_wheels_steering_center.Play("Transition.wheels_lowered", -1, 0.0f);
+                    collision_positions_landing_gear_steering_center_rising_offset_target = 0; // [0...1]
+                    helicopter_ODE.collision_positions_landing_gear_steering_center_rising_offset = 0; // [0...1]
+                }
+                else
+                {
+                    collision_positions_landing_gear_steering_center_rising_offset_target = 1; // [0...1]
+                    helicopter_ODE.collision_positions_landing_gear_steering_center_rising_offset = 1; // [0...1]
                 }
             }
 
@@ -918,6 +938,13 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 {
                     animator_wheels_steering_left.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
                     animator_wheels_steering_left.Play("Transition.wheels_lowered", -1, 0.0f);
+                    collision_positions_landing_gear_steering_left_rising_offset_target = 0; // [0...1]
+                    helicopter_ODE.collision_positions_landing_gear_steering_left_rising_offset = 0; // [0...1]
+                }
+                else
+                {
+                    collision_positions_landing_gear_steering_left_rising_offset_target = 1; // [0...1]
+                    helicopter_ODE.collision_positions_landing_gear_steering_left_rising_offset = 1; // [0...1]
                 }
             }
 
@@ -927,17 +954,15 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 {
                     animator_wheels_steering_right.SetTrigger("Wheel_Status"); // 1 triggers transition down -> lowered
                     animator_wheels_steering_right.Play("Transition.wheels_lowered", -1, 0.0f);
+                    collision_positions_landing_gear_steering_right_rising_offset_target = 0; // [0...1]
+                    helicopter_ODE.collision_positions_landing_gear_steering_right_rising_offset = 0; // [0...1]
+                }
+                else
+                {
+                    collision_positions_landing_gear_steering_right_rising_offset_target = 1; // [0...1]
+                    helicopter_ODE.collision_positions_landing_gear_steering_right_rising_offset = 1; // [0...1]
                 }
             }
-            collision_positions_landing_gear_left_rising_offset_target = 0; // [0...1]
-            collision_positions_landing_gear_right_rising_offset_target = 0; // [0...1]
-            collision_positions_landing_gear_steering_center_rising_offset_target = 0; // [0...1]
-            collision_positions_landing_gear_steering_left_rising_offset_target = 0; // [0...1]
-            collision_positions_landing_gear_steering_right_rising_offset_target = 0; // [0...1]
-            helicopter_ODE.collision_positions_landing_gear_left_rising_offset = 0; // [0...1]
-            helicopter_ODE.collision_positions_landing_gear_right_rising_offset = 0; // [0...1]
-            helicopter_ODE.collision_positions_landing_gear_steering_center_rising_offset = 0; // [0...1]
-            helicopter_ODE.collision_positions_landing_gear_steering_center_rising_offset = 0; // [0...1]
             collision_positions_landing_gear_left_rising_offset_velocity = 0.0f;  // [0...1/s]
             collision_positions_landing_gear_right_rising_offset_velocity = 0.0f;  // [0...1/s]
             collision_positions_landing_gear_steering_center_rising_offset_velocity = 0.0f;  // [0...1/s]
@@ -1072,6 +1097,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             PlayerPrefs.DeleteKey("__simulation_" + "delta_t");
             PlayerPrefs.DeleteKey("__simulation_" + "show_fps");
             PlayerPrefs.DeleteKey("__simulation_" + "v_sync");
+            PlayerPrefs.DeleteKey("__simulation_" + "xr_zoom_factor");    
         }
         // ##################################################################################
 
@@ -1178,6 +1204,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         string fullpath_default_full_parameter_xml_file = System.IO.Path.Combine(folder_saved_parameter_for_transmitter_and_helicopter, "default_parameter.xml");
 
         //XmlDocument xmldoc = new XmlDocument();
+
+        // We want to load and prepare several additional pre-setup files for each helicopter. We need the names of additional files. These all are stored (if available) in "text_assets" and are filtered later.
+        UnityEngine.Object[] text_assets = Resources.LoadAll("", typeof(TextAsset));
 
         foreach (Transform each_helicopter in helicopters_available.transform)
         {
