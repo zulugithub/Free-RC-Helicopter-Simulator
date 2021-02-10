@@ -2512,10 +2512,21 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         }
 
 
-        if (UnityEngine.InputSystem.Keyboard.current.jKey.wasPressedThisFrame && !Is_Text_Input_Field_Focused() && !ui_parameter_panel_flag && calibration_state == State_Calibration.not_running)
+        //if (UnityEngine.InputSystem.Keyboard.current.jKey.wasPressedThisFrame && !Is_Text_Input_Field_Focused() && !ui_parameter_panel_flag && calibration_state == State_Calibration.not_running)
+        if (UnityEngine.InputSystem.Keyboard.current.jKey.wasPressedThisFrame && !Is_Text_Input_Field_Focused() && !ui_parameter_panel_flag )
         {
             if (connected_input_devices_count > 0)
             {
+                //  if calibartion window is open, close it 
+                if (connected_input_devices_count > 1)
+                { 
+                    if (calibration_state != State_Calibration.not_running) // calibration_abortable
+                    {
+                        calibration_abortable = true; // if there are other controller available, calbration can be abborted
+                        calibration_state = State_Calibration.abort;
+                    }
+                }
+
                 if (UnityEngine.InputSystem.Keyboard.current.leftShiftKey.isPressed || UnityEngine.InputSystem.Keyboard.current.rightShiftKey.isPressed)
                     selected_input_device_id--;
                 else
@@ -2528,6 +2539,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
                 UI_show_new_controller_name_flag = true;
                 //connected_input_devices_names[selected_input_device_id];
+                PlayerPrefs.SetInt("CC___selected_input_device_i", selected_input_device_id);
             }
         }
         //UnityEngine.Debug.Log("selected_input_device_id " + selected_input_device_id + "    " + connected_input_devices_count);

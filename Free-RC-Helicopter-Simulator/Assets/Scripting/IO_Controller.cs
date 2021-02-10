@@ -223,7 +223,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             if (selected_input_device_id >= (connected_input_devices_count))
             {
                 selected_input_device_id = 0;
-                UI_show_new_controller_name_flag = true;
+                UI_show_new_controller_name_flag = true;  
+                PlayerPrefs.SetInt("CC___selected_input_device_i", selected_input_device_id);
             }
 
             gl_controller_connected_flag = true;
