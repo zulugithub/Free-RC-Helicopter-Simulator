@@ -142,7 +142,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     readonly Stopwatch stopwatch = new Stopwatch();
     int counter = 0;
     int error_counter = 0;
-
+    float msec_per_thread_call_filtered=0;
 
     // animation: pilot is rising his arms with transmitter
     Animator animator_pilot_with_transmitter;
@@ -3377,48 +3377,52 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // ##################################################################################
         // debug
         // ##################################################################################
-        double msec_per_thread_call = (stopwatch.Elapsed.TotalMilliseconds) / counter;
+        float msec_per_thread_call = (float)((stopwatch.Elapsed.TotalMilliseconds) / counter);
+        if (!float.IsNaN(msec_per_thread_call) && !float.IsInfinity(msec_per_thread_call))
+            msec_per_thread_call_filtered += (msec_per_thread_call - msec_per_thread_call_filtered)/50f; // simple moving average filter
         stopwatch.Reset(); counter = 0;
+
 
         // plot forces and torques
         if (ui_debug_panel_state > 0)
         {
-            const float FORCE_SCALE = 0.005f;
-            const float TORQUE_SCALE = 0.05f;
+            float force_arrow_scale = helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.debug_force_arrow_scale.val; // [N/m]
+            float torque_arrow_scale = helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.debug_torque_arrow_scale.val; // [Nm/m]
 
             for (var i = 0; i < helicopter_ODE.ODEDebug.contact_forceR.Count; i++)
-            {
-                Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_contact_forceR[i], helicopter_ODE.ODEDebug.contact_positionR[i], helicopter_ODE.ODEDebug.contact_positionR[i] + helicopter_ODE.ODEDebug.contact_forceR[i] * FORCE_SCALE);
-            }
+                Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_contact_forceR[i], helicopter_ODE.ODEDebug.contact_positionR[i], helicopter_ODE.ODEDebug.contact_positionR[i] + helicopter_ODE.ODEDebug.contact_forceR[i] * force_arrow_scale);
 
-            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_mainrotor_forceO, helicopter_ODE.ODEDebug.mainrotor_positionO, helicopter_ODE.ODEDebug.mainrotor_positionO + helicopter_ODE.ODEDebug.mainrotor_forceO * FORCE_SCALE);
-            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_mainrotor_torqueO, helicopter_ODE.ODEDebug.mainrotor_positionO, helicopter_ODE.ODEDebug.mainrotor_positionO + helicopter_ODE.ODEDebug.mainrotor_torqueO * TORQUE_SCALE);
-            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_mainrotor_flapping_stiffness_torqueO, helicopter_ODE.ODEDebug.mainrotor_positionO, helicopter_ODE.ODEDebug.mainrotor_positionO + helicopter_ODE.ODEDebug.mainrotor_flapping_stiffness_torqueO * TORQUE_SCALE);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_mainrotor_forceO, helicopter_ODE.ODEDebug.mainrotor_positionO, helicopter_ODE.ODEDebug.mainrotor_positionO + helicopter_ODE.ODEDebug.mainrotor_forceO * force_arrow_scale);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_mainrotor_torqueO, helicopter_ODE.ODEDebug.mainrotor_positionO, helicopter_ODE.ODEDebug.mainrotor_positionO + helicopter_ODE.ODEDebug.mainrotor_torqueO * torque_arrow_scale);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_mainrotor_flapping_stiffness_torqueO, helicopter_ODE.ODEDebug.mainrotor_positionO, helicopter_ODE.ODEDebug.mainrotor_positionO + helicopter_ODE.ODEDebug.mainrotor_flapping_stiffness_torqueO * torque_arrow_scale);
 
-            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_tailrotor_forceO, helicopter_ODE.ODEDebug.tailrotor_positionO, helicopter_ODE.ODEDebug.tailrotor_positionO + helicopter_ODE.ODEDebug.tailrotor_forceO * FORCE_SCALE);
-            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_tailrotor_torqueO, helicopter_ODE.ODEDebug.tailrotor_positionO, helicopter_ODE.ODEDebug.tailrotor_positionO + helicopter_ODE.ODEDebug.tailrotor_torqueO * TORQUE_SCALE);
-            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_tailrotor_flapping_stiffness_torqueO, helicopter_ODE.ODEDebug.tailrotor_positionO, helicopter_ODE.ODEDebug.tailrotor_positionO + helicopter_ODE.ODEDebug.tailrotor_flapping_stiffness_torqueO * TORQUE_SCALE);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_tailrotor_forceO, helicopter_ODE.ODEDebug.tailrotor_positionO, helicopter_ODE.ODEDebug.tailrotor_positionO + helicopter_ODE.ODEDebug.tailrotor_forceO * force_arrow_scale);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_tailrotor_torqueO, helicopter_ODE.ODEDebug.tailrotor_positionO, helicopter_ODE.ODEDebug.tailrotor_positionO + helicopter_ODE.ODEDebug.tailrotor_torqueO * torque_arrow_scale);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_tailrotor_flapping_stiffness_torqueO, helicopter_ODE.ODEDebug.tailrotor_positionO, helicopter_ODE.ODEDebug.tailrotor_positionO + helicopter_ODE.ODEDebug.tailrotor_flapping_stiffness_torqueO * torque_arrow_scale);
 
-            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_propeller_forceO, helicopter_ODE.ODEDebug.propeller_positionO, helicopter_ODE.ODEDebug.propeller_positionO + helicopter_ODE.ODEDebug.propeller_forceO * FORCE_SCALE * 1);
-            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_propeller_torqueO, helicopter_ODE.ODEDebug.propeller_positionO, helicopter_ODE.ODEDebug.propeller_positionO + helicopter_ODE.ODEDebug.propeller_torqueO * TORQUE_SCALE);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_propeller_forceO, helicopter_ODE.ODEDebug.propeller_positionO, helicopter_ODE.ODEDebug.propeller_positionO + helicopter_ODE.ODEDebug.propeller_forceO * force_arrow_scale * 1);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_propeller_torqueO, helicopter_ODE.ODEDebug.propeller_positionO, helicopter_ODE.ODEDebug.propeller_positionO + helicopter_ODE.ODEDebug.propeller_torqueO * torque_arrow_scale);
 
-            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_drag_on_fuselage_drag_on_fuselage_forceO, helicopter_ODE.ODEDebug.drag_on_fuselage_positionO, helicopter_ODE.ODEDebug.drag_on_fuselage_positionO + helicopter_ODE.ODEDebug.drag_on_fuselage_drag_on_fuselage_forceO * FORCE_SCALE * 1);
-            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_force_on_horizontal_fin_forceO, helicopter_ODE.ODEDebug.force_on_horizontal_fin_positionO, helicopter_ODE.ODEDebug.force_on_horizontal_fin_positionO + helicopter_ODE.ODEDebug.force_on_horizontal_fin_forceO * FORCE_SCALE * 1);
-            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_force_on_vertical_fin_forceO, helicopter_ODE.ODEDebug.force_on_vertical_fin_positionO, helicopter_ODE.ODEDebug.force_on_vertical_fin_positionO + helicopter_ODE.ODEDebug.force_on_vertical_fin_forceO * FORCE_SCALE * 1);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_drag_on_fuselage_drag_on_fuselage_forceO, helicopter_ODE.ODEDebug.drag_on_fuselage_positionO, helicopter_ODE.ODEDebug.drag_on_fuselage_positionO + helicopter_ODE.ODEDebug.drag_on_fuselage_drag_on_fuselage_forceO * force_arrow_scale * 5);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_force_on_horizontal_fin_forceO, helicopter_ODE.ODEDebug.force_on_horizontal_fin_positionO, helicopter_ODE.ODEDebug.force_on_horizontal_fin_positionO + helicopter_ODE.ODEDebug.force_on_horizontal_fin_forceO * force_arrow_scale * 5);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_force_on_vertical_fin_forceO, helicopter_ODE.ODEDebug.force_on_vertical_fin_positionO, helicopter_ODE.ODEDebug.force_on_vertical_fin_positionO + helicopter_ODE.ODEDebug.force_on_vertical_fin_forceO * force_arrow_scale * 5);
 
-            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_force_on_horizontal_wing_left_forceO, helicopter_ODE.ODEDebug.force_on_horizontal_wing_left_positionO, helicopter_ODE.ODEDebug.force_on_horizontal_wing_left_positionO + helicopter_ODE.ODEDebug.force_on_horizontal_wing_left_forceO * FORCE_SCALE * 1);
-            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_force_on_horizontal_wing_right_forceO, helicopter_ODE.ODEDebug.force_on_horizontal_wing_right_positionO, helicopter_ODE.ODEDebug.force_on_horizontal_wing_right_positionO + helicopter_ODE.ODEDebug.force_on_horizontal_wing_right_forceO * FORCE_SCALE * 1);
-
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_force_on_horizontal_wing_left_forceO, helicopter_ODE.ODEDebug.force_on_horizontal_wing_left_positionO, helicopter_ODE.ODEDebug.force_on_horizontal_wing_left_positionO + helicopter_ODE.ODEDebug.force_on_horizontal_wing_left_forceO * force_arrow_scale * 5);
+            Helper.Update_Line(helicopter_ODE.ODEDebug.line_object_force_on_horizontal_wing_right_forceO, helicopter_ODE.ODEDebug.force_on_horizontal_wing_right_positionO, helicopter_ODE.ODEDebug.force_on_horizontal_wing_right_positionO + helicopter_ODE.ODEDebug.force_on_horizontal_wing_right_forceO * force_arrow_scale * 5);
         }
 
         // update debug text
         if (ui_debug_panel_state > 1)
         {
+            // ci = sqrt( (T/A) * 1/(2*tho) )
+            float vi_theoretical_hover = Mathf.Sqrt((helicopter_ODE.par.transmitter_and_helicopter.helicopter.mass_total.val * 9.81f) / (Mathf.Pow(helicopter_ODE.par.transmitter_and_helicopter.helicopter.mainrotor.R.val, 2) * Mathf.PI) * (1 / (2.0f * helicopter_ODE.par.scenery.weather.rho_air.val)));
+               
             ui_debug_text.text = ui_string_connected_input_devices_names + "  er" + error_counter.ToString() + " xr" + (XRSettings.enabled ? 1 : 0) + "\n" + 
-                "thread_ODE_deltat = " + thread_ODE_deltat.ToString() +
-                "   msec_per_thread_call = " + Helper.FormatNumber(msec_per_thread_call, "0.000") +
-                "   monitor_frequency = " + Helper.FormatNumber(refresh_rate_hz, "0.000") + (refresh_rate_sec_found_flag ? "*" : "") + 
-                "   time = " + Helper.FormatNumber(time, "0.00") + "s" + "\n" +
+                "thread_ODE_deltat = " + (thread_ODE_deltat*1000).ToString() + "msec" +
+                "   msec_per_thread_call = " + Helper.FormatNumber(msec_per_thread_call_filtered, "0.00") + "msec" +
+                "   monitor_frequency = " + Helper.FormatNumber(refresh_rate_hz, "0.000") + "Hz" + (refresh_rate_sec_found_flag ? "*" : "") +
+                "   time = " + Helper.FormatNumber(time, "0.00") + "s" +  
+                "   v_i_hover" + Helper.FormatNumber(vi_theoretical_hover, "0.00") + "m/s" + "\n" +
                 helicopter_ODE.ODEDebug.debug_text;
         }
 
