@@ -346,7 +346,7 @@ namespace Rotor
                     rotor_audio_source_stall.pitch = Mathf.Abs(omega / (helicopter_ODE.par.transmitter_and_helicopter.helicopter.rotor_sound_recorded_rpm.val * 6 * Mathf.PI / 180f)); // sound recorded at ~ 1280 rpm       
                     rotor_audio_source_stall.volume = Mathf.Abs(omega / (helicopter_ODE.par.transmitter_and_helicopter.helicopter.rotor_sound_recorded_rpm.val * 6 * Mathf.PI / 180f)); // sound recorded at ~ 1280 rpm      
 
-                    float T_max = 4.0f * helicopter_ODE.par.transmitter_and_helicopter.helicopter.mass_total.val * 9.81f; // helicopter_ODE.par.scenery.gravity.val; //[N] ???? TODOOOOOO nicht hier T_max
+                    float T_max = 5.0f * helicopter_ODE.par.transmitter_and_helicopter.helicopter.mass_total.val * 9.81f; // helicopter_ODE.par.scenery.gravity.val; //[N] ???? TODOOOOOO nicht hier T_max
                     float T_max_transition = T_max * 0.6f; //[N] ????    0.2  ........ 0.8  
                     rotor_audio_source_stall.volume = Helper.Step(Math.Abs(helicopter_ODE.thrust_mr_for_stall_sound), T_max_transition, 0, T_max_transition * 1.3f, 1) * 0.500000f; // TODO  thrust_mr_for_stall_sound
 
@@ -498,6 +498,17 @@ namespace Rotor
     static class Helicopter_Rotor_Physics
     {
 
+        // store the values for three rotors (mainrotor, tailrotor, propeller) 
+        // turbulence
+        private static List<Vector3> turbulence_force_LH = new List<Vector3> { Vector3.zero, Vector3.zero, Vector3.zero }; // [N]
+        private static List<Vector3> turbulence_torque_LH = new List<Vector3> { Vector3.zero, Vector3.zero, Vector3.zero }; // [Nm]
+        private static List<Vector3> turbulence_torque_LH_target = new List<Vector3> { Vector3.zero, Vector3.zero, Vector3.zero }; // [Nm] for smooth transition
+        private static List<Vector3> turbulence_torque_LH_velocity = new List<Vector3> { Vector3.zero, Vector3.zero, Vector3.zero }; // [Nm] for smooth transition
+        private static List<float> turbulence_time_elapsed_old = new List<float> { 0, 0, 0 }; // [sec]
+        // vortex ring state
+        private static List<float> vortex_ring_state_stength = new List<float> { 0, 0, 0 }; // [0..1]
+
+
 
 
         // ##################################################################################
@@ -522,31 +533,43 @@ namespace Rotor
         #region methods
 
         static public void Rotor_Thrust_and_Torque_with_Precalculations(
+            float time,
+            float dtime,
+            int integrator_function_call_number, 
+            Rotor_Type rotor_type,
+            bool flag_freewheeling,
             bool invert_rotor_rotation_direction, // par.transmitter_and_helicopter.helicopter.transmission.invert_rotor_rotation_direction.val
             bool calculate_flapping,
+            bool calculate_vortex_ring_state,
+            bool calculate_turbulence,
+            bool calculate_ground_effect,
             stru_rotor par_rotor,
             stru_flapping par_flapping,
-            float rho_air, // par.scenery.weather.rho_air.val
-            float mass_total, // par.transmitter_and_helicopter.helicopter.mass_total.val
-            Vector3 vectO, // state: helicopter's position, expressed in inertial frame
-            Quaternion q, // state: helicopter's orientation 
-            Vector3 velo_LH, // state: helicopter's translational velocity vector, expressed in helicopter's local coordinate system
-            Vector3 omega_LH, // state: helicopter's rotational velocity vector, expressed in helicopter's local coordinate system
-            double flapping_a_s_LR, // state: flapping around rotor's local z-axis
-            double flapping_b_s_LR, // state: flapping around rotor's local x-axis
-            double omega_shaft, // state: rotor's shaft speed
-            double Theta_col,
-            double Theta_cyc_a_s,
-            double Theta_cyc_b_s,
-            Vector3 velo_windO_LH,
-            Vector3 force_fuselageLH,
-            out double thrust,
-            out double torque,
+            stru_tuning par_tuning,
+            float rho_air, // [kg/m^3] par.scenery.weather.rho_air.val
+            float mass_total, // [kg] par.transmitter_and_helicopter.helicopter.mass_total.val
+            System.Random random,
+            Vector3 vectO, // [m] state: helicopter's position, expressed in inertial frame
+            Quaternion q, // [-] state: helicopter's orientation 
+            Vector3 velo_LH, // [m/sec] state: helicopter's translational velocity vector, expressed in helicopter's local coordinate system
+            Vector3 omega_LH, // [rad/sec] state: helicopter's rotational velocity vector, expressed in helicopter's local coordinate system
+            double flapping_a_s_LR, // [rad] state: flapping around rotor's local z-axis
+            double flapping_b_s_LR, // [rad] state: flapping around rotor's local x-axis
+            double omega_shaft, // [rad/sec] state: rotor's shaft speed
+            double Theta_col, // [rad] 
+            double Theta_cyc_a_s, // [rad] 
+            double Theta_cyc_b_s, // [rad] 
+            Vector3 velo_windO_LH, // [m/s]
+            Vector3 force_fuselageLH, // [N]
+            float ground_effect_rotor_hub_distance_to_ground,
+            Vector3 ground_effect_rotor_triangle_normalR,
+            out double thrust, // [N]
+            out double torque, // [Nm]
             out double v_i, // [m/sec] indeuced velocity
-            out Vector3 force_at_heli_CH_O,
-            out Vector3 torque_at_heli_CH_LH,
-            out double dflapping_a_s_LR__int_dt, // state derivative
-            out double dflapping_b_s_LR__int_dt, // state derivative
+            out Vector3 force_at_heli_CH_O, // [N]
+            out Vector3 torque_at_heli_CH_LH, // [Nm]
+            out double dflapping_a_s_LR__int_dt, // [rad/sec] state derivative
+            out double dflapping_b_s_LR__int_dt, // [rad/sec] state derivative
             out float debug_tau_rotor, // flapping time consant
             out Vector3 debug_rotor_forceLH, // left handed system
             out Vector3 debug_rotor_torqueLH, // left handed system
@@ -558,7 +581,11 @@ namespace Rotor
             out float debug_power_rotor_pr,
             out float debug_power_rotor_i,
             out float debug_power_rotor_pa,
-            out float debug_power_rotor_c
+            out float debug_power_rotor_c,
+            out float debug_strength_turbulence,
+            out float debug_strength_vortex_ring_state,
+            out float debug_strength_ground_effect,
+            out float debug_strength_flap_up
             )
         {
             force_at_heli_CH_O = Vector3.zero;
@@ -573,7 +600,7 @@ namespace Rotor
             Vector3 dr_CHO_LH_dt = velo_LH; // [m/s] helicopter's center mass translational velocity vector relative to inertial frame O, expressed in helicopter's local frame
             Vector3 v_wO_LH = velo_windO_LH; // [m/s] wind velocity relative to inertial frame O, expressed in helicopter's local frame
 
-            Vector3 v_PRO_LH = dr_CHO_LH_dt - v_wO_LH + Helper.Cross(omega_CHO_LH, r_PRCH_LH); // [m/sec] 
+            Vector3 v_PRO_LH = dr_CHO_LH_dt - v_wO_LH + Helper.Cross(omega_CHO_LH, r_PRCH_LH); // [m/sec] velocity with wind at rotor hub, expressed in helicopter's local frame 
             Vector3 v_PRO_LR = Helper.A_LR_S123(par_rotor.oriLH.vect3 * Helper.Deg_to_Rad, v_PRO_LH); // [m/sec]  per definition the y-axis is the rotor shaft
             // ##################################################################################
 
@@ -601,6 +628,8 @@ namespace Rotor
 
 
 
+
+
             // ##################################################################################
             // force at helicopter's center of mass (rotor thrust)
             // ##################################################################################
@@ -608,13 +637,17 @@ namespace Rotor
             // around rotor's coordinate system's x axis  --  flapping_b_s_LR
             // around rotor's coordinate system's z axis  --  flapping_a_s_LR
             Vector3 thrust_vector_LR; // [N] in rotor's coordinate system
+            Vector3 torque_vector_LR; // [Nm] in rotor's coordinate system 
             if (calculate_flapping)
                 thrust_vector_LR = Helper.Az_RL((float)flapping_a_s_LR, Helper.Ax_RL((float)flapping_b_s_LR, new Vector3(0.0f, (float)thrust, 0.0f)));      
             else
                 thrust_vector_LR = new Vector3(0.0f, (float)thrust, 0.0f);
 
-            Vector3 torque_vector_LR = new Vector3(0, (float)torque, 0); // [Nm] in rotor's coordinate system
-            Vector3 torque_vector_LH = Helper.A_RL_S123(par_rotor.oriLH.vect3 * Helper.Deg_to_Rad, torque_vector_LR); // [Nm] expressed in helicopter's coordinate system 
+            if (!flag_freewheeling) 
+                torque_vector_LR = new Vector3(0, (float)torque, 0); // [Nm] in rotor's coordinate system
+            else
+                torque_vector_LR = new Vector3(0, 0, 0); // [Nm] in rotor's coordinate system
+            Vector3 torque_vector_LH = Helper.A_RL_S123(par_rotor.oriLH.vect3 * Helper.Deg_to_Rad, torque_vector_LR); // [Nm] expressed in helicopter's coordinate system
 
             Vector3 thrust_vector_LH =  Helper.A_RL_S123(par_rotor.oriLH.vect3 * Helper.Deg_to_Rad, thrust_vector_LR); // [N] expressed in helicopter's coordinate system
             Vector3 thrust_vector_O = Helper.A_RL(q, thrust_vector_LH); // [N] epressed in inertial frame
@@ -674,8 +707,10 @@ namespace Rotor
 
                 Vector3 omega_LR = Helper.A_LR_S123(par_rotor.oriLH.vect3 * Helper.Deg_to_Rad, omega_LH); // express helicopter's local rotation velocity vector in rotor's coordinate system
 
-                dflapping_a_s_LR__int_dt = -omega_LR.z - (1f / tau_rotor) * flapping_a_s_LR + par_flapping.A_b_s.val * flapping_b_s_LR + (1f / tau_rotor) * Theta_cyc_a_s;   // [rad/sec] pitch flapping velocity a_s (longitudial direction)
-                dflapping_b_s_LR__int_dt = -omega_LR.x + par_flapping.B_a_s.val * flapping_a_s_LR - (1f / tau_rotor) * flapping_b_s_LR + (1f / tau_rotor) * Theta_cyc_b_s;   // [rad/sec] roll flapping velocity b_s (lateral direction)
+                dflapping_a_s_LR__int_dt = -omega_LR.z - (1f / tau_rotor) * flapping_a_s_LR + par_flapping.A_b_s.val * flapping_b_s_LR + (1f / tau_rotor) * Theta_cyc_a_s 
+                    + par_flapping.A_a_r.val * v_PRO_LR.x; // [rad/sec] pitch flapping velocity a_s (longitudial direction)
+                dflapping_b_s_LR__int_dt = -omega_LR.x + par_flapping.B_a_s.val * flapping_a_s_LR - (1f / tau_rotor) * flapping_b_s_LR + (1f / tau_rotor) * Theta_cyc_b_s
+                    - par_flapping.B_a_r.val * v_PRO_LR.z; // [rad/sec] roll flapping velocity b_s (lateral direction)
 
                 debug_tau_rotor = (float)tau_rotor;
                 //// for low main rotor rotational speeds reduce the effect of flapping
@@ -683,15 +718,154 @@ namespace Rotor
                 //dflapping_b_s_LR__int_dt *= reduce_flapping_effect_at_low_rpm;  // TODO
             }
             else
-            {
-                debug_tau_rotor = 0;
+            { 
                 dflapping_a_s_LR__int_dt = 0; // [rad/sec] 
                 dflapping_b_s_LR__int_dt = 0; // [rad/sec] 
+                debug_tau_rotor = 0;
             }
+            const float normalize_speed = 100.0f / 3.6f; // [m/sec] 100 kmh
+            debug_strength_flap_up = Mathf.Sqrt(v_PRO_LH.x * v_PRO_LH.x + v_PRO_LH.z * v_PRO_LH.z) / normalize_speed; // simplified: shows only speed
             // ##################################################################################
 
+
+
+            // ##################################################################################
+            // vortex ring state
+            // ##################################################################################
+            float strength_turbulence = 0;
+
+            float horizontal_speed_LH = Mathf.Sqrt(v_PRO_LH.x * v_PRO_LH.x + v_PRO_LH.z * v_PRO_LH.z); // [m/sec] 
+            float vertical_speed_LH = -v_PRO_LH.y * Mathf.Sign((float)v_i); // [m/sec] sign(v_i) --> determine speed and the correct direction
+
+            if (calculate_vortex_ring_state)
+            {
+                float horizontal_velocityLH = par_tuning.vortex_ring_state_v_horizontal.val; // [m/sec]
+                float vertical_velocityLH = par_tuning.vortex_ring_state_v_vertical.val; // [m/sec]
+                float force_reduction_factor = 0.35f; // if vortex fully developed
+                float torque_reduction_factor = 0.35f; // if vortex fully developed
+                float size_factor = 0.5f;
+                float elliptic_factor = 1.5f;
+                float stretch_x_factor = 1.3f;
+                float vortex_ring_state_stength_rising_speed_factor = 0.015f;  // todo should depend on time, now depends on ODE-thread frequency
+
+
+
+                if (integrator_function_call_number == 0)
+                {
+                    // In rate of descent vs horizntal speed diagram we define the area, where from 
+                    // light to severe turbulence and thrust variation occures. A cosinus curve is 
+                    // used to create a smooth transition from arewas withut VRS to areas with VRS
+                    Vector2 vrs_center_in_diagram = new Vector2(horizontal_velocityLH, vertical_velocityLH) * size_factor; // [m/s] horizontal, vertical speed
+                    float vrs_radius_in_diagram = vrs_center_in_diagram[0] * stretch_x_factor; // [m/s]
+
+                    float distance_to_vrs_center = new Vector2(horizontal_speed_LH - vrs_center_in_diagram[0], (vertical_speed_LH - vrs_center_in_diagram[1]) * elliptic_factor).magnitude;
+
+                    //if ((horizontal_speed_LH > 1 && horizontal_speed_LH < 5) &&
+                    //     (vertical_speed_LH > -10 && vertical_speed_LH < -2) && !flag_freewheeling)
+                    if ((distance_to_vrs_center < vrs_radius_in_diagram) && !flag_freewheeling)
+                    {
+                        vortex_ring_state_stength[(int)rotor_type] += vortex_ring_state_stength_rising_speed_factor * ((Mathf.Cos((distance_to_vrs_center / vrs_radius_in_diagram) * Mathf.PI) + 1f) / 2f);
+                    }
+                    else
+                    {
+                        vortex_ring_state_stength[(int)rotor_type] -= vortex_ring_state_stength_rising_speed_factor * 1.0f; // todo descent intensity ???
+                    }
+
+                    vortex_ring_state_stength[(int)rotor_type] = Mathf.Clamp(vortex_ring_state_stength[(int)rotor_type], 0, 1); // [0 ... 1]
+                }
+                force_at_heli_CH_O *= (1 - vortex_ring_state_stength[(int)rotor_type] * force_reduction_factor);
+                torque_at_heli_CH_LH *= (1 - vortex_ring_state_stength[(int)rotor_type] * torque_reduction_factor);
+
+                strength_turbulence = vortex_ring_state_stength[(int)rotor_type];
+            }
+            else
+            {
+                vortex_ring_state_stength[(int)rotor_type] = 0;
+            }
+            debug_strength_vortex_ring_state = vortex_ring_state_stength[(int)rotor_type];
+            // ##################################################################################
+
+
+
+            // ##################################################################################
+            // turbulence 
+            // ##################################################################################
+            if (calculate_turbulence)
+            {
+                float translational_velocity_scalar_abs = v_PRO_LH.magnitude; // [m/sec] velo_LH
+                float rotational_velocity_scalar_abs = Mathf.Sqrt(1.0f*omega_LH.x*omega_LH.x + 0.2f*omega_LH.y*omega_LH.y + 1.0f*omega_LH.z*omega_LH.z); // [rad/sec]
+
+                //float strength_turbulence = Helper.Step(translational_velocity_scalar_abs,5.0000f,1,10.00000f,0) * Helper.Step(rotational_velocity_scalar_abs, 3.14200f,0,5.00000f,1); // [0...1]
+                strength_turbulence += Helper.Step(translational_velocity_scalar_abs, 5.0000f, 1, 10.00000f, 0.25f) * Helper.Step(rotational_velocity_scalar_abs, 2.0000f, 0, 5.00000f, 1); // [0...1]
+                                                                                                                                                                                            //strength_turbulence = 1;
+                strength_turbulence = Mathf.Clamp(strength_turbulence, 0, 1);
+                float turbulence_strength_maximum = 0.50000000f * mass_total * 9.81f; // [-]  * par.transmitter_and_helicopter.helicopter.mainrotor.R.val
+                float turbulence_strength = turbulence_strength_maximum * strength_turbulence;
+                float turbulence_time_elapsed = time;
+                turbulence_time_elapsed %= 1f / 4.0000000000f; // [1/Hz]
+                if (turbulence_time_elapsed < turbulence_time_elapsed_old[(int)rotor_type])
+                {
+                    turbulence_force_LH[(int)rotor_type] = new Vector3(
+                         ((float)random.NextDouble() - 0.5f) * 2f * turbulence_strength * 0.30f,
+                         ((float)random.NextDouble() - 0.5f) * 2f * turbulence_strength * 1.00f,
+                         ((float)random.NextDouble() - 0.5f) * 2f * turbulence_strength * 0.3f);  // [N]
+                    turbulence_torque_LH_target[(int)rotor_type] = new Vector3(
+                        ((float)random.NextDouble() - 0.5f) * 2f * turbulence_strength * 1.5f,
+                        ((float)random.NextDouble() - 0.5f) * 2f * turbulence_strength * 0.15f,
+                        ((float)random.NextDouble() - 0.5f) * 2f * turbulence_strength * 1.5f); // [Nm]
+                }
+                turbulence_time_elapsed_old[(int)rotor_type] = turbulence_time_elapsed;
+
+                Vector3 turbulence_torque_LH_velocity_ = turbulence_torque_LH_velocity[(int)rotor_type];
+                turbulence_torque_LH[(int)rotor_type] = Vector3.SmoothDamp(turbulence_torque_LH[(int)rotor_type], turbulence_torque_LH_target[(int)rotor_type], ref turbulence_torque_LH_velocity_, 0.3F, 1000, (float)dtime);
+
+                force_at_heli_CH_O += Helper.A_RL(q, turbulence_force_LH[(int)rotor_type]);
+                torque_at_heli_CH_LH += turbulence_torque_LH[(int)rotor_type];
+            }
+            else
+            {
+                vortex_ring_state_stength[(int)rotor_type] = 0;
+                turbulence_time_elapsed_old[(int)rotor_type] = 0;
+            }
+            debug_strength_turbulence = strength_turbulence;
+            // ##################################################################################
+
+
+
+            // ##################################################################################
+            // ground effect 
+            // ##################################################################################
+            float ground_effect_factor = 1;
+            if (calculate_ground_effect)
+            {
+                // get the factor how perpendicular rotor axis is to surface-triangle and with the sign its direction  
+                float ground_effect_mainrotor_perpendicular_factor = Vector3.Dot(direction_rotor_O.normalized * Math.Sign(v_i), -ground_effect_rotor_triangle_normalR);
+                //direction_rotor_R = Helper.A_RL(q, par.transmitter_and_helicopter.helicopter.tailrotor.dirLH.vect3).normalized; // [m]  rotor(-y) axis expressed in world coordinates
+                //float ground_effect_tailrotor_perpendicular_factor = Vector3.Dot(direction_rotor_R, ground_effect_tailrotor_triangle_normalR);
+
+                float h = ground_effect_rotor_hub_distance_to_ground;   // [m]   h                    height above ground, 
+                float V = horizontal_speed_LH;                          // [m/s] V = sqrt(u^2 + w^2)  translational aerodynamic velocity, 
+                float R = par_rotor.R.val;                              // [m]   R                    rotor radius
+                float v_i_ = Mathf.Abs((float)v_i)*1.0000000000f;       // [m/s] vi                   induced velocity
+
+                // Gareth D. Padfield - HELICOPTER FLIGHT DYNAMICS - equation (3.218)
+                // orignal equation has discontinpoutiy at h = R / 4, therefore equation is modified
+                if(ground_effect_mainrotor_perpendicular_factor > 0)
+                    ground_effect_factor = ((1f / (1f - (1f / 16f) * Mathf.Pow(R / (h + (R / 3.0000000000000f)), 2f) / (1f + Mathf.Pow(V / v_i_, 2f)))) - 1f) * 2f + 1f;
+
+                force_at_heli_CH_O *= ground_effect_factor;
+                torque_at_heli_CH_LH *= 1;
+                
+            }
+            debug_strength_ground_effect = (ground_effect_factor-1.0f)*4.0f; // [0...1]
+            // ##################################################################################
         }
         // ##################################################################################
+
+
+
+
+
 
 
 
@@ -699,21 +873,31 @@ namespace Rotor
         // ##################################################################################
         // calculate rotors thrust and torque
         // ##################################################################################
-        static void Rotor_Thrust_and_Torque(bool invert_rotor_torque_direction, stru_rotor par_rotor, double rho_air, double mass_total, double omega_shaft, double Theta_col, double v_mr_hub_yO, Vector3 velo_rotor_hub_and_windLR, Vector3 force_fuselageLH, double flapping_a_s_LR, double flapping_b_s_LR, out double thrust, out double torque, out double v_i,
+        static void Rotor_Thrust_and_Torque(bool invert_rotor_torque_direction, stru_rotor par_rotor, double rho_air, 
+            double mass_total, double omega_shaft, double Theta_col, double v_mr_hub_yO, Vector3 velo_rotor_hub_and_windLR, 
+            Vector3 force_fuselageLH, double flapping_a_s_LR, double flapping_b_s_LR, out double thrust, out double torque, out double v_i,
                 out float debug_power_rotor_pr,
                 out float debug_power_rotor_i,
                 out float debug_power_rotor_pa,
                 out float debug_power_rotor_c)
         {
             // thrust and induced velocity (has to be solved iteratively)
-            Newton_Raphson(Rotor_Thrust_and_Induced_Velocity, par_rotor, rho_air, mass_total, omega_shaft, velo_rotor_hub_and_windLR, Theta_col, flapping_a_s_LR, flapping_b_s_LR, out thrust, out v_i);
+            Newton_Raphson(Rotor_Thrust_and_Induced_Velocity, par_rotor, rho_air, mass_total, omega_shaft, velo_rotor_hub_and_windLR,
+                Theta_col, flapping_a_s_LR, flapping_b_s_LR, out thrust, out v_i);
+            
+            v_i *= 1.80000000000;
+            thrust *= 1.10000000000;
 
             // torque
-            Rotor_Torque(par_rotor, invert_rotor_torque_direction, rho_air, mass_total, omega_shaft, v_mr_hub_yO, velo_rotor_hub_and_windLR, force_fuselageLH, v_i, thrust, out torque, 
+            Rotor_Torque(par_rotor, invert_rotor_torque_direction, rho_air, mass_total, omega_shaft, 
+                v_mr_hub_yO, velo_rotor_hub_and_windLR, force_fuselageLH, v_i*1.50000000, thrust, out torque, 
                 out debug_power_rotor_pr,
                 out debug_power_rotor_i,
                 out debug_power_rotor_pa,
                 out debug_power_rotor_c);
+
+
+            v_i *= -1;
         }
         // ##################################################################################
 
@@ -725,28 +909,40 @@ namespace Rotor
         // Cai, Guowei, Chen, Ben M., Lee, Tong Heng  (https://www.springer.com/de/book/9780857296344) 2011_Book_UnmannedRotorcraftSystems.pdf page. 102
         // ##################################################################################
         static private double Rotor_Thrust_and_Induced_Velocity(
-            double v_i,
+            double v_i,  // [m/sec] 
             stru_rotor par_rotor,
-            double rho_air,
+            double rho_air,  // [kg/m^3] 
             double mass_total, // par.transmitter_and_helicopter.helicopter.mass_total.val
-            double omega_shaft, 
-            Vector3 velo_rotor_hub_and_wind_LR,
-            double Theta_col, 
-            double flapping_a_s_LR, 
-            double flapping_b_s_LR, 
-            out double thrust)   
+            double omega_shaft, // [rad/sec] 
+            Vector3 velo_rotor_hub_and_wind_LR, // [m/sec] 
+            double Theta_col, // [rad] 
+            double flapping_a_s_LR, // [rad] 
+            double flapping_b_s_LR, // [rad] 
+            out double thrust) // [N]    
         {
-            double T_max = 100.0 * mass_total * 9.81; // par.scenery.gravity.val; //[N] TODO: factor physical source and put into parameter  
-            double T_max_transition = T_max * 0.5; //[N] ????  TODO
+            double T_max = 8.0 * mass_total * 9.81; // par.scenery.gravity.val; //[N] TODO: factor physical source and put into parameter  
+            double T_max_transition = T_max * 0.1; //[N] ????  TODO
 
             double Cl_alpha_rotor = par_rotor.C_l_alpha.val; // lift curve slope
 
             double u_a = velo_rotor_hub_and_wind_LR.x; // [m/sec]
-            double v_a = velo_rotor_hub_and_wind_LR.y; // [m/sec] 
+            //double v_a = velo_rotor_hub_and_wind_LR.y; //*2 [m/sec] 
+            double v_a = velo_rotor_hub_and_wind_LR.y*1.300000000000000; //*2 [m/sec] 
             double w_a = velo_rotor_hub_and_wind_LR.z; // [m/sec] 
 
-            double a_s = flapping_a_s_LR; // [rad] flapping anlge
-            double b_s = flapping_b_s_LR; // [rad] flapping anlge
+            /*  if(w_a<6 && w_a>-6)
+              { 
+                  if(w_a<0)
+                      w_a = -6;
+                  else
+                      w_a =6;
+              }*/
+            w_a += 3.00000000000000 * Math.Sign(w_a);
+            u_a += 3.00000000000000 * Math.Sign(u_a);
+            //u_a += 3;
+
+            double a_s = flapping_a_s_LR; // [rad] flapping angle
+            double b_s = flapping_b_s_LR; // [rad] flapping angle
 
             //double Theta_col = par.transmitter_and_helicopter.helicopter.rotor.K_col.val * Mathf.Deg2Rad * delta_col_ + par.transmitter_and_helicopter.helicopter.rotor.Theta_col_0.val * Mathf.Deg2Rad; // [rad] Collective pitch angle of main rotor blade
             double v_r = -v_a + a_s * u_a - b_s * w_a; // sign inverted compared to original docu by Guowei because our coordinate system is different (his +z is our -y) 
@@ -776,19 +972,19 @@ namespace Rotor
         static private void Rotor_Torque(
             stru_rotor par_rotor,
             bool invert_rotor_torque_direction, // par.transmitter_and_helicopter.helicopter.transmission.invert_rotor_rotation_direction.val
-            double rho_air, 
-            double mass_total, 
-            double omega_shaft,
-            double v_rotor_hub_yO,
-            Vector3 velo_rotor_hub_and_windLR,
-            Vector3 force_fuselageLH, 
-            double v_i, 
-            double thrust, 
-            out double torque,
-            out float debug_power_rotor_pr,
-            out float debug_power_rotor_i,
-            out float debug_power_rotor_pa,
-            out float debug_power_rotor_c
+            double rho_air,  // [kg/m^3]  
+            double mass_total, // [kg] 
+            double omega_shaft,  // [rad/sec] 
+            double v_rotor_hub_yO,  // [m/sec] 
+            Vector3 velo_rotor_hub_and_windLR, // [m/sec] 
+            Vector3 force_fuselageLH, // [N] 
+            double v_i, // [m/sec]  
+            double thrust, // [N]  
+            out double torque, // [Nm] 
+            out float debug_power_rotor_pr, // [W] 
+            out float debug_power_rotor_i, // [W] 
+            out float debug_power_rotor_pa, // [W] 
+            out float debug_power_rotor_c // [W] 
             )
         {
             double u_a = velo_rotor_hub_and_windLR.x; // [m/s]
@@ -802,7 +998,7 @@ namespace Rotor
                 (Math.Pow((omega_shaft * par_rotor.R.val), 2) + 4.6 * (u_a * u_a + w_a * w_a));  // [W] rotor profile power
             double P_i = thrust * v_i; // [W] rotor induced power
             double P_pa = Math.Abs(force_fuselageLH.x * u_a) + Math.Abs(force_fuselageLH.y * (-v_a - v_i)) + Math.Abs(force_fuselageLH.z * w_a); // [W] parasite power
-            double P_c = mass_total * v_rotor_hub_yO * 9.81f * Helper.Step((float)Math.Abs(v_rotor_hub_yO), 0.01f, 0.0f, 0.1f, 1); // par.scenery.gravity.val;  // [W] climbing power TODOOOOOOOOOOOOOOOOOOOOOOOOoo  -- 
+            double P_c = mass_total * v_rotor_hub_yO * 9.81f * Helper.Step((float)Math.Abs(v_rotor_hub_yO), 0.001f, 0.0f, 0.01f, 1); // par.scenery.gravity.val;  // [W] climbing power TODOOOOOOOOOOOOOOOOOOOOOOOOoo  -- 
 
             double P_rotor = P_pr + P_i + P_pa + P_c; // [W] 
 

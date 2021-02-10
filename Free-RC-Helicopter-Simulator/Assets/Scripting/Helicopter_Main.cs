@@ -243,6 +243,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     readonly List<Transform> list_helicopter_setup_missile_pylon_localposition = new List<Transform>();
     int list_helicopter_setup_missile_pylon_localposition_current_active;
 
+    GameObject helicopter_vortex_ring_state_particles_gameobject;
+
     float omega_mr = 0;  // [rad/sec] mainrotor 
     float omega_tr = 0;  // [rad/sec] tailrotor
     float omega_pr = 0;  // [rad/sec] propeller
@@ -1667,6 +1669,12 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                         speed_brake_status = Animator_Speed_Brake_Status_Variants.closed;
                     }
                 }
+
+
+
+                // load vortex_ring_state particles
+                temp = GameObject.Find("Helicopters_Available/" + helicopter_name + "/VortexRing");
+                if (temp != null) helicopter_vortex_ring_state_particles_gameobject = temp.gameObject; else helicopter_vortex_ring_state_particles_gameobject = null;
 
 
 
@@ -3506,6 +3514,35 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
 
 
+
+        // ##################################################################################
+        // Vortex Ring State
+        // ##################################################################################
+        if(helicopter_vortex_ring_state_particles_gameobject != null)
+        { 
+            if(helicopter_ODE.ODEDebug.vortex_ring_state_mr > 0.5)
+            {
+                //helicopter_vortex_ring_state_particles_gameobject.transform.GetChild(0).gameObject;
+               // Transform[] ts = helicopter_vortex_ring_state_particles_gameobject.transform.GetComponentsInChildren<Transform>();
+                foreach (Transform t in helicopter_vortex_ring_state_particles_gameobject.transform)
+                {
+                    ParticleSystem ps = t.GetComponent<ParticleSystem>();
+                    if (!ps.isPlaying)
+                        ps.Play();
+                }
+            }
+            if (helicopter_ODE.ODEDebug.vortex_ring_state_mr < 0.1)
+            {
+                //Transform[] ts = helicopter_vortex_ring_state_particles_gameobject.transform.GetComponentsInChildren<Transform>();
+                foreach (Transform t in helicopter_vortex_ring_state_particles_gameobject.transform)
+                {
+                    ParticleSystem ps = t.GetComponent<ParticleSystem>();
+                    if (ps.isPlaying)
+                        ps.Stop();
+                }
+            }
+        }
+        // ##################################################################################
 
 
 
