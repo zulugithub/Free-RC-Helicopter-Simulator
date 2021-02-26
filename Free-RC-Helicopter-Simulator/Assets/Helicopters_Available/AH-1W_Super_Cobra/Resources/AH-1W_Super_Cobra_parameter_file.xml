@@ -92,9 +92,9 @@
       <direct_feadtrough_flybareless>  <val>false</val>  </direct_feadtrough_flybareless>
     </flybarless>
 	  <governor>
-      <target_rpm_1>  <val>700</val>  </target_rpm_1>
-      <target_rpm_2>  <val>850</val>  </target_rpm_2>
-      <target_rpm_3>  <val>900</val>  </target_rpm_3>
+      <target_rpm_1>  <val>650</val>  </target_rpm_1>
+      <target_rpm_2>  <val>700</val>  </target_rpm_2>
+      <target_rpm_3>  <val>750</val>  </target_rpm_3>
       <Kp>  <val>0.01</val>  </Kp>
       <Ki>  <val>0.1</val>  </Ki>
       <saturation_min>  <val>0</val>  </saturation_min>

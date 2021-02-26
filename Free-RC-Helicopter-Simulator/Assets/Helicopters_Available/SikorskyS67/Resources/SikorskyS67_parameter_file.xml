@@ -230,8 +230,8 @@
       <target_rpm_1>  <val>1000</val>  </target_rpm_1>
       <target_rpm_2>  <val>1200</val>  </target_rpm_2>
 	  <target_rpm_3>  <val>1300</val>  </target_rpm_3>
-      <Kp>  <val>0.2</val>  </Kp>
-      <Ki>  <val>0.3</val>  </Ki>
+      <Kp>  <val>0.05</val>  </Kp>
+      <Ki>  <val>0.05</val>  </Ki>
       <saturation_min>  <val>0</val>  </saturation_min>
       <soft_start_factor>  <val>0.05</val>  </soft_start_factor>
     </governor>

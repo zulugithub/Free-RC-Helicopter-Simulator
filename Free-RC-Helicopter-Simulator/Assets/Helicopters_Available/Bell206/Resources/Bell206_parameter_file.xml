@@ -40,7 +40,7 @@
         <vect3>  <x>0</x>  <y>0</y>  <z>0</z>  </vect3>
       </orientation>
     </reference_to_masscentrum>
-    <mass_total>  <val>6.5</val>  </mass_total>
+    <mass_total>  <val>6.0</val>  </mass_total>
     <rotor_sound_recorded_rpm>  <val>1280</val>  </rotor_sound_recorded_rpm>
 	<motor_sound_recorded_rpm>  <val>1280</val>  </motor_sound_recorded_rpm>
     <sound_volume>  <val>12</val>  </sound_volume>
@@ -105,7 +105,7 @@
       <c>  <val>0.03</val>  </c>
       <J>  <val>0.000115</val>  </J>
       <C_D0>  <val>0.016</val>  </C_D0>
-      <K_col>  <val>-20</val>  </K_col>
+      <K_col>  <val>-24</val>  </K_col>
       <Theta_col_0>  <val>-7.5</val>  </Theta_col_0>
       <posLH>
         <vect3>  <x>-0.9005973</x>  <y>0.01054892</y>  <z>-0.0533414446</z>  </vect3>

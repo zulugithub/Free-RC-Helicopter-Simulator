@@ -74,8 +74,8 @@
       <target_rpm_1>  <val>500</val>  </target_rpm_1>
       <target_rpm_2>  <val>550</val>  </target_rpm_2>
       <target_rpm_3>  <val>600</val>  </target_rpm_3>
-      <Kp>  <val>0.01</val>  </Kp>
-      <Ki>  <val>0.1</val>  </Ki>
+      <Kp>  <val>0.2</val>  </Kp>
+      <Ki>  <val>0.3</val>  </Ki>
       <saturation_min>  <val>0</val>  </saturation_min>
       <soft_start_factor>  <val>0.05</val>  </soft_start_factor>
     </governor>

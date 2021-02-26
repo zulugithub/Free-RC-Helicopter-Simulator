@@ -225,10 +225,10 @@
       <target_rpm_1>  <val>1700</val>  </target_rpm_1>
       <target_rpm_2>  <val>2000</val>  </target_rpm_2>
       <target_rpm_3>  <val>2500</val>  </target_rpm_3>
-      <Kp>  <val>0.01</val>  </Kp>
+      <Kp>  <val>0.02</val>  </Kp>
       <Ki>  <val>0.1</val>  </Ki>
       <saturation_min>  <val>0</val>  </saturation_min>
-      <soft_start_factor>  <val>0.3</val>  </soft_start_factor>
+      <soft_start_factor>  <val>0.08</val>  </soft_start_factor>
     </governor>
     <accumulator>
       <voltage_per_cell>  <val>3.7</val>  </voltage_per_cell>

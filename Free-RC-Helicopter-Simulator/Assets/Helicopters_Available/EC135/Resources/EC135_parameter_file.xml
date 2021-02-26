@@ -99,10 +99,10 @@
 	</servo_damping>
 	<governor>
       <target_rpm_1>  <val>950</val>  </target_rpm_1>
-      <target_rpm_2>  <val>1150</val>  </target_rpm_2>
-      <target_rpm_3>  <val>1150</val>  </target_rpm_3>
-      <Kp>  <val>0.01</val>  </Kp>
-      <Ki>  <val>0.1</val>  </Ki>
+      <target_rpm_2>  <val>1000</val>  </target_rpm_2>
+      <target_rpm_3>  <val>1050</val>  </target_rpm_3>
+      <Kp>  <val>0.02</val>  </Kp>
+      <Ki>  <val>1.0</val>  </Ki>
       <saturation_min>  <val>0</val>  </saturation_min>
       <soft_start_factor>  <val>0.03</val>  </soft_start_factor>
     </governor>
@@ -141,7 +141,7 @@
       <J>  <val>1.00000</val>  </J>
       <C_D0>  <val>0.010</val>  </C_D0>
       <K_col>  <val>5</val>  </K_col>
-      <Theta_col_0>  <val>4.5</val>  </Theta_col_0>
+      <Theta_col_0>  <val>4.0</val>  </Theta_col_0>
       <posLH>
         <vect3>  <x>0</x>  <y>0.23640272617340088</y>  <z>0</z>  </vect3>
       </posLH>
@@ -165,7 +165,7 @@
       <c>  <val>0.007</val>  </c>
       <J>  <val>0.0001</val>  </J>
       <C_D0>  <val>0.010</val>  </C_D0>
-      <K_col>  <val>23</val>  </K_col>
+      <K_col>  <val>26</val>  </K_col>
       <Theta_col_0>  <val>-3.0</val>  </Theta_col_0>
       <posLH>
         <vect3>  <x>-1.1843128204345703</x>  <y>-0.043313351273536686</y>  <z>0.019200000166893008</z>  </vect3>
