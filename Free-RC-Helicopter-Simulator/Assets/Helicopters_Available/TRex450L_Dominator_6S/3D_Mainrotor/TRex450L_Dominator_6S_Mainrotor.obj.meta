@@ -7,6 +7,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Alu
+    second: {fileID: 2100000, guid: d775ce318b94c6948884ce6a9ae573e7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Canopy_A
     second: {fileID: 2100000, guid: 457e3fdf627cd2443a75ba09db9e6cf0, type: 2}
   - first:
@@ -14,6 +19,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Mainblades
     second: {fileID: 2100000, guid: 3f8644327a496fd4183bb35ccd979166, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Steel
+    second: {fileID: 2100000, guid: cbe901840713bd346b9ed44acbcb7214, type: 2}
   materials:
     materialImportMode: 1
     materialName: 0

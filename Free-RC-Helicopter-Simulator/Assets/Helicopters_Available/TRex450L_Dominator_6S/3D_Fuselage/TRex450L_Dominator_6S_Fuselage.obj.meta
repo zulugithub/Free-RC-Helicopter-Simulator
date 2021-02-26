@@ -12,6 +12,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Canopy_A
+    second: {fileID: 2100000, guid: 0333802fabdbdf54e975a56e1c158e73, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Material.001
     second: {fileID: 2100000, guid: 457e3fdf627cd2443a75ba09db9e6cf0, type: 2}
   - first:
@@ -24,6 +29,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Steel
     second: {fileID: 2100000, guid: cbe901840713bd346b9ed44acbcb7214, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: White
+    second: {fileID: 2100000, guid: be4ec38cf5a29ba479827976ef613485, type: 2}
   materials:
     materialImportMode: 1
     materialName: 0
