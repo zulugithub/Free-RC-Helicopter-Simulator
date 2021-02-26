@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: 5e4461311eb2bee4c83af466f88699f3
 ModelImporter:
-  serializedVersion: 20101
+  serializedVersion: 20200
   internalIDToNameTable:
   - first:
       74: 6096281509267013723
@@ -9,6 +9,12 @@ ModelImporter:
   - first:
       74: 6485732315509931244
     second: Setup_001_Armature_Skid_Right|Setup_001_Armature_Skid_Right_Deflection
+  - first:
+      74: -1680835118749857388
+    second: Setup_000_Armature_Skid_Right|Setup_001_Armature_Skid_Left_Deflection
+  - first:
+      74: 384820350497467475
+    second: Setup_000_Armature_Skid_Right|Setup_001_Armature_Skid_Right_Deflection
   externalObjects: {}
   materials:
     materialImportMode: 2
@@ -36,7 +42,36 @@ ModelImporter:
     animationWrapMode: 0
     extraExposedTransformPaths: []
     extraUserProperties: []
-    clipAnimations: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Setup_000_Armature_Skid_Right|Setup_001_Armature_Skid_Right_Deflection
+      takeName: Setup_000_Armature_Skid_Right|Setup_001_Armature_Skid_Right_Deflection
+      internalID: 0
+      firstFrame: 0
+      lastFrame: 100
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
     isReadable: 0
   meshes:
     lODScreenPercentages: []
@@ -101,6 +136,7 @@ ModelImporter:
   animationType: 2
   humanoidOversampling: 1
   avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
   additionalBone: 0
   userData: 
   assetBundleName: 

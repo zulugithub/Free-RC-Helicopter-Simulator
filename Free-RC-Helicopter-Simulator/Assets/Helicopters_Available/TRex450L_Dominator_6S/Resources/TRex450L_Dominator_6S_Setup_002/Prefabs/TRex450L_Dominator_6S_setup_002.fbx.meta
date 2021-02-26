@@ -1,20 +1,8 @@
 fileFormatVersion: 2
-guid: 018b3df1b967a3347a09e72005afe13d
+guid: b7a18b716c8611e449e78b532063d964
 ModelImporter:
   serializedVersion: 20200
-  internalIDToNameTable:
-  - first:
-      74: 6474628993667586588
-    second: Setup_001_Armature_Skid_Left|Setup_001_Armature_Skid_Left_Deflection
-  - first:
-      74: 4717093198533416540
-    second: Setup_001_Armature_Skid_Left|Setup_001_Armature_Skid_Right_Deflection
-  - first:
-      74: 5889793855338205665
-    second: Setup_000_Armature_Skid_Left|Setup_001_Armature_Skid_Left_Deflection
-  - first:
-      74: 6941355808737015203
-    second: Setup_000_Armature_Skid_Left|Setup_001_Armature_Skid_Right_Deflection
+  internalIDToNameTable: []
   externalObjects: {}
   materials:
     materialImportMode: 2
@@ -34,7 +22,7 @@ ModelImporter:
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
-    importConstraints: 1
+    importConstraints: 0
     animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
@@ -42,36 +30,7 @@ ModelImporter:
     animationWrapMode: 0
     extraExposedTransformPaths: []
     extraUserProperties: []
-    clipAnimations:
-    - serializedVersion: 16
-      name: Setup_000_Armature_Skid_Left|Setup_001_Armature_Skid_Left_Deflection
-      takeName: Setup_000_Armature_Skid_Left|Setup_001_Armature_Skid_Left_Deflection
-      internalID: 0
-      firstFrame: 0
-      lastFrame: 100
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 0
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
+    clipAnimations: []
     isReadable: 0
   meshes:
     lODScreenPercentages: []
@@ -136,7 +95,7 @@ ModelImporter:
   animationType: 2
   humanoidOversampling: 1
   avatarSetup: 0
-  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
   additionalBone: 0
   userData: 
   assetBundleName: 

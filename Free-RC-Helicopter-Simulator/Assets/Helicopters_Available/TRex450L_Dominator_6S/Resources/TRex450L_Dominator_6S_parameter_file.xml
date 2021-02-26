@@ -116,7 +116,7 @@
       <K_col>  <val>9.0</val>  </K_col>
       <Theta_col_0>  <val>0</val>  </Theta_col_0>
       <posLH>
-        <vect3>  <x>0</x>  <y>0.09071549773216248</y>  <z>0</z>  </vect3>
+        <vect3>  <x>0</x>  <y>0.09000000000</y>  <z>0</z>  </vect3>
       </posLH>
       <oriLH>
         <vect3>  <x>0</x>  <y>0</y>  <z>0</z>  </vect3>
@@ -143,7 +143,7 @@
       <K_col>  <val>14</val>  </K_col>
       <Theta_col_0>  <val>-5</val>  </Theta_col_0>
       <posLH>
-        <vect3>  <x>-0.4717459976673126</x>  <y>-0.0000</y>  <z>0.02838224172592163</z>  </vect3>
+        <vect3>  <x>-0.4749999940395355</x>  <y>-0.0000</y>  <z>0.03259070962667465</z>  </vect3>
       </posLH>
       <oriLH>
         <vect3>  <x>90</x>  <y>0</y>  <z>0</z>  </vect3>
