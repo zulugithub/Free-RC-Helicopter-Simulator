@@ -3,7 +3,12 @@ guid: fa2de8af1a12df147809e9f438431073
 ModelImporter:
   serializedVersion: 20200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Canopy_A
+    second: {fileID: 2100000, guid: d0c115ff52fba224f8ea3c1a2e4fb9b4, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

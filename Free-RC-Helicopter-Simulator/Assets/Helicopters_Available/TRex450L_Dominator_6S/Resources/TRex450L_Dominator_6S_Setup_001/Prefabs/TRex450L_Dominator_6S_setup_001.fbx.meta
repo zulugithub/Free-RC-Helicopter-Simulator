@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: a746b0b52a5bd334e9bcc5f494455580
+guid: fed073d2a4f286f4abc9f06384d07462
 ModelImporter:
   serializedVersion: 20200
   internalIDToNameTable: []
@@ -8,7 +8,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Canopy_A
-    second: {fileID: 2100000, guid: 764bab0bce26be84391871b35f4e03e0, type: 2}
+    second: {fileID: 2100000, guid: 9de1db2e2f4253a4ab6b54b8e595c7c5, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

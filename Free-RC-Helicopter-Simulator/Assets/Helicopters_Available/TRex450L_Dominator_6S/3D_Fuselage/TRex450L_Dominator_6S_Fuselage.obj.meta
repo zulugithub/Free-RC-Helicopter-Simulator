@@ -12,8 +12,43 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Cable
+    second: {fileID: 2100000, guid: d251acbc3ce198543a6d07e0269688de, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cable.001
+    second: {fileID: 2100000, guid: d251acbc3ce198543a6d07e0269688de, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cable.002
+    second: {fileID: 2100000, guid: d251acbc3ce198543a6d07e0269688de, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cable.003
+    second: {fileID: 2100000, guid: d251acbc3ce198543a6d07e0269688de, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cable.004
+    second: {fileID: 2100000, guid: d251acbc3ce198543a6d07e0269688de, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cable.005
+    second: {fileID: 2100000, guid: d251acbc3ce198543a6d07e0269688de, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Canopy_A
     second: {fileID: 2100000, guid: 0333802fabdbdf54e975a56e1c158e73, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Carbon
+    second: {fileID: 2100000, guid: d17f1dff639baeb4885177de361ebcbb, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule

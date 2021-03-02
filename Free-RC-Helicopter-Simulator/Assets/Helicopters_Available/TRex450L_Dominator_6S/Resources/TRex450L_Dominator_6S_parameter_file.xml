@@ -35,8 +35,9 @@
       </orientation>
     </reference_to_masscentrum>
     <mass_total>  <val>0.988</val>  </mass_total> !-- 0.988,  1.050
-    <rotor_sound_recorded_rpm>  <val>1400</val>  </rotor_sound_recorded_rpm>
+    <rotor_sound_recorded_rpm>  <val>3100</val>  </rotor_sound_recorded_rpm>
 	<motor_sound_recorded_rpm>  <val>1400</val>  </motor_sound_recorded_rpm>
+	<stall_sound_recorded_rpm>  <val>1400</val>  </stall_sound_recorded_rpm>
     <sound_volume>  <val>10</val>  </sound_volume>
 	<Jxx_Jyy_Jzz>
       <vect3>  <x>0.0042</x>  <y>0.029</y>  <z>0.033</z>  </vect3>
@@ -71,7 +72,7 @@
       <C_l_alpha>  <val>2.85</val>  </C_l_alpha>
       <alpha_stall>  <val>20</val>  </alpha_stall>
       <downwash_factor_mainrotor>  <val>0.0</val>  </downwash_factor_mainrotor>
-      <downwash_factor_tailrotor>  <val>0.5</val>  </downwash_factor_tailrotor>
+      <downwash_factor_tailrotor>  <val>0.2</val>  </downwash_factor_tailrotor>
       <downwash_factor_propeller>  <val>0.0</val>  </downwash_factor_propeller>
       <posLH>
         <vect3>  <x>-0.45</x>  <y>-0.01</y>  <z>0</z>  </vect3>
@@ -109,11 +110,11 @@
     <mainrotor>
       <b>  <val>2</val>  </b>
       <R>  <val>0.400</val>  </R>
-      <C_l_alpha>  <val>4.50</val>  </C_l_alpha>
+      <C_l_alpha>  <val>5.00</val>  </C_l_alpha>
       <c>  <val>0.034</val>  </c>
       <J>  <val>0.010</val>  </J>
       <C_D0>  <val>0.016</val>  </C_D0>
-      <K_col>  <val>9.0</val>  </K_col>
+      <K_col>  <val>12.0</val>  </K_col>
       <Theta_col_0>  <val>0</val>  </Theta_col_0>
       <posLH>
         <vect3>  <x>0</x>  <y>0.09000000000</y>  <z>0</z>  </vect3>
@@ -136,11 +137,11 @@
     <tailrotor>
       <b>  <val>2</val>  </b>
       <R>  <val>0.085</val>  </R>
-      <C_l_alpha>  <val>4.50</val>  </C_l_alpha>
+      <C_l_alpha>  <val>5.0</val>  </C_l_alpha>
       <c>  <val>0.015</val>  </c>
       <J>  <val>0.00005</val>  </J>
       <C_D0>  <val>0.016</val>  </C_D0>
-      <K_col>  <val>14</val>  </K_col>
+      <K_col>  <val>18</val>  </K_col>
       <Theta_col_0>  <val>-5</val>  </Theta_col_0>
       <posLH>
         <vect3>  <x>-0.4749999940395355</x>  <y>-0.0000</y>  <z>0.03259070962667465</z>  </vect3>
