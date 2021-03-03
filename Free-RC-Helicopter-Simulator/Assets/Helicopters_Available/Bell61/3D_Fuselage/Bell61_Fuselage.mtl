@@ -1,4 +1,4 @@
-# Blender MTL File: 'Bell61_050.blend'
+# Blender MTL File: 'Bell61_052.blend'
 # Material Count: 6
 
 newmtl Canopy_A
@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd F:\\Helikopter\\UNITY\\GitHub\\Work\\Helicopter\\Bell61\\Bell61_Canopy_000_A.png
+map_Kd F:\\Helikopter\\UNITY\\GitHub\\Work\\Helicopter\\Bell61\\Bell61_Canopy_001_A.png
 
 newmtl Canopy_Interior
 Ns 225.000000
@@ -56,7 +56,7 @@ illum 2
 newmtl interior
 Ns 225.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.035936 0.035936 0.035936
+Kd 0.013259 0.013259 0.013259
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
