@@ -43,6 +43,7 @@
     <mass_total>  <val>11.0</val>  </mass_total>
     <rotor_sound_recorded_rpm>  <val>1000</val>  </rotor_sound_recorded_rpm>  <!--real1300rpm-->
 	<motor_sound_recorded_rpm>  <val>1000</val>  </motor_sound_recorded_rpm>
+	<stall_sound_recorded_rpm>  <val>1000</val>  </stall_sound_recorded_rpm>
     <sound_volume>  <val>14</val>  </sound_volume>
     <Jxx_Jyy_Jzz>
       <vect3>  <x>0.5</x>  <y>2</y>  <z>2</z>  </vect3>
@@ -98,13 +99,15 @@
 		<servo_lon_mr_time_constant>  <val>0.040</val>  </servo_lon_mr_time_constant>  	
 	</servo_damping>
 	<governor>
-      <target_rpm_1>  <val>1000</val>  </target_rpm_1>
+      <target_rpm_1>  <val>1050</val>  </target_rpm_1>
       <target_rpm_2>  <val>1150</val>  </target_rpm_2>
-      <target_rpm_3>  <val>1150</val>  </target_rpm_3>
+      <target_rpm_3>  <val>1250</val>  </target_rpm_3>
       <Kp>  <val>0.01</val>  </Kp>
       <Ki>  <val>0.1</val>  </Ki>
       <saturation_min>  <val>0</val>  </saturation_min>
       <soft_start_factor>  <val>0.03</val>  </soft_start_factor>
+      <engine_restart_time>  <val>5</val>  </engine_restart_time>
+      <engine_restart_factor>  <val>10</val>  </engine_restart_factor>
     </governor>
     <brushless>
       <R_a>  <val>0.028</val>  </R_a>
@@ -119,6 +122,20 @@
       <I_max>  <val>120</val>  </I_max>
       <capacity>  <val>5000</val>  </capacity>
     </accumulator>
+	<tuning>
+		<vortex_ring_state_v_horizontal>  <val>2.2</val>  </vortex_ring_state_v_horizontal>
+		<vortex_ring_state_v_vertical>  <val>-3.0</val>  </vortex_ring_state_v_vertical>
+		<vortex_ring_state_force_reduction_factor>  <val>0.40</val>  </vortex_ring_state_force_reduction_factor>
+		<vortex_ring_state_torque_reduction_factor>  <val>0.35</val>  </vortex_ring_state_torque_reduction_factor>
+		<vortex_ring_state_stength_rising_speed_factor>  <val>0.015</val>  </vortex_ring_state_stength_rising_speed_factor>
+		<turbulence_rotational_velocity_limit>  <val>2</val>  </turbulence_rotational_velocity_limit>
+		<turbulence_translational_velocity_limit>  <val>15</val>  </turbulence_translational_velocity_limit>
+		<turbulence_frequency>  <val>5.0</val>  </turbulence_frequency>
+		<turbulence_force_strength>  <vect3>  <x>5</x>  <y>30.0</y>  <z>5</z>  </vect3>  </turbulence_force_strength>
+		<turbulence_torque_strength>  <vect3>  <x>130.0</x>  <y>30</y>  <z>130.0</z>  </vect3>  </turbulence_torque_strength>
+		<startup_rotating_unbalance_mass>  <val>0.05</val> </startup_rotating_unbalance_mass>
+		<startup_rotating_unbalance_turn_off_rpm>  <val>200</val> </startup_rotating_unbalance_turn_off_rpm>
+	</tuning>
     <transmission> 
       <invert_mainrotor_rotation_direction>  <val>false</val>  </invert_mainrotor_rotation_direction>
       <invert_motor2maingear_transmission>  <val>true</val>  </invert_motor2maingear_transmission>
@@ -136,12 +153,12 @@
     <mainrotor>
       <b>  <val>4</val>  </b>
       <R>  <val>0.9</val>  </R>
-      <C_l_alpha>  <val>5</val>  </C_l_alpha>
+      <C_l_alpha>  <val>4.5</val>  </C_l_alpha>
       <c>  <val>0.056</val>  </c>
-      <J>  <val>0.20000</val>  </J>
-      <C_D0>  <val>0.010</val>  </C_D0>
-      <K_col>  <val>4.5</val>  </K_col>
-      <Theta_col_0>  <val>4.5</val>  </Theta_col_0>
+      <J>  <val>0.50000</val>  </J>
+      <C_D0>  <val>0.016</val>  </C_D0>
+      <K_col>  <val>5.5</val>  </K_col>
+      <Theta_col_0>  <val>3.0</val>  </Theta_col_0>
       <posLH>
         <vect3>  <x>0</x>  <y>0.26308760643005374</y>  <z>0</z>  </vect3>
       </posLH>

@@ -110,7 +110,7 @@
     <mainrotor>
       <b>  <val>2</val>  </b>
       <R>  <val>0.400</val>  </R>
-      <C_l_alpha>  <val>5.00</val>  </C_l_alpha>
+      <C_l_alpha>  <val>4.50</val>  </C_l_alpha>
       <c>  <val>0.034</val>  </c>
       <J>  <val>0.010</val>  </J>
       <C_D0>  <val>0.016</val>  </C_D0>
@@ -168,8 +168,18 @@
       </oriLH>  
 	</propeller>
 	<tuning>
-		<vortex_ring_state_v_horizontal>  <val>2.5</val>  </vortex_ring_state_v_horizontal>
-		<vortex_ring_state_v_vertical>  <val>-5.0</val>  </vortex_ring_state_v_vertical>
+		<vortex_ring_state_v_horizontal>  <val>1.8</val>  </vortex_ring_state_v_horizontal>
+		<vortex_ring_state_v_vertical>  <val>-2.0</val>  </vortex_ring_state_v_vertical>
+		<vortex_ring_state_force_reduction_factor>  <val>0.50</val>  </vortex_ring_state_force_reduction_factor>
+		<vortex_ring_state_torque_reduction_factor>  <val>0.35</val>  </vortex_ring_state_torque_reduction_factor>
+		<vortex_ring_state_stength_rising_speed_factor>  <val>0.015</val>  </vortex_ring_state_stength_rising_speed_factor>
+		<turbulence_rotational_velocity_limit>  <val>3</val>  </turbulence_rotational_velocity_limit>
+		<turbulence_translational_velocity_limit>  <val>5</val>  </turbulence_translational_velocity_limit>
+		<turbulence_frequency>  <val>5.0</val>  </turbulence_frequency>
+		<turbulence_force_strength>  <vect3>  <x>0.5</x>  <y>3.0</y>  <z>0.5</z>  </vect3>  </turbulence_force_strength>
+		<turbulence_torque_strength>  <vect3>  <x>5.0</x>  <y>0.5</y>  <z>5.0</z>  </vect3>  </turbulence_torque_strength>
+		<startup_rotating_unbalance_mass>  <val>0.003</val> </startup_rotating_unbalance_mass>
+		<startup_rotating_unbalance_turn_off_rpm>  <val>400</val> </startup_rotating_unbalance_turn_off_rpm>
 	</tuning>
     <transmission>
       <invert_mainrotor_rotation_direction>  <val>true</val>  </invert_mainrotor_rotation_direction>

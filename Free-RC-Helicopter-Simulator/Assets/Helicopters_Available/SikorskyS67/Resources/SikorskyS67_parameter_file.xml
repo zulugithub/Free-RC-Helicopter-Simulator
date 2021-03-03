@@ -43,6 +43,7 @@
     <mass_total>  <val>6.5</val>  </mass_total>
     <rotor_sound_recorded_rpm>  <val>1280</val>  </rotor_sound_recorded_rpm>
 	<motor_sound_recorded_rpm>  <val>1280</val>  </motor_sound_recorded_rpm>
+	<stall_sound_recorded_rpm>  <val>1280</val>  </stall_sound_recorded_rpm>
     <sound_volume>  <val>10</val>  </sound_volume>
     <Jxx_Jyy_Jzz>
       <vect3>  <x>0.100</x>  <y>0.350</y>  <z>0.400</z>  </vect3>
@@ -206,6 +207,20 @@
         <vect3>  <x>0</x>  <y>0</y>  <z>0</z>  </vect3> 
       </oriLH>  
 	</propeller>
+	<tuning>
+		<vortex_ring_state_v_horizontal>  <val>2.5</val>  </vortex_ring_state_v_horizontal>
+		<vortex_ring_state_v_vertical>  <val>-3.0</val>  </vortex_ring_state_v_vertical>
+		<vortex_ring_state_force_reduction_factor>  <val>0.45</val>  </vortex_ring_state_force_reduction_factor>
+		<vortex_ring_state_torque_reduction_factor>  <val>0.35</val>  </vortex_ring_state_torque_reduction_factor>
+		<vortex_ring_state_stength_rising_speed_factor>  <val>0.015</val>  </vortex_ring_state_stength_rising_speed_factor>
+		<turbulence_rotational_velocity_limit>  <val>4</val>  </turbulence_rotational_velocity_limit>
+		<turbulence_translational_velocity_limit>  <val>10</val>  </turbulence_translational_velocity_limit>
+		<turbulence_frequency>  <val>4.0</val>  </turbulence_frequency>
+		<turbulence_force_strength>  <vect3>  <x>3</x>  <y>20.0</y>  <z>3</z>  </vect3>  </turbulence_force_strength>
+		<turbulence_torque_strength>  <vect3>  <x>30.0</x>  <y>3</y>  <z>30.0</z>  </vect3>  </turbulence_torque_strength>
+		<startup_rotating_unbalance_mass>  <val>0.025</val> </startup_rotating_unbalance_mass>
+		<startup_rotating_unbalance_turn_off_rpm>  <val>300</val> </startup_rotating_unbalance_turn_off_rpm>
+	</tuning>
     <transmission>
       <invert_mainrotor_rotation_direction>  <val>true</val>  </invert_mainrotor_rotation_direction>
       <invert_motor2maingear_transmission>  <val>true</val>  </invert_motor2maingear_transmission>
@@ -234,6 +249,8 @@
       <Ki>  <val>0.05</val>  </Ki>
       <saturation_min>  <val>0</val>  </saturation_min>
       <soft_start_factor>  <val>0.05</val>  </soft_start_factor>
+      <engine_restart_time>  <val>5</val>  </engine_restart_time>
+      <engine_restart_factor>  <val>10</val>  </engine_restart_factor>
     </governor>
     <accumulator>
       <voltage_per_cell>  <val>3.7</val>  </voltage_per_cell>

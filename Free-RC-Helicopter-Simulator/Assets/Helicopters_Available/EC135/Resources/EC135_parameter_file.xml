@@ -43,6 +43,7 @@
     <mass_total>  <val>15.0</val>  </mass_total>
     <rotor_sound_recorded_rpm>  <val>1000</val>  </rotor_sound_recorded_rpm>   <!--real1300rpm-->  
 	<motor_sound_recorded_rpm>  <val>1000</val>  </motor_sound_recorded_rpm>
+	<stall_sound_recorded_rpm>  <val>1000</val>  </stall_sound_recorded_rpm>
     <sound_volume>  <val>14</val>  </sound_volume>
     <Jxx_Jyy_Jzz>
       <vect3>  <x>0.3</x>  <y>1.5</y>  <z>1.5</z>  </vect3>
@@ -81,8 +82,8 @@
     </collision>
 	<gyro>
       <K_a>  <val>300</val>  </K_a>
-      <K_I>  <val>4.00</val>  </K_I>
-      <K_p>  <val>0.3</val>  </K_p>
+      <K_I>  <val>2.00</val>  </K_I>
+      <K_p>  <val>0.25</val>  </K_p>
       <direct_feadtrough_gyroscope>  <val>false</val>  </direct_feadtrough_gyroscope>
     </gyro>
     <flybarless>
@@ -105,6 +106,8 @@
       <Ki>  <val>1.0</val>  </Ki>
       <saturation_min>  <val>0</val>  </saturation_min>
       <soft_start_factor>  <val>0.03</val>  </soft_start_factor>
+	  <engine_restart_time>  <val>5</val>  </engine_restart_time>
+	  <engine_restart_factor>  <val>0.5</val>  </engine_restart_factor>
     </governor>
     <brushless>
       <R_a>  <val>0.028</val>  </R_a>
@@ -119,6 +122,20 @@
       <I_max>  <val>120</val>  </I_max>
       <capacity>  <val>5000</val>  </capacity>
     </accumulator>
+	<tuning>
+		<vortex_ring_state_v_horizontal>  <val>2.5</val>  </vortex_ring_state_v_horizontal>
+		<vortex_ring_state_v_vertical>  <val>-3.0</val>  </vortex_ring_state_v_vertical>
+		<vortex_ring_state_force_reduction_factor>  <val>0.45</val>  </vortex_ring_state_force_reduction_factor>
+		<vortex_ring_state_torque_reduction_factor>  <val>0.35</val>  </vortex_ring_state_torque_reduction_factor>
+		<vortex_ring_state_stength_rising_speed_factor>  <val>0.015</val>  </vortex_ring_state_stength_rising_speed_factor>
+		<turbulence_rotational_velocity_limit>  <val>2</val>  </turbulence_rotational_velocity_limit>
+		<turbulence_translational_velocity_limit>  <val>15</val>  </turbulence_translational_velocity_limit>
+		<turbulence_frequency>  <val>5.0</val>  </turbulence_frequency>
+		<turbulence_force_strength>  <vect3>  <x>5</x>  <y>30.0</y>  <z>5</z>  </vect3>  </turbulence_force_strength>
+		<turbulence_torque_strength>  <vect3>  <x>200.0</x>  <y>30</y>  <z>200.0</z>  </vect3>  </turbulence_torque_strength>
+		<startup_rotating_unbalance_mass>  <val>0.05</val> </startup_rotating_unbalance_mass>
+		<startup_rotating_unbalance_turn_off_rpm>  <val>200</val> </startup_rotating_unbalance_turn_off_rpm>
+	</tuning>
     <transmission>
 	  <invert_mainrotor_rotation_direction>  <val>false</val>  </invert_mainrotor_rotation_direction>
       <invert_motor2maingear_transmission>  <val>true</val>  </invert_motor2maingear_transmission>
@@ -139,7 +156,7 @@
       <C_l_alpha>  <val>5</val>  </C_l_alpha>
       <c>  <val>0.034</val>  </c>
       <J>  <val>1.00000</val>  </J>
-      <C_D0>  <val>0.010</val>  </C_D0>
+      <C_D0>  <val>0.016</val>  </C_D0>
       <K_col>  <val>5</val>  </K_col>
       <Theta_col_0>  <val>4.0</val>  </Theta_col_0>
       <posLH>
@@ -165,8 +182,8 @@
       <c>  <val>0.007</val>  </c>
       <J>  <val>0.0001</val>  </J>
       <C_D0>  <val>0.010</val>  </C_D0>
-      <K_col>  <val>26</val>  </K_col>
-      <Theta_col_0>  <val>-3.0</val>  </Theta_col_0>
+      <K_col>  <val>30</val>  </K_col>
+      <Theta_col_0>  <val>10.0</val>  </Theta_col_0>
       <posLH>
         <vect3>  <x>-1.1843128204345703</x>  <y>-0.043313351273536686</y>  <z>0.019200000166893008</z>  </vect3>
       </posLH>
@@ -228,8 +245,8 @@
       <mainrotor_idle_deformation>  <val>6</val>  </mainrotor_idle_deformation>
       <mainrotor_running_deformation>  <val>0.02</val>  </mainrotor_running_deformation>
       <landing_gear_or_skids_deflection_stiffness>  <val>75</val>  </landing_gear_or_skids_deflection_stiffness>
-	  <debug_force_arrow_scale>  <val>0.1</val>  </debug_force_arrow_scale>
-	  <debug_torque_arrow_scale>  <val>1.0</val>  </debug_torque_arrow_scale>
+	  <debug_force_arrow_scale>  <val>0.04</val>  </debug_force_arrow_scale>
+	  <debug_torque_arrow_scale>  <val>0.4</val>  </debug_torque_arrow_scale>
     </visual_effects>
   </helicopter>
 </stru_transmitter_and_helicopter>
