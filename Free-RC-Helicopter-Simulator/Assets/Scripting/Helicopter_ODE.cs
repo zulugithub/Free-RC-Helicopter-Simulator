@@ -395,11 +395,13 @@ namespace Helisimulator
         private double dflapping_b_s_mr_LR__int_dt = 0;
         private double dflapping_a_s_tr_LR__int_dt = 0;
         private double dflapping_b_s_tr_LR__int_dt = 0;
-        float flapping_torque_x_mr_LR; // [Nm] around x axis  -- flapping_b_s_L
-        float flapping_torque_z_mr_LR; // [Nm] around z axis  -- flapping_a_s_L
-        float flapping_torque_x_tr_LR; // [Nm] around x axis  -- flapping_b_s_L
-        float flapping_torque_z_tr_LR; // [Nm] around z axis  -- flapping_a_s_L
+        //float flapping_torque_x_mr_LR; // [Nm] around x axis  -- flapping_b_s_L
+        //float flapping_torque_z_mr_LR; // [Nm] around z axis  -- flapping_a_s_L
+        //float flapping_torque_x_tr_LR; // [Nm] around x axis  -- flapping_b_s_L
+        //float flapping_torque_z_tr_LR; // [Nm] around z axis  -- flapping_a_s_L
         float debug_tau_mr; // mainrotor flapping time constant
+
+        private Quaternion q_DO = new Quaternion(0, 0, 0, 1);  // unity: x, y, z, w --> [0], [1], [2], [3]
 
 
 
@@ -439,6 +441,14 @@ namespace Helisimulator
         private double servo_col_tr_damped;  // [-1...1] damping of tailrotor collective movement - Yaw
         private double servo_lat_tr_damped;  // [-1...1] damping of tailrotor lateral movement 
         private double servo_lon_tr_damped;  // [-1...1] damping of tailrotor longitudial movement 
+
+        private double q0_DO; // [-] w quaternion orientation real - rotor-disc
+        private double q1_DO; // [-] x quaternion orientation imag i - rotor-disc
+        private double q2_DO; // [-] y quaternion orientation imag j - rotor-disc
+        private double q3_DO; // [-] z quaternion orientation imag k - rotor-disc
+        private double wx_DO_L; // [rad/sec] local rotational velocity vector x   around longitudial x-axis  - rotor-disc
+        private double wy_DO_L; // [rad/sec] local rotational velocity vector y   around vertical y-axis   - rotor-disc
+        private double wz_DO_L; // [rad/sec] local rotational velocity vector z   around lateral z-axis  - rotor-disc
         // ##################################################################################
 
 
@@ -527,7 +537,7 @@ namespace Helisimulator
 
 
         // ##################################################################################
-        // rotating unblance of mainrotor during startuo
+        // rotating unbalance of mainrotor during startuo
         // ##################################################################################
         private float rotating_unbalance; // [N]
         private double omega_mr_old; // [rad/sec]
@@ -536,7 +546,7 @@ namespace Helisimulator
 
 
         // ##################################################################################
-        // rotating unblance of mainrotor during startuo
+        // rotating unbalance of mainrotor during startuo
         // ##################################################################################
         private float ground_effect_mainrotor_hub_distance_to_ground; // [m]
         private float ground_effect_tailrotor_hub_distance_to_ground; // [m]
@@ -591,9 +601,9 @@ namespace Helisimulator
         public Helicopter_ODE()
         {
             // state variables
-            x_states = new double[31]; // ODE state variables
-            x_states_old = new double[31]; // for NaN workaround, TODO better
-            Init(31); // allocates memory for Helicopter_Integrator variables
+            x_states = new double[38]; // ODE state variables
+            x_states_old = new double[38]; // for NaN workaround, TODO better
+            Init(38); // allocates memory for Helicopter_Integrator variables
 
             par_temp.transmitter_and_helicopter.Update_Calculated_Parameter();
             par.transmitter_and_helicopter.Update_Calculated_Parameter();
@@ -701,6 +711,45 @@ namespace Helisimulator
             forcesO = Vector3.zero; // [N]
             torquesLH = Vector3.zero; // [Nm]
 
+            DELTA_x_roll__int = 0;   // [rad] flybareless error value integral
+            DELTA_y_yaw__int = 0;    // [rad] gyro error value integral
+            DELTA_z_pitch__int = 0;  // [rad] flybareless error value integral
+
+            dflapping_a_s_mr_LR__int_dt = 0;   // [rad/sec] mainrotor pitch flapping velocity a_s (longitudial direction)
+            dflapping_b_s_mr_LR__int_dt = 0;   // [rad/sec] mainrotor roll flapping velocity b_s (lateral direction)
+
+            dflapping_a_s_tr_LR__int_dt = 0;   // [rad/sec] tailrotor pitch flapping velocity a_s (longitudial direction)
+            dflapping_b_s_tr_LR__int_dt = 0;   // [rad/sec] tailrotor roll flapping velocity b_s (lateral direction)
+
+            force_fuselageLH = Vector3.zero; // [N]
+            force_fuselageO = Vector3.zero; // [N]
+            torque_contactO = Vector3.zero; // [Nm]
+            torque_contactLH = Vector3.zero; // [Nm]
+            torque_contactLH_sum = Vector3.zero; // [Nm]
+            torque_frictionO = Vector3.zero; // [Nm]
+            torque_frictionLH = Vector3.zero; // [Nm]
+            torque_frictionLH_sum = Vector3.zero; // [Nm]
+            velo_windLH = Vector3.zero; // [m/sec]
+            velo_windO = Vector3.zero; // [m/sec]
+            dDELTA_x_roll__int_dt = 0;    // [rad/sec] flybareless error value integral
+            dDELTA_y_yaw__int_dt = 0;     // [rad/sec] gyro error value integral
+            dDELTA_z_pitch__int_dt = 0;   // [rad/sec] flybareless error value integral
+            DELTA_x_roll__diff = 0;    // [rad/sec] flybareless error value differential
+            DELTA_y_yaw__diff = 0;     // [rad/sec] gyro error value differential
+            DELTA_z_pitch__diff = 0;   // [rad/sec] flybareless error value differential
+            DELTA_x_roll__diff_old = 0;    // [rad/sec] flybareless error value differential _old
+            DELTA_y_yaw__diff_old = 0;     // [rad/sec] gyro error value differential _old
+            DELTA_z_pitch__diff_old = 0;   // [rad/sec] flybareless error value differential _old
+            dservo_col_mr_damped_dt = 0;  // [-1...1] damping of mainrotor collective movement - Collective
+            dservo_lat_mr_damped_dt = 0;  // [-1...1] damping of mainrotor lateral movement - Roll
+            dservo_lon_mr_damped_dt = 0;  // [-1...1] damping of mainrotor longitudial movement - Pitch
+            dservo_col_tr_damped_dt = 0;  // [-1...1] damping of tailrotor collective movement - Yaw
+            dservo_lat_tr_damped_dt = 0;  // [-1...1] damping of tailrotor collective movement 
+            dservo_lon_tr_damped_dt = 0;  // [-1...1] damping of tailrotor collective movement 
+
+            Helicopter_Rotor_Physics.Rotor_Reset_Variables();
+
+
             if (flag_motor_enabled == true)
             {
                 Wind_Model(out velo_windLH, out velo_windO);
@@ -752,8 +801,6 @@ namespace Helisimulator
             ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
             x_states[17] = omega_mo; // [rad/sec] brushless motor rotational speed
             x_states[18] = Omega_mo; // [rad] brushless motor rotational angle
             x_states[19] = omega_mr; // [rad/sec] mainrotor motor rotational speed
@@ -774,6 +821,19 @@ namespace Helisimulator
             x_states[28] = 0;  // [rad] damping of tailrotor collective movement - Yaw
             x_states[29] = 0;  // [rad] damping of tailrotor lateral movement 
             x_states[30] = 0;  // [rad] damping of tailrotor longitudial movement
+
+            // rotor disc
+            Quaternion q__DO = new Quaternion(0, 0, 0, 1);  // unity: x, y, z, w --> [0], [1], [2], [3]
+
+            x_states[31] = q__DO.w; // [-] w quaternion orientation real - rotor disc
+            x_states[32] = q__DO.x; // [-] x quaternion orientation imag i - rotor disc
+            x_states[33] = q__DO.y; // [-] y quaternion orientation imag j - rotor disc
+            x_states[34] = q__DO.z; // [-] z quaternion orientation imag k - rotor disc
+            x_states[35] = 0; // [rad/sec] local rotational velocity vector x   around longitudial x-axis - rotor disc
+            x_states[36] = omega_mr*0.0000000000000000000; // [rad/sec] local rotational velocity vector y   around vertical y-axis - rotor disc  
+            x_states[37] = 0; // [rad/sec] local rotational velocity vector z   around lateral z-axis - rotor disc
+
+
 
         }
         #endregion
@@ -1194,8 +1254,21 @@ namespace Helisimulator
                 dflapping_b_s_mr_LR__int_dt *= reduce_flapping_effect_at_low_rpm;  // TODO better?
             }
 
-            forcesO += force_at_heli_CH_O; // [N]
-            torquesLH += torque_at_heli_CH_LH; // [Nm]
+            if(Math.Abs(omega_mr) > 0.1)
+            { 
+                forcesO += force_at_heli_CH_O; // [N]
+                torquesLH += torque_at_heli_CH_LH; // [Nm]
+            }
+            else
+            {
+                thrust_mr = 0;
+                torque_mr = 0;
+                v_i_mr = 0;
+                dflapping_a_s_mr_LR__int_dt = 0;
+                dflapping_b_s_mr_LR__int_dt = 0;
+                flapping_a_s_mr_LR = 0;
+                flapping_b_s_mr_LR = 0;
+            }
 
             // debug
             ODEDebug.mainrotor_v_i = (float)v_i_mr; // [m/s]
@@ -1302,8 +1375,21 @@ namespace Helisimulator
                 dflapping_b_s_tr_LR__int_dt *= reduce_flapping_effect_at_low_rpm;  // TODO
             }
 
-            forcesO += force_at_heli_CH_O; // [N]
-            torquesLH += torque_at_heli_CH_LH; // [Nm]
+            if (Math.Abs(omega_tr) > 0.1)
+            {
+                forcesO += force_at_heli_CH_O; // [N]
+                torquesLH += torque_at_heli_CH_LH; // [Nm]
+            }
+            else
+            {
+                thrust_tr = 0;
+                torque_tr = 0;
+                v_i_tr = 0;
+                dflapping_a_s_tr_LR__int_dt = 0;
+                dflapping_b_s_tr_LR__int_dt = 0;
+                flapping_a_s_tr_LR = 0;
+                flapping_b_s_tr_LR = 0;
+            }
 
             // debug
             ODEDebug.tailrotor_v_i = (float)v_i_tr; // [m/s]
@@ -1383,8 +1469,17 @@ namespace Helisimulator
                 out ODEDebug.flap_up_pr
                 );
 
-            forcesO += force_at_heli_CH_O; // [N]
-            torquesLH += torque_at_heli_CH_LH; // [Nm]
+            if (Math.Abs(omega_pr) > 0.1)
+            {
+                forcesO += force_at_heli_CH_O; // [N]
+                torquesLH += torque_at_heli_CH_LH; // [Nm]
+            }
+            else
+            {
+                thrust_pr = 0;
+                torque_pr = 0;
+                v_i_pr = 0;
+            }
 
             // debug
             ODEDebug.propeller_v_i = (float)v_i_pr; // [m/s]
@@ -1507,10 +1602,10 @@ namespace Helisimulator
            
 
             // ##################################################################################
-            // test Inertial counter torque http://liu.diva-portal.org/smash/get/diva2:821251/FULLTEXT01.pdf 4.4.4
+            // test inertial counter torque http://liu.diva-portal.org/smash/get/diva2:821251/FULLTEXT01.pdf 4.4.4
             // ##################################################################################
             //    
-            if(!flag_freewheeling)
+            if(!flag_freewheeling && (Math.Abs(omega_pr) > 0.1))
             {
                 double domega_tr_dt = domega_mr_dt / par.transmitter_and_helicopter.helicopter.transmission.n_mr2tr.val;
                 double domega_pr_dt = domega_mr_dt / par.transmitter_and_helicopter.helicopter.transmission.n_mr2pr.val;
@@ -1638,6 +1733,7 @@ namespace Helisimulator
             double dtime)                               // [IN] timestep    
         {
 
+
             // ##################################################################################
             // thread safe setting of parameter between threads (if a new helicopter oder new parameter sets are loaded in the main thread)
             // ##################################################################################
@@ -1658,6 +1754,7 @@ namespace Helisimulator
                 flag_load_new_parameter_in_ODE_thread = false;
             }
             // ##################################################################################    
+
 
 
             // ##################################################################################
@@ -1747,6 +1844,14 @@ namespace Helisimulator
             servo_col_tr_damped = x_states[28];  // [-1...1] damping of tailrotor collective movement - Yaw
             servo_lat_tr_damped = x_states[29];  // [-1...1] damping of tailrotor lateral movement 
             servo_lon_tr_damped = x_states[30];  // [-1...1] damping of tailrotor longitudial movement
+
+            q0_DO = x_states[31]; // [-] w quaternion orientation real - rotor disc
+            q1_DO = x_states[32]; // [-] x quaternion orientation imag i - rotor disc
+            q2_DO = x_states[33]; // [-] y quaternion orientation imag j - rotor disc
+            q3_DO = x_states[34]; // [-] z quaternion orientation imag k - rotor disc
+            wx_DO_L = x_states[35]; // [rad/sec] local rotational velocity vector x   around longitudial x-axis - rotor disc
+            wy_DO_L = x_states[36]; // [rad/sec] local rotational velocity vector y   around vertical y-axis - rotor disc  
+            wz_DO_L = x_states[37]; // [rad/sec] local rotational velocity vector z   around lateral z-axis - rotor disc
             // ##################################################################################
 
 
@@ -1780,6 +1885,18 @@ namespace Helisimulator
             omegaLH.x = (float)wx_LH; // [rad/sec] TODO double
             omegaLH.y = (float)wy_LH; // [rad/sec]
             omegaLH.z = (float)wz_LH; // [rad/sec]
+
+            q_DO.w = (float)q0_DO; // unity: x, y, z, w --> [0], [1], [2], [3]
+            q_DO.x = (float)q1_DO; // TODO double
+            q_DO.y = (float)q2_DO;
+            q_DO.z = (float)q3_DO;
+
+            // because RungeKutta4 doesn't preserve quaternion-norm normalize quaternion: from mathematical point of view not a clean solution  
+            q_DO.Normalize();
+            q0_DO = q_DO.w;
+            q1_DO = q_DO.x;
+            q2_DO = q_DO.y;
+            q3_DO = q_DO.z;
             // ##################################################################################
 
 
@@ -1967,29 +2084,23 @@ namespace Helisimulator
 
 
 
-
             // ##################################################################################
             // turn off mainrotor flapping and flybarelles control when low rpm ( after landing )
             // ##################################################################################
-            //omega_mr = omega_mo / par.transmitter_and_helicopter.helicopter.transmission.n_mo2mr.val; // [rad/sec]
-            reduce_flapping_effect_at_low_rpm = Helper.Step((float)Math.Abs(omega_mr), 100.00000000000f * Helper.Rpm_to_RadPerSec, 0, 450.00000000000f * Helper.Rpm_to_RadPerSec, 1);
+            float turn_off_flapping_below_this_rotational_speed = par.transmitter_and_helicopter.helicopter.governor.target_rpm_1.val * 0.7f * Helper.Rpm_to_RadPerSec;
+            float turn_off_flapping_completely_rotational_speed = par.transmitter_and_helicopter.helicopter.governor.target_rpm_1.val * 0.1f * Helper.Rpm_to_RadPerSec;
 
-            //float reduce_flapping_effect_at_low_rpm = (float)System.Math.Tanh(omega_mr * 5 / 400 * Helper.Rpm_to_RadPerSec);
+            reduce_flapping_effect_at_low_rpm = Helper.Step((float)Math.Abs(omega_mr), turn_off_flapping_completely_rotational_speed, 0, turn_off_flapping_below_this_rotational_speed, 1);
 
-            //flapping_a_s_L *= reduce_flapping_effect_at_low_rpm;
-            //flapping_b_s_L *= reduce_flapping_effect_at_low_rpm;
-
-            const float limit_omega_mr = 450.00000000000f * Helper.Rpm_to_RadPerSec;
             if (integrator_function_call_number == 0)  // TODO
             {
-                if (Math.Abs(omega_mr) < limit_omega_mr) // TODO
+                if (Math.Abs(omega_mr) < turn_off_flapping_below_this_rotational_speed) // TODO
                 {
                     //delta_lat_mr *= reduce_flapping_effect_at_low_rpm;
                     //delta_lon_mr *= reduce_flapping_effect_at_low_rpm;
 
-                    float factor = Helper.Step(Mathf.Abs((float)omega_mr), 100 * Helper.Rpm_to_RadPerSec, 0.001f, limit_omega_mr, 0);
+                    float factor = Helper.Step(Mathf.Abs((float)omega_mr), turn_off_flapping_completely_rotational_speed, 0.003f, turn_off_flapping_below_this_rotational_speed, 0);
 
-                    //const float factor1 = 0.001f; 
                     float factor1 = factor;  // TODO
                     // mainrotor flapping dynamics  - reduce state value to zero
                     x_states[13] -= Math.Sign(x_states[13]) * factor1; // [rad] mainrotor pitch flapping angle a_s (longitudial direction)  // TODO
@@ -2011,6 +2122,17 @@ namespace Helisimulator
                     //x_states[29] -= Math.Sign(x_states[29]) * factor2;  // [rad] damping of tailrotor lateral movement - Yaw
                     //x_states[30] -= Math.Sign(x_states[30]) * factor2;  // [rad] damping of tailrotor longitudial movement - Yaw
 
+                }
+                if (Math.Abs(omega_mr) < (60f * Helper.Rpm_to_RadPerSec) )
+                {
+                    x_states[13] = 0;
+                    x_states[14] = 0;
+                    x_states[15] = 0;
+                    x_states[16] = 0;
+
+                    x_states[22] = 0;
+                    x_states[23] = 0;
+                    x_states[24] = 0;
                 }
             }
             // ##################################################################################
@@ -2102,7 +2224,7 @@ namespace Helisimulator
 
 
             // ##################################################################################
-            // after resetting the simulation the user input it turned off for 1 sec and is fully active after 2sec
+            // after resetting the simulation the user input is turned off for 1 sec and is fully active after 2sec
             // ##################################################################################            
             if (time < Mathf.Abs(par.simulation.gameplay.delay_after_reset.val))
             {
@@ -2715,7 +2837,7 @@ namespace Helisimulator
                             out Vector3 wing_forceO,
                             out Vector3 wing_torque_wrp_cgLH,
                             out Vector3 debug_wing_positionO,  // left handed system
-                            out Vector3 debug_wing_forceO);  // left handed system
+                            out Vector3 debug_wing_forceO);  // left handed systemf
 
                 forcesO += wing_forceO; // [N]
                 torquesLH += wing_torque_wrp_cgLH; // [Nm]
@@ -2744,12 +2866,13 @@ namespace Helisimulator
             // ##################################################################################
             // rotating unbalance of mainrotor blades during startup
             // ##################################################################################
-            const float unbalance_turn_off_rpm = 200f; // [rpm] turn off effect, if shaft rotational speed rises above this value
+            float unbalance_turn_off_rpm = par.transmitter_and_helicopter.helicopter.tuning.startup_rotating_unbalance_turn_off_rpm.val; // [rpm]  turn off effect, if shaft rotational speed rises above this value
+            float rotating_unbalance_mass = par.transmitter_and_helicopter.helicopter.tuning.startup_rotating_unbalance_mass.val; // [kg] unbalance mass (at r=1.0m)
 
             if (integrator_function_call_number == 0)
             {
-                float rotating_unbalance_mass = (10 + par.transmitter_and_helicopter.helicopter.mass_total.val) / 50.00000000f; // [kg]   50: just some scaling value
-                rotating_unbalance = rotating_unbalance_mass * 0.1f * ((float)omega_mr * (float)omega_mr); // [N] rotating unbalance   F_U = m * e * omega² = [kg] * [m] * [rad/sec]² = [N]
+                //float rotating_unbalance_mass = (1 + par.transmitter_and_helicopter.helicopter.mass_total.val) / 25.00000000f; // [kg]   25: just some scaling value
+                rotating_unbalance = rotating_unbalance_mass * 1.0f * ((float)omega_mr * (float)omega_mr); // [N] rotating unbalance   F_U = m * e * omega² = [kg] * [m] * [rad/sec]² = [N]
 
                 if (Math.Abs(omega_mr) < omega_mr_old) // if velocity is falling, then reduce the effect (unbalance only at rising velocity)
                     rotating_unbalance *= 0.1f;
@@ -2757,7 +2880,7 @@ namespace Helisimulator
             }
             rotating_unbalance *= Helper.Step(Math.Abs((float)omega_mr), unbalance_turn_off_rpm * 0.9f * Helper.Rpm_to_RadPerSec, 1, unbalance_turn_off_rpm * Helper.Rpm_to_RadPerSec, 0); // [N] turn off effect if speed rises above xxx rpm
 
-            if (Math.Abs((float)omega_mr) < unbalance_turn_off_rpm * Helper.Rpm_to_RadPerSec)
+            if (Math.Abs((float)omega_mr) < unbalance_turn_off_rpm * Helper.Rpm_to_RadPerSec && Math.Abs((float)omega_mr) > 0.1)
             {
                 Vector3 force_unbalance_LR = new Vector3(Mathf.Cos((float)Omega_mr), 0, Mathf.Sin((float)Omega_mr)) * rotating_unbalance; // [N] rotating unbalance direction, expressed in rotor's local coorindate system
                 Vector3 force_unbalance_LH = Helper.A_RL_S123(par.transmitter_and_helicopter.helicopter.mainrotor.oriLH.vect3 * Helper.Deg_to_Rad, force_unbalance_LR); // [N] rotating unbalance direction, expressed in helicopters's local coorindate system
@@ -2846,7 +2969,7 @@ namespace Helisimulator
 
 
 
-
+            
 
 
 
@@ -2925,6 +3048,26 @@ namespace Helisimulator
             dxdt[28] = dservo_col_tr_damped_dt;  // [-1...1] damping of tailrotor collective movement - Yaw
             dxdt[29] = dservo_lat_tr_damped_dt;  // [-1...1] damping of tailrotor lateral movement
             dxdt[30] = dservo_lon_tr_damped_dt;  // [-1...1] damping of tailrotor longitudial movement
+
+            // rotor disc
+            dxdt[31] = (-q1_DO * wx_DO_L - q2_DO * wy_DO_L - q3_DO * wz_DO_L) / 2.0; // w https://pdfs.semanticscholar.org/8031/8e902df9ae42dd59ee5c9ebaf210920a7f11.pdf (Page 29, Eq. 4.38)
+            dxdt[32] = (+q0_DO * wx_DO_L + q2_DO * wz_DO_L - q3_DO * wy_DO_L) / 2.0; // x
+            dxdt[33] = (+q0_DO * wy_DO_L - q1_DO * wz_DO_L + q3_DO * wx_DO_L) / 2.0; // y
+            dxdt[34] = (+q0_DO * wz_DO_L + q1_DO * wy_DO_L - q2_DO * wx_DO_L) / 2.0; // z
+            Jx = par.transmitter_and_helicopter.helicopter.flapping.I_flapping.val;
+            Jy = par.transmitter_and_helicopter.helicopter.mainrotor.J.val;
+            Jz = par.transmitter_and_helicopter.helicopter.flapping.I_flapping.val;
+            wLx = wx_DO_L;
+            wLy = wy_DO_L;
+            wLz = wz_DO_L;
+
+            MLx = 0;
+            MLy = 0;
+            MLz = 0;
+
+            dxdt[35] = (MLx + wLy * wLz * (Jy - Jz)) / Jx;
+            dxdt[36] = (MLy - wLx * wLz * (Jx - Jz)) / Jy;
+            dxdt[37] = (MLz + wLx * wLy * (Jx - Jy)) / Jz;
             // ##################################################################################
 
 
@@ -2961,7 +3104,7 @@ namespace Helisimulator
                 ODEDebug.debug_text += " MAINROTOR:  omega_mr=" + Helper.FormatNumber(omega_mr * Helper.RadPerSec_to_Rpm, "####") + "rpm" + "   thrust_mr=" + Helper.FormatNumber(thrust_mr, "###.00") + "N" + "   torque_mr=" + Helper.FormatNumber(torque_mr, "###.00") + "Nm" + "   Theta_col_mr=" + Helper.FormatNumber(Theta_col_mr * Helper.Rad_to_Deg, "##.00") + "deg   v_i_mr=" + Helper.FormatNumber(v_i_mr, "##.00") + "m/s" + "     tau_mr=" + Helper.FormatNumber(debug_tau_mr, "0.000") + "s" + "     flag_freewheeling=" + (flag_freewheeling ? "YES" : "NO") + "\n";
                 ODEDebug.debug_text += " TAILROTOR:  omega_tr=" + Helper.FormatNumber(omega_tr * Helper.RadPerSec_to_Rpm, "####") + "rpm" + "   thrust_tr=" + Helper.FormatNumber(thrust_tr, "###.00") + "N" + "   torque_tr=" + Helper.FormatNumber(torque_tr, "###.00") + "Nm" + "   Theta_col_tr=" + Helper.FormatNumber(Theta_col_tr * Helper.Rad_to_Deg, "##.00") + "deg" + "   delta_col_tr=" + Helper.FormatNumber(delta_col_tr, "##.00") + "   v_i_tr=" + Helper.FormatNumber(v_i_tr, "##.00") + "m/s" + "\n";
                 ODEDebug.debug_text += " PROPELLER:  omega_pr=" + Helper.FormatNumber(omega_pr * Helper.RadPerSec_to_Rpm, "####") + "rpm" + "   thrust_pr=" + Helper.FormatNumber(thrust_pr, "###.00") + "N" + "   torque_pr=" + Helper.FormatNumber(torque_pr, "###.00") + "Nm" + "   delta_col_pr=" + Helper.FormatNumber(delta_col_pr, "##.00") + "   v_i_pr=" + Helper.FormatNumber(v_i_pr, "##.00") + "m/s" + "\n";
-                ODEDebug.debug_text += " FLAPPING:   flapping_a_s_L= " + Helper.FormatNumber(flapping_a_s_mr_LR * 180f / Mathf.PI, "0.00") + "deg     flapping_b_s_L=" + Helper.FormatNumber(flapping_b_s_mr_LR * 180f / Mathf.PI, "0.00") + "deg" + "    flapping_torque_z_L=" + Helper.FormatNumber(flapping_torque_z_mr_LR, "0.00") + "Nm    flapping_torque_x_L = " + Helper.FormatNumber(flapping_torque_x_mr_LR, "0.00") + "Nm   " + "\n";
+                ODEDebug.debug_text += " FLAPPING:   flapping_a_s_L= " + Helper.FormatNumber(flapping_a_s_mr_LR * 180f / Mathf.PI, "0.00") + "deg     flapping_b_s_L=" + Helper.FormatNumber(flapping_b_s_mr_LR * 180f / Mathf.PI, "0.00") + "deg" + "\n";
                 ODEDebug.debug_text += " TORQUES:    torquesLH.x = " + Helper.FormatNumber(torquesLH.x, "0.000") + "Nm     torquesLH.y=" + Helper.FormatNumber(torquesLH.y, "0.000") + "Nm     torquesLH.z=" + Helper.FormatNumber(torquesLH.z, "0.000") + "Nm   " + "\n";
                 ODEDebug.debug_text += " GOVERNOR:   Lipo = " + Helper.FormatNumber(par.transmitter_and_helicopter.helicopter.accumulator.voltage.val, "0.00") + "V    V_s_out = " + Helper.FormatNumber(V_s_out, "0.00") + "Volt " +
                                         "   omega_mr=" + Helper.FormatNumber(omega_mr * Helper.RadPerSec_to_Rpm, "####.0") + "rpm" +

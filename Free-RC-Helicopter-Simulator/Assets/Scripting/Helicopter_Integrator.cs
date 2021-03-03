@@ -74,12 +74,13 @@ abstract public class Helicopter_Integrator  {
 	/// </summary>
 	/// <param name="x">The values being integrated.</param>
 	/// <param name="h">The time step.</param>
-	public void EulerStep(double [] x, double[] u, double t, double h) {
+	public bool EulerStep(double [] x, double[] u, ref double t, double h) {
         int integrator_function_call_number = 0;
         ODE(integrator_function_call_number++, x, u, k1, t, h);
 		for(int i=0;i<nEquations;i++) {
 			x[i] += k1[i]*h;
 		}
+		return false;
 	}
 
 	/// <summary>
@@ -154,18 +155,24 @@ abstract public class Helicopter_Integrator  {
 		servo_lat_tr_damped = x_states[29];  // [-1...1] damping of tailrotor lateral movement 
 		servo_lon_tr_damped = x_states[30];  // [-1...1] damping of tailrotor longitudial movement*/
 
-		double[] mylimits = {10000,10000,10000, 1.1, 1.1, 1.1, 1.1, 100,100,100, 1000,1000,1000,  1,1,1,1,  100000,10000000,10000,1000000,  1000, 100,100,100,  2,2,2,2,2,2 };
+		double[] mylimits = {10000,10000,10000, 1.01, 1.01, 1.01, 1.01, 100,100,100, 1000,1000,1000,  1,1,1,1,  100000,10000000,10000,1000000,  1000, 100,100,100,  2,2,2,2,2,2,   1.01, 1.01, 1.01, 1.01, 1000, 1000, 1000};
 
 		for (int i = 0; i < nEquations; i++)
 		{
 			if(Double.IsNaN(x[i]) || Double.IsInfinity(x[i]))
 			{
+#if UNITY_EDITOR
+				UnityEngine.Debug.Log("ERROR NAN i:" + i.ToString() + "  x:" + x[i].ToString());
+#endif
 				return true;
 			}
 
 
 			if (Math.Abs(x[i]) > mylimits[i])
 			{
+#if UNITY_EDITOR
+				UnityEngine.Debug.Log("ERROR RANGE i:" + i.ToString() + "  x:" + x[i].ToString());
+#endif
 				return true;
 			}
 

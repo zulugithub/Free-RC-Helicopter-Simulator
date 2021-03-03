@@ -101,7 +101,7 @@ Material:
     - _Cutoff: 0.669
     - _DetailNormalMapScale: 1
     - _DstBlend: 10
-    - _Exposure: 0.6
+    - _Exposure: 0.5
     - _FlippingHorizontaly: 1
     - _GlossMapScale: 0
     - _Glossiness: 1
@@ -126,5 +126,5 @@ Material:
     - _RotationAxis: {r: 0, g: 1, b: 0, a: 1}
     - _ShadowColor: {r: 0.4433962, g: 0.4433962, b: 0.4433962, a: 1}
     - _Tint: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
-    - _TintColor: {r: 0.9, g: 0.95, b: 1.1, a: 0}
+    - _TintColor: {r: 1, g: 1, b: 1, a: 0}
   m_BuildTextureStacks: []

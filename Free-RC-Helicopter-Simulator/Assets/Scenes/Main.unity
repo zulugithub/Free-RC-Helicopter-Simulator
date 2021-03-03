@@ -2164,7 +2164,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &165617648
 Transform:
   m_ObjectHideFlags: 0
@@ -11185,7 +11185,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &539869546
 Transform:
   m_ObjectHideFlags: 0
@@ -24614,6 +24614,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bell61_Fuselage
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e3ad006c9decbe34d80fbd845256ac54,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e3ad006c9decbe34d80fbd845256ac54, type: 3}
 --- !u!4 &744810118 stripped
@@ -37310,6 +37315,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: TRex450L_Dominator_6S_Fuselage
       objectReference: {fileID: 0}
+    - target: {fileID: 1755013884865622316, guid: 03da21f1d94961d479361d16be11d347,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: d251acbc3ce198543a6d07e0269688de, type: 2}
     - target: {fileID: 2482514934139525818, guid: 03da21f1d94961d479361d16be11d347,
         type: 3}
       propertyPath: m_Name
@@ -37378,7 +37388,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 83e96d10774894643997b98828da3aa2,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7071068
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 83e96d10774894643997b98828da3aa2,
         type: 3}
@@ -37388,7 +37398,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 83e96d10774894643997b98828da3aa2,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.7071068
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 83e96d10774894643997b98828da3aa2,
         type: 3}
@@ -37403,7 +37413,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 83e96d10774894643997b98828da3aa2,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 90
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 83e96d10774894643997b98828da3aa2,
         type: 3}
@@ -37419,6 +37429,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Bell61_Tailrotor
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 83e96d10774894643997b98828da3aa2,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1903261676734575894, guid: 83e96d10774894643997b98828da3aa2,
+        type: 3}
+      propertyPath: m_Name
+      value: Canopy_A
       objectReference: {fileID: 0}
     - target: {fileID: 8805909025382260280, guid: 83e96d10774894643997b98828da3aa2,
         type: 3}
@@ -44092,7 +44112,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Links
+  m_Text: 'WWW-Links:'
 --- !u!222 &1473840090
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -57056,7 +57076,7 @@ Transform:
   m_GameObject: {fileID: 1634945906}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: -1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2006761017}
   m_Father: {fileID: 539869546}
@@ -57666,6 +57686,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Rotorblades
+      objectReference: {fileID: 0}
+    - target: {fileID: 8720081407463977542, guid: c858fba701ef35243872b6380151241b,
+        type: 3}
+      propertyPath: m_Name
+      value: Canopy_A
+      objectReference: {fileID: 0}
+    - target: {fileID: 8720081407463977542, guid: c858fba701ef35243872b6380151241b,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c858fba701ef35243872b6380151241b, type: 3}
@@ -66422,7 +66452,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: e8bf62186e541aa49823353eb5fc52dc,
         type: 3}
       propertyPath: m_RootOrder
-      value: 8
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e8bf62186e541aa49823353eb5fc52dc,
         type: 3}
@@ -66767,7 +66797,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: aeb31850810f65d4ea5f6c84d97e4e30,
         type: 3}
       propertyPath: m_RootOrder
-      value: 9
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aeb31850810f65d4ea5f6c84d97e4e30,
         type: 3}

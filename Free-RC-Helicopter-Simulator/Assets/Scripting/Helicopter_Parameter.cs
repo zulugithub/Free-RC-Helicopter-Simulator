@@ -1763,21 +1763,123 @@ namespace Parameter
     {
         public stru_float vortex_ring_state_v_horizontal { get; set; } // [m/sec] 
         public stru_float vortex_ring_state_v_vertical { get; set; } // [m/sec] 
+        public stru_float vortex_ring_state_force_reduction_factor { get; set; } // [-] 
+        public stru_float vortex_ring_state_torque_reduction_factor { get; set; } // [-] 
+        public stru_float vortex_ring_state_stength_rising_speed_factor { get; set; } // [-] 
+        
+        public stru_float turbulence_rotational_velocity_limit { get; set; } // [rad/sec] 
+        public stru_float turbulence_translational_velocity_limit { get; set; } // [m/sec] 
+        public stru_float turbulence_frequency { get; set; } // [-] 
+        public stru_Vector3 turbulence_force_strength { get; set; } // [N] 
+        public stru_Vector3 turbulence_torque_strength { get; set; } // [Nm] 
+        public stru_float startup_rotating_unbalance_mass { get; set; } // [kg] 
+        public stru_float startup_rotating_unbalance_turn_off_rpm { get; set; } // [rpm] 
+
+
 
         public stru_tuning()
         {
             vortex_ring_state_v_horizontal = new stru_float();
             vortex_ring_state_v_vertical = new stru_float();
+            vortex_ring_state_force_reduction_factor = new stru_float();
+            vortex_ring_state_torque_reduction_factor = new stru_float();
+            vortex_ring_state_stength_rising_speed_factor = new stru_float();
+            turbulence_rotational_velocity_limit = new stru_float();
+            turbulence_translational_velocity_limit = new stru_float();
+            turbulence_frequency = new stru_float();
+            turbulence_force_strength = new stru_Vector3();
+            turbulence_torque_strength = new stru_Vector3();
+            startup_rotating_unbalance_mass = new stru_float();
+            startup_rotating_unbalance_turn_off_rpm = new stru_float();
 
-            vortex_ring_state_v_horizontal.val = 5f;
-            vortex_ring_state_v_horizontal.hint = "Horizontal velocity where vortex-ring-state grows at most.";
+
+            vortex_ring_state_v_horizontal.val = 2f;
+            vortex_ring_state_v_horizontal.min = 0.0f;
+            vortex_ring_state_v_horizontal.max = 20f;
+            vortex_ring_state_v_horizontal.hint = "Local horizontal velocity where vortex-ring-state grows at most.";
             vortex_ring_state_v_horizontal.comment = "";
             vortex_ring_state_v_horizontal.unit = "m/sec";
 
-            vortex_ring_state_v_vertical.val = -7f;
-            vortex_ring_state_v_vertical.hint = "Vertical velocity where vortex-ring-state grows at most.";
+            vortex_ring_state_v_vertical.val = -3.0f;
+            vortex_ring_state_v_vertical.min = -20.0f;
+            vortex_ring_state_v_vertical.max = 0f;
+            vortex_ring_state_v_vertical.hint = "Local vertical velocity where vortex-ring-state grows at most.";
             vortex_ring_state_v_vertical.comment = "";
             vortex_ring_state_v_vertical.unit = "m/sec";
+
+            vortex_ring_state_force_reduction_factor.val = 0.45f;
+            vortex_ring_state_force_reduction_factor.min = 0.1f;
+            vortex_ring_state_force_reduction_factor.max = 1.0f;
+            vortex_ring_state_force_reduction_factor.hint = "If vortex fully developed rotor thrust is reduced at this amount (larger value => worse).";
+            vortex_ring_state_force_reduction_factor.comment = "";
+            vortex_ring_state_force_reduction_factor.unit = "-";
+
+            vortex_ring_state_torque_reduction_factor.val = 0.35f;
+            vortex_ring_state_torque_reduction_factor.min = 0.1f;
+            vortex_ring_state_torque_reduction_factor.max = 1f;
+            vortex_ring_state_torque_reduction_factor.hint = "If vortex fully developed rotor thrust is reduced at this amount (larger value => worse).";
+            vortex_ring_state_torque_reduction_factor.comment = "";
+            vortex_ring_state_torque_reduction_factor.unit = "-";
+
+            vortex_ring_state_stength_rising_speed_factor.val = 0.015f;
+            vortex_ring_state_stength_rising_speed_factor.min = 0.1f;
+            vortex_ring_state_stength_rising_speed_factor.max = 1f;
+            vortex_ring_state_stength_rising_speed_factor.hint = "How fast the vortex develops and decays.";
+            vortex_ring_state_stength_rising_speed_factor.comment = "";
+            vortex_ring_state_stength_rising_speed_factor.unit = "-";
+
+
+
+
+            turbulence_rotational_velocity_limit.val = 4f;
+            turbulence_rotational_velocity_limit.min = 0.01f;
+            turbulence_rotational_velocity_limit.max = 20f;
+            turbulence_rotational_velocity_limit.hint = "Rotational velocity below whitch turbulence is increased.";
+            turbulence_rotational_velocity_limit.comment = "";
+            turbulence_rotational_velocity_limit.unit = "rad/s";
+
+            turbulence_translational_velocity_limit.val = 10f;
+            turbulence_translational_velocity_limit.min = 0.01f;
+            turbulence_translational_velocity_limit.max = 20f;
+            turbulence_translational_velocity_limit.hint = "Translational velocity above whitch turbulence is reduced, even if rotation speed is high.";
+            turbulence_translational_velocity_limit.comment = "";
+            turbulence_translational_velocity_limit.unit = "m/s";
+
+            turbulence_frequency.val = 4.0f;
+            turbulence_frequency.min = 0.01f;
+            turbulence_frequency.max = 100f;
+            turbulence_frequency.hint = "Turbulence frequency.";
+            turbulence_frequency.comment = "";
+            turbulence_frequency.unit = "Hz";
+
+            turbulence_force_strength.vect3 = new Vector3 { x = 3f, y = 20f, z = 3f };
+            turbulence_force_strength.hint = ".";
+            turbulence_force_strength.comment = "";
+            turbulence_force_strength.unit = "N";
+
+            turbulence_torque_strength.vect3 = new Vector3 { x = 40f, y = 2f, z = 40f };
+            turbulence_torque_strength.hint = ".";
+            turbulence_torque_strength.comment = "";
+            turbulence_torque_strength.unit = "Nm";
+
+
+
+            startup_rotating_unbalance_mass.val = 0.020f;
+            startup_rotating_unbalance_mass.min = 0.01f;
+            startup_rotating_unbalance_mass.max = 100f;
+            startup_rotating_unbalance_mass.hint = "Startup rotationg unbalance mass (r=0.1m)";
+            startup_rotating_unbalance_mass.comment = "";
+            startup_rotating_unbalance_mass.unit = "kg";
+
+            startup_rotating_unbalance_turn_off_rpm.val = 250.0f;
+            startup_rotating_unbalance_turn_off_rpm.min = 0.01f;
+            startup_rotating_unbalance_turn_off_rpm.max = 1000f;
+            startup_rotating_unbalance_turn_off_rpm.hint = "Over this shaft rotational speed the unbalance dissapears.";
+            startup_rotating_unbalance_turn_off_rpm.comment = "";
+            startup_rotating_unbalance_turn_off_rpm.unit = "rpm";
+
+            
+
         }
 
        
@@ -1927,7 +2029,7 @@ namespace Parameter
             target_rpm_3.comment = "";
             target_rpm_3.unit = "rpm";
 
-            Kp.val = 0.01f;
+            Kp.val = 0.05f;
             Kp.min = 0.01f;
             Kp.max = 10.0f;
             Kp.hint = "Rotational speed controller proportional gain";
@@ -2572,7 +2674,7 @@ namespace Parameter
         public stru_float landing_gear_main_mechanism_tilted_forward { get; set; } // [deg] 
         public stru_float debug_force_arrow_scale { get; set; } // [m/N] 
         public stru_float debug_torque_arrow_scale { get; set; } // [m/N] 
-
+        public stru_bool vortex_ring_visualize { get; set; } // [-] 
 
         public stru_visual_effects()
         {
@@ -2585,6 +2687,7 @@ namespace Parameter
             landing_gear_main_mechanism_tilted_forward = new stru_float();
             debug_force_arrow_scale = new stru_float();
             debug_torque_arrow_scale = new stru_float();
+            vortex_ring_visualize = new stru_bool();
 
             mainrotor_idle_deformation.val = 2.0f;
             mainrotor_idle_deformation.max = 0.00f;
@@ -2648,6 +2751,12 @@ namespace Parameter
             debug_torque_arrow_scale.hint = "Size of the toruqe arrows if debugging is enabled (key d x2).";
             debug_torque_arrow_scale.comment = "";
             debug_torque_arrow_scale.unit = "N/m";
+
+            vortex_ring_visualize.val = false;
+            vortex_ring_visualize.hint = "Show vortex ring as particle cloud around main rotor. (Sikorsky S61 only so far)";
+            vortex_ring_visualize.comment = "";
+            vortex_ring_visualize.unit = "-";
+          
         }
     }
     // ##################################################################################
@@ -3019,6 +3128,7 @@ namespace Parameter
         public stru_float sound_volume { get; set; } // [%]
         public stru_float rotor_sound_recorded_rpm { get; set; } // [rpm]
         public stru_float motor_sound_recorded_rpm { get; set; } // [rpm]
+        public stru_float stall_sound_recorded_rpm { get; set; } // [rpm]
 
 
         public stru_reference_to_masscentrum reference_to_masscentrum { get; set; }
@@ -3055,6 +3165,7 @@ namespace Parameter
             sound_volume = new stru_float();
             rotor_sound_recorded_rpm = new stru_float();
             motor_sound_recorded_rpm = new stru_float();
+            stall_sound_recorded_rpm = new stru_float();
 
             reference_to_masscentrum = new stru_reference_to_masscentrum();
             gyro = new stru_yaw_rate_controller();
@@ -3123,6 +3234,12 @@ namespace Parameter
             motor_sound_recorded_rpm.comment = "";
             motor_sound_recorded_rpm.unit = "rpm";
 
+            stall_sound_recorded_rpm.val = 1280f;
+            stall_sound_recorded_rpm.min = 0.000f;
+            stall_sound_recorded_rpm.max = 10000.0f;
+            stall_sound_recorded_rpm.hint = "Helicopter's rotor stall audio file recorded rpm";
+            stall_sound_recorded_rpm.comment = "";
+            stall_sound_recorded_rpm.unit = "rpm";
         }
     }
     // ##################################################################################

@@ -61,6 +61,7 @@ namespace Rotor
         private GameObject rotorsystem;
         private MeshRenderer rotor_blades_to_deform_at_low_rpm;
         private GameObject rotordisk;
+        private GameObject rotordisk_BEMT;
         private Material rotor_blades_material;
 
         private AudioSource rotor_audio_source_rotor;
@@ -72,7 +73,7 @@ namespace Rotor
         readonly List<Vector3[]> list__rotordisk_original_vertices = new List<Vector3[]>();
         private float[] rotordisk_radial_distance_to_center;
 
-        // deformation of rotor bvlades at low rpm
+        // deformation of rotor blades at low rpm
         private  Mesh rotorblades_deforming_mesh;
         private Vector3[] rotorblades_original_vertices, rotorblades_displaced_vertices;
         readonly List<Vector3[]> list__rotorblades_original_vertices = new List<Vector3[]>();
@@ -254,6 +255,18 @@ namespace Rotor
                 rotorsystem.transform.localPosition = Helper.ConvertRightHandedToLeftHandedVector(par_rotor.posLH.vect3);
                 // ##################################################################################
 
+
+
+                // ##################################################################################
+                // BEMT rotor disc
+                // ##################################################################################
+                if (Helicopter_Selected.transform.Find(rotor_name + "_Disk_BEMT") != null)
+                {
+                    rotordisk_BEMT = Helicopter_Selected.transform.Find(rotor_name + "_Disk_BEMT").gameObject;
+                }
+                // ##################################################################################
+
+
             }
             else
             {
@@ -343,10 +356,10 @@ namespace Rotor
                 // stall sound
                 if (rotor_audio_source_stall != null)
                 {
-                    rotor_audio_source_stall.pitch = Mathf.Abs(omega / (helicopter_ODE.par.transmitter_and_helicopter.helicopter.rotor_sound_recorded_rpm.val * 6 * Mathf.PI / 180f)); // sound recorded at ~ 1280 rpm       
-                    rotor_audio_source_stall.volume = Mathf.Abs(omega / (helicopter_ODE.par.transmitter_and_helicopter.helicopter.rotor_sound_recorded_rpm.val * 6 * Mathf.PI / 180f)); // sound recorded at ~ 1280 rpm      
+                    rotor_audio_source_stall.pitch = Mathf.Abs(omega / (helicopter_ODE.par.transmitter_and_helicopter.helicopter.stall_sound_recorded_rpm.val * 6 * Mathf.PI / 180f)); // sound recorded at ~ 1280 rpm       
+                    rotor_audio_source_stall.volume = Mathf.Abs(omega / (helicopter_ODE.par.transmitter_and_helicopter.helicopter.stall_sound_recorded_rpm.val * 6 * Mathf.PI / 180f)); // sound recorded at ~ 1280 rpm      
 
-                    float T_max = 5.0f * helicopter_ODE.par.transmitter_and_helicopter.helicopter.mass_total.val * 9.81f; // helicopter_ODE.par.scenery.gravity.val; //[N] ???? TODOOOOOO nicht hier T_max
+                    float T_max = 4.0f * helicopter_ODE.par.transmitter_and_helicopter.helicopter.mass_total.val * 9.81f; // helicopter_ODE.par.scenery.gravity.val; //[N] ???? TODOOOOOO nicht hier T_max
                     float T_max_transition = T_max * 0.6f; //[N] ????    0.2  ........ 0.8  
                     rotor_audio_source_stall.volume = Helper.Step(Math.Abs(helicopter_ODE.thrust_mr_for_stall_sound), T_max_transition, 0, T_max_transition * 1.3f, 1) * 0.500000f; // TODO  thrust_mr_for_stall_sound
 
@@ -378,7 +391,7 @@ namespace Rotor
         // ##################################################################################
         public void Update_Rotor_Deformation(ref Helisimulator.Helicopter_ODE helicopter_ODE, stru_rotor par_rotor, float flapping_a_s_LH, float flapping_b_s_LH, float omega, float Omega)
         {
-            if(rotor_object != null)
+            if (rotor_object != null)
             {
 
                 // ##################################################################################
@@ -393,6 +406,9 @@ namespace Rotor
                 }
                 else
                 {
+                    if (Mathf.Abs(omega) < 0.1f)
+                        omega = 0;
+
                     // rotorblades elastic deformation due to rotor load/thrust 
                     float deformation_rad = helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.mainrotor_idle_deformation.val * Mathf.Deg2Rad; // 
                     // y = ( ( y2 -  y1    ) / ( x2  - x1 ) ) * ( x - x1 ) + y1
@@ -414,7 +430,7 @@ namespace Rotor
 
                 // tilting due to flapping of rotor disk
                 Quaternion rotor_axis_orientation = Helper.ConvertRightHandedToLeftHandedQuaternion(Helper.S123toQuat(par_rotor.oriLH.vect3));
-                rotordisk.transform.localRotation =  
+                rotordisk.transform.localRotation =
                     Quaternion.Euler(-flapping_b_s_LH * Mathf.Rad2Deg, 0f, flapping_a_s_LH * Mathf.Rad2Deg) *
                     rotor_axis_orientation; // Unity uses left handed Euler rotation, space fixed = extrinsic 123 (= intrinsic = body fixed 321)  
 
@@ -423,17 +439,17 @@ namespace Rotor
 
 
                 // ##################################################################################
-                // rotor blades: conical elastic deformation as a function of rotation speed and tilting of rotor-blades 
+                // rotor blades: deformation as a function of rotation speed and tilting of rotor-blades 
                 // ##################################################################################
                 // tilting due to flapping of rotor blades
                 // whole rotor is rotated (inclusive hub) in Update_Rotor_Rotation(). Here the rotation of the blades are undone, so that they can be tilted by the 
                 // flapping angles relative to the rotor local system LR0. The  rotation has to be then redone again, but around the tilted rotation axis
-    
+
                 Quaternion rotorsystem_inverse = Quaternion.Inverse(Quaternion.AngleAxis(Omega * 180f / Mathf.PI, Vector3.up));
                 // flapping of rotor disk (TPP = tilted tip-path plane) and thus also the rotor blades
                 Quaternion rotorblades_flapping = Quaternion.Euler(-flapping_b_s_LH * Mathf.Rad2Deg, 0, flapping_a_s_LH * Mathf.Rad2Deg);
                 // rotation around the tilted TPP (tilted tip-path plane) - normal vector
-                Quaternion rotate = (Quaternion.AngleAxis(Omega * 180f / Mathf.PI, rotorsystem_inverse * rotorblades_flapping *  Vector3.up));
+                Quaternion rotate = (Quaternion.AngleAxis(Omega * 180f / Mathf.PI, rotorsystem_inverse * rotorblades_flapping * Vector3.up));
 
                 Quaternion all_tranforms = rotate * rotorsystem_inverse * rotorblades_flapping; // = 3.) * 2.) * 1.)
 
@@ -454,10 +470,33 @@ namespace Rotor
                 }
                 rotorblades_deforming_mesh.vertices = rotorblades_displaced_vertices;
                 // ##################################################################################
-                
-                
+
+
             }
         }
+        // ##################################################################################
+   
+
+
+        // ##################################################################################
+        // rotor deformation BEMT
+        // ##################################################################################
+        //public void Update_Rotor_Flapping_BEMT(stru_rotor par_rotor, Quaternion )
+        //{
+
+        //    if (rotordisk_BEMT != null)
+        //    {
+        //        // tilting due to flapping of rotor disk
+        //        Quaternion rotor_axis_orientation = Helper.ConvertRightHandedToLeftHandedQuaternion(Helper.S123toQuat(par_rotor.oriLH.vect3));
+
+        //        Vector3 temp = helper.A_RT_BEMT(Quaternion qCO, Quaternion qTO, Vector3 anglesRC, Vector3 v3, out float tilting_angle, out Vector3 axis_vector);
+
+        //        rotordisk_BEMT.transform.localRotation =
+        //            Quaternion.Euler(-flapping_b_s_LH * Mathf.Rad2Deg, 0f, flapping_a_s_LH * Mathf.Rad2Deg) *
+        //            rotor_axis_orientation; // Unity uses left handed Euler rotation, space fixed = extrinsic 123 (= intrinsic = body fixed 321)  
+
+        //    }
+        //}
         // ##################################################################################
         #endregion
 
@@ -531,6 +570,16 @@ namespace Rotor
         //    MMMMMMMM               MMMMMMMM    eeeeeeeeeeeeee            ttttttttttt  hhhhhhh     hhhhhhh   ooooooooooo      ddddddddd   ddddd  sssssssssss   
         // ##################################################################################
         #region methods
+
+        static public void Rotor_Reset_Variables()
+        {
+            turbulence_force_LH = new List<Vector3> { Vector3.zero, Vector3.zero, Vector3.zero }; // [N]
+            turbulence_torque_LH = new List<Vector3> { Vector3.zero, Vector3.zero, Vector3.zero }; // [Nm]
+            turbulence_torque_LH_target = new List<Vector3> { Vector3.zero, Vector3.zero, Vector3.zero }; // [Nm] for smooth transition
+            turbulence_torque_LH_velocity = new List<Vector3> { Vector3.zero, Vector3.zero, Vector3.zero }; // [Nm] for smooth transition
+            turbulence_time_elapsed_old = new List<float> { 0, 0, 0 }; // [0..1]
+            vortex_ring_state_stength = new List<float> { 0, 0, 0 }; // [0..1]
+        }
 
         static public void Rotor_Thrust_and_Torque_with_Precalculations(
             float time,
@@ -701,8 +750,8 @@ namespace Rotor
             {
                 // Lock number of rotor blade
                 double gamma_rotor = (rho_air * par_rotor.c.val * par_rotor.C_l_alpha.val * Mathf.Pow(par_rotor.R.val, 4)) / (par_flapping.I_flapping.val);
-                double tau_rotor = 10; // [sec] time constaint of rotor flapping
-                if (Math.Abs(omega_shaft) > 0.0001)
+                double tau_rotor = 20; // [sec] time constaint of rotor flapping
+                if (Math.Abs(omega_shaft) > 0.1)
                     tau_rotor = 16 / (gamma_rotor * Math.Abs(omega_shaft)) / (1 - (8 * par_flapping.e.val) / (3 * par_rotor.R.val));
 
                 Vector3 omega_LR = Helper.A_LR_S123(par_rotor.oriLH.vect3 * Helper.Deg_to_Rad, omega_LH); // express helicopter's local rotation velocity vector in rotor's coordinate system
@@ -716,6 +765,12 @@ namespace Rotor
                 //// for low main rotor rotational speeds reduce the effect of flapping
                 //dflapping_a_s_LR__int_dt *= reduce_flapping_effect_at_low_rpm;  // TODO
                 //dflapping_b_s_LR__int_dt *= reduce_flapping_effect_at_low_rpm;  // TODO
+
+                if (Math.Abs(omega_shaft) < 0.1) 
+                { 
+                    dflapping_a_s_LR__int_dt = 0; // [rad/sec] 
+                    dflapping_b_s_LR__int_dt = 0; // [rad/sec] 
+                }
             }
             else
             { 
@@ -741,12 +796,11 @@ namespace Rotor
             {
                 float horizontal_velocityLH = par_tuning.vortex_ring_state_v_horizontal.val; // [m/sec]
                 float vertical_velocityLH = par_tuning.vortex_ring_state_v_vertical.val; // [m/sec]
-                float force_reduction_factor = 0.35f; // if vortex fully developed
-                float torque_reduction_factor = 0.35f; // if vortex fully developed
-                float size_factor = 0.5f;
+                float force_reduction_factor = par_tuning.vortex_ring_state_force_reduction_factor.val; // if vortex fully developed rotor thrust is reduced at this amount
+                float torque_reduction_factor = par_tuning.vortex_ring_state_torque_reduction_factor.val; // if vortex fully developed rotor torque is reduced at this amount
                 float elliptic_factor = 1.5f;
                 float stretch_x_factor = 1.3f;
-                float vortex_ring_state_stength_rising_speed_factor = 0.015f;  // todo should depend on time, now depends on ODE-thread frequency
+                float vortex_ring_state_stength_rising_speed_factor = par_tuning.vortex_ring_state_stength_rising_speed_factor.val;  // todo should depend on time, now depends on ODE-thread frequency
 
 
 
@@ -754,8 +808,8 @@ namespace Rotor
                 {
                     // In rate of descent vs horizntal speed diagram we define the area, where from 
                     // light to severe turbulence and thrust variation occures. A cosinus curve is 
-                    // used to create a smooth transition from arewas withut VRS to areas with VRS
-                    Vector2 vrs_center_in_diagram = new Vector2(horizontal_velocityLH, vertical_velocityLH) * size_factor; // [m/s] horizontal, vertical speed
+                    // used to create a smooth transition from areas without VRS to areas with VRS
+                    Vector2 vrs_center_in_diagram = new Vector2(horizontal_velocityLH, vertical_velocityLH); // [m/s] horizontal, vertical speed
                     float vrs_radius_in_diagram = vrs_center_in_diagram[0] * stretch_x_factor; // [m/s]
 
                     float distance_to_vrs_center = new Vector2(horizontal_speed_LH - vrs_center_in_diagram[0], (vertical_speed_LH - vrs_center_in_diagram[1]) * elliptic_factor).magnitude;
@@ -768,7 +822,7 @@ namespace Rotor
                     }
                     else
                     {
-                        vortex_ring_state_stength[(int)rotor_type] -= vortex_ring_state_stength_rising_speed_factor * 1.0f; // todo descent intensity ???
+                        vortex_ring_state_stength[(int)rotor_type] -= vortex_ring_state_stength_rising_speed_factor * 0.5f; // todo descent intensity ???
                     }
 
                     vortex_ring_state_stength[(int)rotor_type] = Mathf.Clamp(vortex_ring_state_stength[(int)rotor_type], 0, 1); // [0 ... 1]
@@ -792,27 +846,32 @@ namespace Rotor
             // ##################################################################################
             if (calculate_turbulence)
             {
+                // get the local translational speed
                 float translational_velocity_scalar_abs = v_PRO_LH.magnitude; // [m/sec] velo_LH
+                // rotation around y-axis (most often rotor shaft axis) has lower turbulence influence.
                 float rotational_velocity_scalar_abs = Mathf.Sqrt(1.0f*omega_LH.x*omega_LH.x + 0.2f*omega_LH.y*omega_LH.y + 1.0f*omega_LH.z*omega_LH.z); // [rad/sec]
 
-                //float strength_turbulence = Helper.Step(translational_velocity_scalar_abs,5.0000f,1,10.00000f,0) * Helper.Step(rotational_velocity_scalar_abs, 3.14200f,0,5.00000f,1); // [0...1]
-                strength_turbulence += Helper.Step(translational_velocity_scalar_abs, 5.0000f, 1, 10.00000f, 0.25f) * Helper.Step(rotational_velocity_scalar_abs, 2.0000f, 0, 5.00000f, 1); // [0...1]
-                                                                                                                                                                                            //strength_turbulence = 1;
+                // turbulence strength depends on rotational speed but also on translational speed:
+                // - if rotational speed is high turbulence is high
+                // - but if translational speed is high turbulence is low, even if rotational speed is high (rotor gets undisturbed air)
+                strength_turbulence += Helper.Step(rotational_velocity_scalar_abs, par_tuning.turbulence_rotational_velocity_limit.val/2.0f, 0, par_tuning.turbulence_rotational_velocity_limit.val, 1) * 
+                                       Helper.Step(translational_velocity_scalar_abs, par_tuning.turbulence_translational_velocity_limit.val/2.0f, 1, par_tuning.turbulence_translational_velocity_limit.val, 0.25f); // [0...1]
+
                 strength_turbulence = Mathf.Clamp(strength_turbulence, 0, 1);
-                float turbulence_strength_maximum = 0.50000000f * mass_total * 9.81f; // [-]  * par.transmitter_and_helicopter.helicopter.mainrotor.R.val
-                float turbulence_strength = turbulence_strength_maximum * strength_turbulence;
+
+                // turbulence is represented with random values
                 float turbulence_time_elapsed = time;
-                turbulence_time_elapsed %= 1f / 4.0000000000f; // [1/Hz]
+                turbulence_time_elapsed %= 1f / par_tuning.turbulence_frequency.val; // [1/Hz] select the frequency of the turbulence
                 if (turbulence_time_elapsed < turbulence_time_elapsed_old[(int)rotor_type])
                 {
                     turbulence_force_LH[(int)rotor_type] = new Vector3(
-                         ((float)random.NextDouble() - 0.5f) * 2f * turbulence_strength * 0.30f,
-                         ((float)random.NextDouble() - 0.5f) * 2f * turbulence_strength * 1.00f,
-                         ((float)random.NextDouble() - 0.5f) * 2f * turbulence_strength * 0.3f);  // [N]
+                         ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence_force_strength.vect3.x,
+                         ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence_force_strength.vect3.y,
+                         ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence_force_strength.vect3.z);  // [N]
                     turbulence_torque_LH_target[(int)rotor_type] = new Vector3(
-                        ((float)random.NextDouble() - 0.5f) * 2f * turbulence_strength * 1.5f,
-                        ((float)random.NextDouble() - 0.5f) * 2f * turbulence_strength * 0.15f,
-                        ((float)random.NextDouble() - 0.5f) * 2f * turbulence_strength * 1.5f); // [Nm]
+                        ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence_torque_strength.vect3.x,
+                        ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence_torque_strength.vect3.y, 
+                        ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence_torque_strength.vect3.z ); // [Nm]
                 }
                 turbulence_time_elapsed_old[(int)rotor_type] = turbulence_time_elapsed;
 

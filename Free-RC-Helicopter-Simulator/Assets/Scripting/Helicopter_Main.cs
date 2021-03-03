@@ -2459,7 +2459,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                         else
                             ui_debug_panel_state++;
 
-                        ui_debug_panel_state = (ui_debug_panel_state < 0) ? 0 : (ui_debug_panel_state > 3) ? 0 : ui_debug_panel_state;
+                        ui_debug_panel_state = (ui_debug_panel_state < 0) ? 0 : (ui_debug_panel_state > 2) ? 0 : ui_debug_panel_state;
                     }
 
                     if (UnityEngine.InputSystem.Keyboard.current.rKey.wasPressedThisFrame)
@@ -3163,6 +3163,19 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             Omega_mr = (float)helicopter_ODE.x_states[20] * RIGHT2LEFT_HANDED; // [rad] mainrotor rotation angle
             Omega_tr = ((float)helicopter_ODE.x_states[20] / helicopter_ODE.par.transmitter_and_helicopter.helicopter.transmission.n_mr2tr.val) * RIGHT2LEFT_HANDED; // [rad] tailrotor rotation angle 
             Omega_pr = ((float)helicopter_ODE.x_states[20] / helicopter_ODE.par.transmitter_and_helicopter.helicopter.transmission.n_mr2pr.val) * RIGHT2LEFT_HANDED; // [rad] propeller rotation angle 
+
+
+
+            //rotation = helicopters_available.transform.rotation;
+            //rotation.w = (float)helicopter_ODE.x_states[3]; // [-] w
+            //rotation.x = (float)helicopter_ODE.x_states[4]; // [-] x
+            //rotation.y = (float)helicopter_ODE.x_states[5]; // [-] y
+            //rotation.z = (float)helicopter_ODE.x_states[6]; // [-] z
+            //rotation = Helper.ConvertRightHandedToLeftHandedQuaternion(rotation);
+            //helicopters_available.transform.rotation = rotation;
+
+            //mainrotor_object.Update_Rotor_Flapping_BEMT();
+
             // ##################################################################################
         }
         else
@@ -3477,7 +3490,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
 
         // plot 2d graph
-        if (ui_debug_panel_state > 2 && GraphManager.Graph != null)
+        if (ui_debug_panel_state > 1 && GraphManager.Graph != null)
         {
             GraphManager.Graph.Plot("mainrotor_forceLH [N]", helicopter_ODE.ODEDebug.mainrotor_forceLH.y, Color.yellow, plot2D_graph_rect_1);
             GraphManager.Graph.Plot("mainrotor_torqueLH [Nm]", helicopter_ODE.ODEDebug.mainrotor_torqueLH.y, Color.yellow, plot2D_graph_rect_2);
@@ -3518,7 +3531,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // ##################################################################################
         // Vortex Ring State
         // ##################################################################################
-        if(helicopter_vortex_ring_state_particles_gameobject != null)
+        if(helicopter_ODE.par.transmitter_and_helicopter.helicopter.visual_effects.vortex_ring_visualize.val &&
+            helicopter_vortex_ring_state_particles_gameobject != null)
         { 
             if(helicopter_ODE.ODEDebug.vortex_ring_state_mr > 0.5)
             {
@@ -3716,12 +3730,12 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 float horizontal_offset = Helper.Step(vertical_camera_angle, 0, 0, (main_camera.fieldOfView / 2.0f), helicopter_ODE.par.simulation.camera.keep_ground_visible.val);
 
                 // apply all rotations to camera
-                main_camera.transform.rotation = Quaternion.Euler(0, vertical_offset * (main_camera.fieldOfView / 30f),0)  *
+                main_camera.transform.rotation = Quaternion.Euler(0, vertical_offset * (main_camera.fieldOfView / 30f), 0) *
                     main_camera_rotation * Quaternion.Euler(horizontal_offset * (main_camera.fieldOfView / 30f), 0, 0); // rotation order is essential
-              
+
             }
             else
-            { 
+            {
                 main_camera.transform.eulerAngles += new Vector3(mouse_camera_pitch, mouse_camera_yaw, 0.0f);
                 main_camera_rotation = main_camera.transform.rotation;
             }
@@ -3738,17 +3752,20 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             }
         }
 
-        vertical_camera_angle = (-((main_camera.transform.eulerAngles.x + 180f) % 360f) + 180f);
-        // lifting the transmitter
-        if (vertical_camera_angle < -30)
+        if (helicopter_ODE.par_temp.simulation.gameplay.show_pilot.val) 
         {
-            animator_pilot_with_transmitter.SetTrigger("lifting_arm");
-            animator_pilot_with_transmitter.ResetTrigger("lowering_arm");
-        }
-        if (vertical_camera_angle > -10)
-        {
-            animator_pilot_with_transmitter.SetTrigger("lowering_arm");
-            animator_pilot_with_transmitter.ResetTrigger("lifting_arm");
+            vertical_camera_angle = (-((main_camera.transform.eulerAngles.x + 180f) % 360f) + 180f);
+            // lifting the transmitter
+            if (vertical_camera_angle < -30)
+            {
+                animator_pilot_with_transmitter.SetTrigger("lifting_arm");
+                animator_pilot_with_transmitter.ResetTrigger("lowering_arm");
+            }
+            if (vertical_camera_angle > -10)
+            {
+                animator_pilot_with_transmitter.SetTrigger("lowering_arm");
+                animator_pilot_with_transmitter.ResetTrigger("lifting_arm");
+            }
         }
         // ##################################################################################
 

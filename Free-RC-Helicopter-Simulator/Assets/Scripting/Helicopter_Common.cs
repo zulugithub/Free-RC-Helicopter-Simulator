@@ -274,10 +274,10 @@ namespace Common
         public static Vector3 Ay_RL(Quaternion q, float y)
         {
             return new Vector3(
-             (2 * q.x * q.y - 2 * q.w * q.z) * y,
-             (2 * q.w * q.w + 2 * q.y * q.y - 1) * y,
-             (2 * q.y * q.z + 2 * q.w * q.x) * y
-           );
+                 (2 * q.x * q.y - 2 * q.w * q.z) * y,
+                 (2 * q.w * q.w + 2 * q.y * q.y - 1) * y,
+                 (2 * q.y * q.z + 2 * q.w * q.x) * y
+               );
         }
         // ############################################################################
 
@@ -512,12 +512,9 @@ namespace Common
 
 
 
-
-
-
         // ############################################################################
         /// <summary>
-        /// right-hand rule rotation matrix "body fixed 123 == intrinsic rotation 123" (B123) local to reference frame
+        /// right-hand rule rotation matrix "body fixed 123(B123) == intrinsic rotation 123 == extrinsic rotation 321 == space fixed 321(S321)": Rreference frame to local frame.
         /// </summary>
         /// <param name="phi"></param>      1.) rotation around body fixed x
         /// <param name="theta"></param>    2.) rotation around body fixed y'
@@ -525,39 +522,6 @@ namespace Common
         /// <param name="v3R"></param>
         /// <returns></returns>
         /// https://link.springer.com/book/10.1007/978-3-662-04831-3 (Eq 2.56 (inverse of) )
-        // ############################################################################
-        public static Vector3 A_RL(float phi, float theta, float psi, Vector3 v3L) // [rad]
-        {
-            float c1 = Mathf.Cos(phi);
-            float c2 = Mathf.Cos(theta);
-            float c3 = Mathf.Cos(psi);
-
-            float s1 = Mathf.Sin(phi);
-            float s2 = Mathf.Sin(theta);
-            float s3 = Mathf.Sin(psi);
-
-            return new Vector3(
-                (c2 * c3) * v3L.x + (s3 * c1 + c3 * s2 * s1) * v3L.y + (s3 * s1 - c3 * s2 * c1) * v3L.z,
-                (-c2 * s3) * v3L.x + (c3 * c1 - s3 * s2 * s1) * v3L.y + (c3 * s1 + s3 * s2 * c1) * v3L.z,
-                      (s2) * v3L.x + (-c2 * s1) * v3L.y + (c2 * c1) * v3L.z);
-        }
-        public static Vector3 A_RL(Vector3 phi_theta_psi, Vector3 v3R)
-        {
-            return A_RL(phi_theta_psi[2], phi_theta_psi[1], phi_theta_psi[0], v3R);
-        }
-        // ############################################################################
-
-
-        // ############################################################################
-        /// <summary>
-        /// right-hand rule rotation matrix "body fixed 123 == intrinsic rotation 123" (B123) reference to local frame
-        /// </summary>
-        /// <param name="phi"></param>      1.) rotation around body fixed x
-        /// <param name="theta"></param>    2.) rotation around body fixed y'
-        /// <param name="psi"></param>      3.) rotation around body fixed z''
-        /// <param name="v3R"></param>
-        /// <returns></returns>
-        /// https://link.springer.com/book/10.1007/978-3-662-04831-3 (Eq 2.56)
         // ############################################################################
         public static Vector3 A_LR(float phi, float theta, float psi, Vector3 v3R) // [rad]
         {
@@ -570,20 +534,120 @@ namespace Common
             float s3 = Mathf.Sin(psi);
 
             return new Vector3(
-                               (c2 * c3) * v3R.x + (-c2 * s3) * v3R.y + (s2) * v3R.z,
-                (s3 * c1 + c3 * s2 * s1) * v3R.x + (c3 * c1 - s3 * s2 * s1) * v3R.y + (-c2 * s1) * v3R.z,
-                (s3 * s1 - c3 * s2 * c1) * v3R.x + (c3 * s1 + s3 * s2 * c1) * v3R.y + (c2 * c1) * v3R.z);
-
+                 (c2 * c3) * v3R.x   +   (s3 * c1 + c3 * s2 * s1) * v3R.y   +   (s3 * s1 - c3 * s2 * c1) * v3R.z,
+                (-c2 * s3) * v3R.x   +   (c3 * c1 - s3 * s2 * s1) * v3R.y   +   (c3 * s1 + s3 * s2 * c1) * v3R.z,
+                (s2)       * v3R.x   +   (-c2 * s1)               * v3R.y   +   (c2 * c1) * v3R.z);
         }
         public static Vector3 A_LR(Vector3 phi_theta_psi, Vector3 v3R)
         {
-            return A_LR(phi_theta_psi[2], phi_theta_psi[1], phi_theta_psi[0], v3R);
+            return A_LR(phi_theta_psi[0], phi_theta_psi[1], phi_theta_psi[2], v3R);
         }
         // ############################################################################
 
 
 
 
+        // ############################################################################
+        /// <summary>
+        /// right-hand rule rotation matrix "body fixed 123(B123) == intrinsic rotation 123 == extrinsic rotation 321 == space fixed 321(S321)": Local frame to reference frame.
+        /// </summary>
+        /// <param name="phi"></param>      1.) rotation around body fixed x
+        /// <param name="theta"></param>    2.) rotation around body fixed y'
+        /// <param name="psi"></param>      3.) rotation around body fixed z''
+        /// <param name="v3L"></param>
+        /// <returns></returns>
+        /// https://link.springer.com/book/10.1007/978-3-662-04831-3 (Eq 2.56)
+        // ############################################################################
+        public static Vector3 A_RL(float phi, float theta, float psi, Vector3 v3L) // [rad]
+        {
+            float c1 = Mathf.Cos(phi);
+            float c2 = Mathf.Cos(theta);
+            float c3 = Mathf.Cos(psi);
+
+            float s1 = Mathf.Sin(phi);
+            float s2 = Mathf.Sin(theta);
+            float s3 = Mathf.Sin(psi);
+
+            return new Vector3(
+                (c2 * c3)                * v3L.x   +   (-c2 * s3)               * v3L.y   +   (s2) * v3L.z,
+                (s3 * c1 + c3 * s2 * s1) * v3L.x   +   (c3 * c1 - s3 * s2 * s1) * v3L.y   +   (-c2 * s1) * v3L.z,
+                (s3 * s1 - c3 * s2 * c1) * v3L.x   +   (c3 * s1 + s3 * s2 * c1) * v3L.y   +   (c2 * c1) * v3L.z);
+        }
+        public static Vector3 A_RL(Vector3 phi_theta_psi, Vector3 v3L)
+        {
+            return A_RL(phi_theta_psi[0], phi_theta_psi[1], phi_theta_psi[2], v3L);
+        }
+        // ############################################################################
+
+
+
+
+        // ############################################################################
+        /// <summary>
+        /// right-hand rule rotation matrix "body fixed 123(B123) == intrinsic rotation 123 == extrinsic rotation 321 == space fixed 321(S321)": Rreference frame to local frame.
+        /// </summary>
+        /// <param name="phi"></param>      1.) rotation around body fixed y
+        /// <param name="theta"></param>    2.) rotation around body fixed x'
+        /// <param name="psi"></param>      3.) rotation around body fixed z''
+        /// <param name="v3R"></param>
+        /// <returns></returns>
+        // ############################################################################
+        public static Vector3 A_LR_B213(float phi, float theta, float psi, Vector3 v3R) // [rad]
+        {
+            float c1 = Mathf.Cos(phi);
+            float c2 = Mathf.Cos(theta);
+            float c3 = Mathf.Cos(psi);
+
+            float s1 = Mathf.Sin(phi);
+            float s2 = Mathf.Sin(theta);
+            float s3 = Mathf.Sin(psi);
+
+            return new Vector3(
+                (c3*c2 + s1 * s3 * s2) * v3R.x   +  (c1 * s3) * v3R.y   +   (c2 * s1 * s3 - c3 * s2) * v3R.z,
+                (c3*s1 * s2 - c2 * s3) * v3R.x   +  (c1 * c3) * v3R.y   +   (s3 * s2 + c3 * c2 * s1) * v3R.z,
+                (c1*s2)                * v3R.x   +  (-s1)     * v3R.y   +   (c1 * c2)                * v3R.z);
+
+        }
+        public static Vector3 A_LR_B213(Vector3 phi_theta_psi, Vector3 v3R)
+        {
+            return A_LR_B213(phi_theta_psi[0], phi_theta_psi[1], phi_theta_psi[2], v3R);
+        }
+        // ############################################################################
+
+
+
+
+        // ############################################################################
+        /// <summary>
+        /// right-hand rule rotation matrix "body fixed 123(B123) == intrinsic rotation 123 == extrinsic rotation 321 == space fixed 321(S321)": Local frame to reference frame.
+        /// </summary>
+        /// <param name="phi"></param>      1.) rotation around body fixed y
+        /// <param name="theta"></param>    2.) rotation around body fixed x'
+        /// <param name="psi"></param>      3.) rotation around body fixed z''
+        /// <param name="v3L"></param>
+        /// <returns></returns>
+        // ############################################################################
+        public static Vector3 A_RL_B213(float phi, float theta, float psi, Vector3 v3L) // [rad]
+        {
+            float c1 = Mathf.Cos(phi);
+            float c2 = Mathf.Cos(theta);
+            float c3 = Mathf.Cos(psi);
+
+            float s1 = Mathf.Sin(phi);
+            float s2 = Mathf.Sin(theta);
+            float s3 = Mathf.Sin(psi);
+
+            return new Vector3(
+                (c3*c2 + s1 * s3 * s2)   * v3L.x   +  (c3 * s1 * s2 - c2 * s3) * v3L.y   +   (c1 * s2) * v3L.z,
+                (c1 * s3)                * v3L.x   +  (c1 * c3)                * v3L.y   +   (-s1)     * v3L.z,
+                (c2 * s1 * s3 - c3 * s2) * v3L.x   +  (s3 * s2 + c3 * c2 * s1) * v3L.y   +   (c1 * c2) * v3L.z);
+
+        }
+        public static Vector3 A_RL_B213(Vector3 phi_theta_psi, Vector3 v3L)
+        {
+            return A_RL_B213(phi_theta_psi[0], phi_theta_psi[1], phi_theta_psi[2], v3L);
+        }
+        // ############################################################################
 
 
 
@@ -630,8 +694,6 @@ namespace Common
             return Az_RL(phi_theta_psi[2], Ay_RL(phi_theta_psi[1], Ax_RL(phi_theta_psi[0], v3L))); // (comment: A_RL_S123 the same as A_RL_B321)
         }
         // ############################################################################
-
-
 
 
 
@@ -689,6 +751,75 @@ namespace Common
         {
             return B321toQuat(angles.x, angles.y, angles.z);
         }
+        // ############################################################################
+
+
+
+
+        // ############################################################################
+        /// <summary>
+        /// special function to gerenrate transformation matrix of "non rotating" rotor disk - needed to calculate local velocities in each blade element (meshed disk)
+        /// </summary>
+        /// <returns></returns>
+        // ############################################################################
+        public static Vector3 A_RT_BEMT(Quaternion qCO, Quaternion qTO, Vector3 anglesRC, Vector3 v3, out float tilting_angle, out Vector3 axis_vector)
+        {
+            // rotating rotor disk (3 degree of freedom - TTP) y-axis expressed in world origin frame
+            Vector3 ey_TO__O = Helper.Ay_RL(qTO, 1);   
+
+            //Vector3 ey_TO__R  =  A_RC_B321(anglesRC, A_CO_q( qCO, ey_TO__O )); 
+            Vector3 ey_TO__R = A_LR_S123(anglesRC, A_LR(qCO, ey_TO__O)); // expressed in rotor frame
+            
+            
+            // Construct a transformation matrix, that does NOT rotate with the rotor-TTP, but tilts.
+            //
+            //    Given is the normalized basis vector ey_L__R of a local frame L, expressed in reference frame R.
+            //    Requirement: The ex_L__R component of the frame L should align with x_R, if viewing at the coordinate system along the y_R axis as shown in figure below.
+            //    Goal: Form the transformation matrix of A_RL
+            //    Thus given conditions are: 
+            //      1.) ex_L__R(z) == 0
+            //      2.) ex_L__R perpendicular to ey_L__R ==> ex_L__R . ey_L__R = 0
+            //      3.) ex_L__R / norm(ex_L__R) = 1
+            //
+            //    solve([bz == 0, ax*bx + ay*by + az*bz == 0, sqrt(bx^2 + by^2) == 1],[bx by,bz])
+            //    ==>
+            //      ex_L__R(x) = +ey_L__R(y) / (ey_L__R(x)^2 + ey_L__R(y)^2)^(1/2)
+            //      ex_L__R(y) = -ey_L__R(x) / (ey_L__R(x)^2 + ey_L__R(y)^2)^(1/2)
+            //      ex_L__R(z) = 0
+            //
+            //
+            //           ez_L__R
+            //    ez_R  <----___
+            //    <---------------O  ey_R
+            //                   ||\
+            //                   || \
+            //                   ||  \ 
+            //                   ||   v  ey_L__R
+            //         ex_L__R   v|
+            //                    |
+            //                    v ey_R
+            Vector3 ex_TO__R;
+            float denominator = Mathf.Sqrt(ey_TO__R.x * ey_TO__R.x + ey_TO__R.y * ey_TO__R.y); // can't become zero
+            ex_TO__R.x = +ey_TO__R.y / denominator;
+            ex_TO__R.y = -ey_TO__R.x / denominator;
+            ex_TO__R.z = 0;
+
+            // Add here angle-axis of tilting for torque calculation (due to stiffenss / O-ring)
+            // https://www.euclideanspace.com/maths/algebra/vectors/angleBetween/
+            // - The angle is given by acos of the dot product of the two(normalised) vectors: v1•v2 = | v1 || v2 | cos(angle)
+            // - The axis is given by the cross product of the two vectors, the length of this axis is given by | v1 x v2| = | v1 || v2 | sin(angle).
+            tilting_angle = Mathf.Acos(Helper.Dot(0f, 1f, 0f, ey_TO__R.x, ey_TO__R.y, ey_TO__R.z)); // "R" is here the rotor-frame, y-axis is the rotation axis of the rotor shaft
+            axis_vector = Helper.Cross(new Vector3(0f, 1f, 0f), ey_TO__R.normalized); // TODO: catch if both vector are parallel
+
+            // transformation matrix's third vector
+            Vector3 ez_TO__R = Helper.Cross(ex_TO__R, ey_TO__R);
+            // transformation matrix "A_RT"
+            return new Vector3(ex_TO__R.x * v3.x + ey_TO__R.x * v3.y + ez_TO__R.x * v3.z, 
+                               ex_TO__R.y * v3.x + ey_TO__R.y * v3.y + ez_TO__R.y * v3.z,
+                               ex_TO__R.z * v3.x + ey_TO__R.z * v3.y + ez_TO__R.z * v3.z );
+        }
+        // ############################################################################
+
         #endregion
 
 
@@ -746,9 +877,9 @@ namespace Common
         }
         // ############################################################################
         // ############################################################################
-        // dot product with doubles
+        // dot product with float
         // ############################################################################
-        public static double Dot(float x1, double y1, double z1, double x2, double y2, double z2)
+        public static float Dot(float x1, float y1, float z1, float x2, float y2, float z2)
         {
             return x1 * x2 + y1 * y2 + z1 * z2;
         }
