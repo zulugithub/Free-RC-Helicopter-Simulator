@@ -272,9 +272,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     Texture[] all_textures;
 
     // Debug 2D plot figures
-    private Rect plot2D_graph_rect_1;
-    private Rect plot2D_graph_rect_2;
-    private Rect plot2D_graph_rect_3;
+    private Rect[] plot2D_graph_rect = new Rect[6];
 
     // game logic flag
     [HideInInspector]
@@ -1402,9 +1400,12 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // ##################################################################################
         /// <summary> / UI debug panel's GraphManager position setup </summary> 
         // ##################################################################################
-        plot2D_graph_rect_1 = new Rect(0.01f * Screen.width, 0.3500f * Screen.height, 0.3f * Screen.width, 0.2f * Screen.height); // xPos, yPos, xSize, ySize
-        plot2D_graph_rect_2 = new Rect(0.01f * Screen.width, 0.5600f * Screen.height, 0.3f * Screen.width, 0.2f * Screen.height); // xPos, yPos, xSize, ySize
-        plot2D_graph_rect_3 = new Rect(0.01f * Screen.width, 0.7700f * Screen.height, 0.3f * Screen.width, 0.2f * Screen.height); // xPos, yPos, xSize, ySize
+        plot2D_graph_rect[0] = new Rect(0.01f * Screen.width, 0.3500f * Screen.height, 0.24f * Screen.width, 0.2f * Screen.height); // xPos, yPos, xSize, ySize
+        plot2D_graph_rect[1] = new Rect(0.01f * Screen.width, 0.5600f * Screen.height, 0.24f * Screen.width, 0.2f * Screen.height); // xPos, yPos, xSize, ySize
+        plot2D_graph_rect[2] = new Rect(0.01f * Screen.width, 0.7700f * Screen.height, 0.24f * Screen.width, 0.2f * Screen.height); // xPos, yPos, xSize, ySize
+        plot2D_graph_rect[3] = new Rect(0.26f * Screen.width, 0.3500f * Screen.height, 0.24f * Screen.width, 0.2f * Screen.height); // xPos, yPos, xSize, ySize
+        plot2D_graph_rect[4] = new Rect(0.26f * Screen.width, 0.5600f * Screen.height, 0.24f * Screen.width, 0.2f * Screen.height); // xPos, yPos, xSize, ySize
+        plot2D_graph_rect[5] = new Rect(0.26f * Screen.width, 0.7700f * Screen.height, 0.24f * Screen.width, 0.2f * Screen.height); // xPos, yPos, xSize, ySize
         // ##################################################################################
 
 
@@ -3480,13 +3481,12 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // plot 2d graph
         if (ui_debug_panel_state > 1 && GraphManager.Graph != null)
         {
-            GraphManager.Graph.Plot("mainrotor_forceLH [N]", helicopter_ODE.ODEDebug.mainrotor_forceLH.y, Color.yellow, plot2D_graph_rect_1);
-            GraphManager.Graph.Plot("mainrotor_torqueLH [Nm]", helicopter_ODE.ODEDebug.mainrotor_torqueLH.y, Color.yellow, plot2D_graph_rect_2);
-            //GraphManager.Graph.Plot("tailrotor_forceLH", helicopter_ODE.ODEDebug.tailrotor_forceLH.z, Color.yellow, plot2D_graph_rect_2);
-            //GraphManager.Graph.Plot("Test_ScreenSpace2", helicopter_ODE.ODEDebug.mainrotor_v_i, Color.yellow, plot2D_graph_rect_2);
-            //GraphManager.Graph.Plot("Test_ScreenSpace2", (float)msec_per_thread_call, Color.yellow, plot2D_graph_rect_2);
-            GraphManager.Graph.Plot("omega_mr [rpm]", omega_mr * Helper.RadPerSec_to_Rpm , Color.yellow, plot2D_graph_rect_3);
-
+            GraphManager.Graph.Plot("mainrotor_forceLH [N]", helicopter_ODE.ODEDebug.mainrotor_forceLH.y, Color.black, plot2D_graph_rect[0]);
+            GraphManager.Graph.Plot("mainrotor_torqueLH [Nm]", helicopter_ODE.ODEDebug.mainrotor_torqueLH.y, Color.black, plot2D_graph_rect[1]);
+            GraphManager.Graph.Plot("omega_mr [rpm]", omega_mr * Helper.RadPerSec_to_Rpm, Color.black, plot2D_graph_rect[2]);
+            GraphManager.Graph.Plot("tailrotor_forceLH [N]", helicopter_ODE.ODEDebug.tailrotor_forceLH.z, Color.black, plot2D_graph_rect[3]);
+            GraphManager.Graph.Plot("veloLH.y [m/s]", helicopter_ODE.veloLH.y, Color.black, plot2D_graph_rect[4]);
+            GraphManager.Graph.Plot("veloLH.xz [m/s]", Mathf.Sqrt(helicopter_ODE.veloLH.x * helicopter_ODE.veloLH.x + helicopter_ODE.veloLH.z * helicopter_ODE.veloLH.z), Color.black, plot2D_graph_rect[5]);
         }
         else
         {
@@ -3495,6 +3495,9 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 GraphManager.Graph.Reset("mainrotor_forceLH [N]");
                 GraphManager.Graph.Reset("mainrotor_torqueLH [Nm]");
                 GraphManager.Graph.Reset("omega_mr [rpm]");
+                GraphManager.Graph.Reset("tailrotor_forceLH [N]");
+                GraphManager.Graph.Reset("veloLH.y [m/s]");
+                GraphManager.Graph.Reset("veloLH.xz [m/s]");
             }
         }
         ui_debug_panel_state_old = ui_debug_panel_state;
