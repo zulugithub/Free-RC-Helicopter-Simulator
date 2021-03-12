@@ -1,8 +1,47 @@
 fileFormatVersion: 2
-guid: 9f705127872bd964989776290903a709
+guid: 8b0e14c2c18c8b54db2aa038a42ec10e
 ModelImporter:
   serializedVersion: 20101
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      74: 5325687463621049341
+    second: Armature_Tail_Wheel|Rotation_R
+  - first:
+      74: 3182663705802134078
+    second: Armature_Tail_Wheel|Tail_Wheel_Deflection
+  - first:
+      74: -7728325707169437436
+    second: Armature_Tail_Wheel|Tail_Wheel_Rolling
+  - first:
+      74: -586536355071340952
+    second: Armature_Tail_Wheel|Tail_Wheel_Steering
+  - first:
+      74: 1543533628906593346
+    second: Landing_Gear_Armature.R|Closed_R
+  - first:
+      74: -2526282769526083267
+    second: Landing_Gear_Armature.R|Deflection_R
+  - first:
+      74: -5052308976769871742
+    second: Landing_Gear_Armature.R|Opened_R
+  - first:
+      74: -4487698413256026063
+    second: Landing_Gear_Armature.R|Rotation_R
+  - first:
+      74: 4063758686122251037
+    second: Landing_Gear_Armature.R|Transition_R
+  - first:
+      74: -6457131598930321789
+    second: Animation_Doors|Animation_Doors_Closed
+  - first:
+      74: -4005907568079652543
+    second: Animation_Doors|Animation_Doors_Opened
+  - first:
+      74: -2109533652864891817
+    second: Animation_Doors|Animation_Doors_Transition
+  - first:
+      74: -5874340898149841527
+    second: Gear_Pod_ASW|Deflection_R
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -12,8 +51,8 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Glas
-    second: {fileID: 2100000, guid: 8c7944dee7ec8b94bbe0834f8a29e6a8, type: 2}
+      name: Sikorsky_S61_ASW
+    second: {fileID: 2100000, guid: 48779298bfff10d4894bf351f52c6dcb, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

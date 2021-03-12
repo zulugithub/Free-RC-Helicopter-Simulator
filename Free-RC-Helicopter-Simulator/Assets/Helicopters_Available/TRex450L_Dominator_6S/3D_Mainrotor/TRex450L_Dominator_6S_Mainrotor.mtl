@@ -1,8 +1,8 @@
-# Blender MTL File: 'TREx450L_Dominator_6S___045.blend'
+# Blender MTL File: 'TREx450L_Dominator_6S___048.blend'
 # Material Count: 4
 
 newmtl Alu
-Ns 603.904470
+Ns 778.845368
 Ka 0.794326 0.794326 0.794326
 Kd 0.800000 0.800000 0.800000
 Ks 0.386525 0.386525 0.386525
@@ -30,7 +30,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 3
-map_Kd F:\\Helikopter\\UNITY\\GitHub\\Work\\Helicopter\\TRex450L_Dominator_6S\\TRex450L_Dominator_6S_Canopy_002_A.png
+map_Kd F:\\Helikopter\\UNITY\\GitHub\\Work\\Helicopter\\TRex450L_Dominator_6S\\TRex450L_Dominator_6S_Canopy_000_A.png
 
 newmtl Steel
 Ns 707.076381
