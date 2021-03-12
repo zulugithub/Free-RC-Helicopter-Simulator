@@ -361,8 +361,8 @@ namespace Rotor
 
                     float T_max = 4.0f * helicopter_ODE.par.transmitter_and_helicopter.helicopter.mass_total.val * 9.81f; // helicopter_ODE.par.scenery.gravity.val; //[N] ???? TODOOOOOO nicht hier T_max
                     float T_max_transition = T_max * 0.6f; //[N] ????    0.2  ........ 0.8  
-                    rotor_audio_source_stall.volume = Helper.Step(Math.Abs(helicopter_ODE.thrust_mr_for_stall_sound), T_max_transition, 0, T_max_transition * 1.3f, 1) * 0.500000f; // TODO  thrust_mr_for_stall_sound
-
+                    rotor_audio_source_stall.volume = Helper.Step(Mathf.Abs(helicopter_ODE.thrust_mr_for_stall_sound), T_max_transition, 0, T_max_transition * 1.3f, 1) * 0.500000f + // TODO  thrust_mr_for_stall_sound
+                                                      helicopter_ODE.ODEDebug.turbulence_mr*0.40f;
                     rotor_audio_source_stall.volume *= (helicopter_ODE.par.transmitter_and_helicopter.helicopter.sound_volume.val / 100f) * pause_activated_reduces_audio_volume * (helicopter_ODE.par.simulation.audio.master_sound_volume.val / 100f);
                 }
             }
@@ -787,22 +787,22 @@ namespace Rotor
 
             // ##################################################################################
             // vortex ring state
+            // http://www.dynamicflight.com/aerodynamics/settling_power/
             // ##################################################################################
             float strength_turbulence = 0;
 
-            float horizontal_speed_LH = Mathf.Sqrt(v_PRO_LH.x * v_PRO_LH.x + v_PRO_LH.z * v_PRO_LH.z); // [m/sec] 
-            float vertical_speed_LH = -v_PRO_LH.y * Mathf.Sign((float)v_i); // [m/sec] sign(v_i) --> determine speed and the correct direction
+            float horizontal_speed_LH = Mathf.Sqrt(v_PRO_LR.x * v_PRO_LR.x + v_PRO_LR.z * v_PRO_LR.z); // [m/sec] 
+            float vertical_speed_LH = -v_PRO_LR.y * Mathf.Sign((float)v_i); // [m/sec] sign(v_i) --> determine speed and the correct direction
 
             if (calculate_vortex_ring_state)
             {
-                float horizontal_velocityLH = par_tuning.vortex_ring_state_v_horizontal.val; // [m/sec]
-                float vertical_velocityLH = par_tuning.vortex_ring_state_v_vertical.val; // [m/sec]
-                float force_reduction_factor = par_tuning.vortex_ring_state_force_reduction_factor.val; // if vortex fully developed rotor thrust is reduced at this amount
-                float torque_reduction_factor = par_tuning.vortex_ring_state_torque_reduction_factor.val; // if vortex fully developed rotor torque is reduced at this amount
-                float elliptic_factor = 1.5f;
-                float stretch_x_factor = 1.3f;
-                float vortex_ring_state_stength_rising_speed_factor = par_tuning.vortex_ring_state_stength_rising_speed_factor.val;  // todo should depend on time, now depends on ODE-thread frequency
-
+                float force_reduction_factor = par_tuning.vortex_ring_state.force_reduction_factor.val; // [-] if vortex fully developed rotor thrust is reduced at this amount
+                float torque_reduction_factor = par_tuning.vortex_ring_state.torque_reduction_factor.val; // [-] if vortex fully developed rotor torque is reduced at this amount
+                const float critical_descent_angle = 60 * Mathf.PI / 180f; // [rad]   ~65°
+                float radius_factor_light = 1.20f; // [-]
+                float radius_factor_severe = 0.80f; // [-] raidus x-times of the par_tuning.vortex_ring_state_v_horizontal.val value (the circle/elliptic area should so alrge, that it also goes into negative diagram-x-axis regions to cover descent angles of 90°)
+                float stength_rising_speed_factor = par_tuning.vortex_ring_state.stength_rising_speed_factor.val;  // [1/s] todo should depend on time, now depends on ODE-thread frequency
+                float light_turbulence_area_growth = 0.1f; // [-]
 
 
                 if (integrator_function_call_number == 0)
@@ -810,25 +810,37 @@ namespace Rotor
                     // In rate of descent vs horizntal speed diagram we define the area, where from 
                     // light to severe turbulence and thrust variation occures. A cosinus curve is 
                     // used to create a smooth transition from areas without VRS to areas with VRS
-                    Vector2 vrs_center_in_diagram = new Vector2(horizontal_velocityLH, vertical_velocityLH); // [m/s] horizontal, vertical speed
-                    float vrs_radius_in_diagram = vrs_center_in_diagram[0] * stretch_x_factor; // [m/s]
+                    Vector2 vrs_center_in_diagram = new Vector2(Mathf.Abs(par_tuning.vortex_ring_state.v_vertical.val / Mathf.Tan(critical_descent_angle)), -Mathf.Abs(par_tuning.vortex_ring_state.v_vertical.val)); // [m/s] horizontal, vertical speed
+                    float vrs_radius_in_diagram_light = Mathf.Abs(vrs_center_in_diagram[0] * radius_factor_light); // [m/s]
+                    float vrs_radius_in_diagram_severe = Mathf.Abs(vrs_center_in_diagram[0] * radius_factor_severe); // [m/s]
 
-                    float distance_to_vrs_center = new Vector2(horizontal_speed_LH - vrs_center_in_diagram[0], (vertical_speed_LH - vrs_center_in_diagram[1]) * elliptic_factor).magnitude;
 
-                    //if ((horizontal_speed_LH > 1 && horizontal_speed_LH < 5) &&
-                    //     (vertical_speed_LH > -10 && vertical_speed_LH < -2) && !flag_freewheeling)
-                    if ((distance_to_vrs_center < vrs_radius_in_diagram) && !flag_freewheeling)
+                    float delta_velocity_diagram_x = horizontal_speed_LH - vrs_center_in_diagram[0]; // [m/s]
+                    float delta_velocity_diagram_y = vertical_speed_LH - vrs_center_in_diagram[1]; // [m/s]
+                    float delta_distance_to_vrs_center = new Vector2(delta_velocity_diagram_x, delta_velocity_diagram_y).magnitude;
+
+                    // light turbulences - slow build up of vortex ring
+                    if (((delta_velocity_diagram_x < 0 && 
+                     delta_velocity_diagram_y < +vrs_radius_in_diagram_light &&
+                     delta_velocity_diagram_y > -vrs_radius_in_diagram_light) || 
+                    (delta_distance_to_vrs_center < vrs_radius_in_diagram_light)) && !flag_freewheeling)
                     {
-                        vortex_ring_state_stength[(int)rotor_type] += vortex_ring_state_stength_rising_speed_factor * ((Mathf.Cos((distance_to_vrs_center / vrs_radius_in_diagram) * Mathf.PI) + 1f) / 2f);
+                        // light turbulences - slow build up of vortex ring
+                        if(vortex_ring_state_stength[(int)rotor_type] < 0.5000000000)
+                            vortex_ring_state_stength[(int)rotor_type] += stength_rising_speed_factor * light_turbulence_area_growth;
+
+                        // severe turbulences - fast build up of vortex ring
+                        if (delta_distance_to_vrs_center < vrs_radius_in_diagram_severe)
+                            vortex_ring_state_stength[(int)rotor_type] += stength_rising_speed_factor * ((Mathf.Cos((delta_distance_to_vrs_center / vrs_radius_in_diagram_severe) * Mathf.PI) + 1f) * 0.5f * (1.0f- light_turbulence_area_growth));
                     }
                     else
                     {
-                        vortex_ring_state_stength[(int)rotor_type] -= vortex_ring_state_stength_rising_speed_factor * 0.5f; // todo descent intensity ???
+                        vortex_ring_state_stength[(int)rotor_type] -= stength_rising_speed_factor * 0.500000000000f; // todo descent intensity ???
                     }
 
                     vortex_ring_state_stength[(int)rotor_type] = Mathf.Clamp(vortex_ring_state_stength[(int)rotor_type], 0, 1); // [0 ... 1]
                 }
-                force_at_heli_CH_O *= (1 - vortex_ring_state_stength[(int)rotor_type] * force_reduction_factor);
+                force_at_heli_CH_O *= (1 - vortex_ring_state_stength[(int)rotor_type] * force_reduction_factor); 
                 torque_at_heli_CH_LH *= (1 - vortex_ring_state_stength[(int)rotor_type] * torque_reduction_factor);
 
                 strength_turbulence = vortex_ring_state_stength[(int)rotor_type];
@@ -855,24 +867,24 @@ namespace Rotor
                 // turbulence strength depends on rotational speed but also on translational speed:
                 // - if rotational speed is high turbulence is high
                 // - but if translational speed is high turbulence is low, even if rotational speed is high (rotor gets undisturbed air)
-                strength_turbulence += Helper.Step(rotational_velocity_scalar_abs, par_tuning.turbulence_rotational_velocity_limit.val/2.0f, 0, par_tuning.turbulence_rotational_velocity_limit.val, 1) * 
-                                       Helper.Step(translational_velocity_scalar_abs, par_tuning.turbulence_translational_velocity_limit.val/2.0f, 1, par_tuning.turbulence_translational_velocity_limit.val, 0.25f); // [0...1]
+                strength_turbulence += Helper.Step(rotational_velocity_scalar_abs, par_tuning.turbulence.rotational_velocity_limit.val/2.0f, 0, par_tuning.turbulence.rotational_velocity_limit.val, 1) * 
+                                       Helper.Step(translational_velocity_scalar_abs, par_tuning.turbulence.translational_velocity_limit.val/2.0f, 1, par_tuning.turbulence.translational_velocity_limit.val, 0.25f); // [0...1]
 
                 strength_turbulence = Mathf.Clamp(strength_turbulence, 0, 1);
-
+             
                 // turbulence is represented with random values
                 float turbulence_time_elapsed = time;
-                turbulence_time_elapsed %= 1f / par_tuning.turbulence_frequency.val; // [1/Hz] select the frequency of the turbulence
+                turbulence_time_elapsed %= 1f / par_tuning.turbulence.frequency.val; // [1/Hz] select the frequency of the turbulence
                 if (turbulence_time_elapsed < turbulence_time_elapsed_old[(int)rotor_type])
                 {
                     turbulence_force_LH[(int)rotor_type] = new Vector3(
-                         ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence_force_strength.vect3.x,
-                         ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence_force_strength.vect3.y,
-                         ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence_force_strength.vect3.z);  // [N]
+                         ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence.force_strength.vect3.x,
+                         ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence.force_strength.vect3.y,
+                         ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence.force_strength.vect3.z);  // [N]
                     turbulence_torque_LH_target[(int)rotor_type] = new Vector3(
-                        ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence_torque_strength.vect3.x,
-                        ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence_torque_strength.vect3.y, 
-                        ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence_torque_strength.vect3.z ); // [Nm]
+                        ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence.torque_strength.vect3.x,
+                        ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence.torque_strength.vect3.y, 
+                        ((float)random.NextDouble() - 0.5f) * 2f * strength_turbulence * par_tuning.turbulence.torque_strength.vect3.z ); // [Nm]
                 }
                 turbulence_time_elapsed_old[(int)rotor_type] = turbulence_time_elapsed;
 

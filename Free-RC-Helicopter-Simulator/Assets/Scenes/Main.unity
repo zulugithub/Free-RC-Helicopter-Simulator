@@ -2164,7 +2164,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &165617648
 Transform:
   m_ObjectHideFlags: 0
@@ -3320,7 +3320,7 @@ PrefabInstance:
     - target: {fileID: 1750257030789400336, guid: 27a5d865dbb59184bb15772caf4754bf,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 206
       objectReference: {fileID: 0}
     - target: {fileID: 1750257030930947199, guid: 27a5d865dbb59184bb15772caf4754bf,
         type: 3}
@@ -3370,7 +3370,7 @@ PrefabInstance:
     - target: {fileID: 1750257031914802154, guid: 27a5d865dbb59184bb15772caf4754bf,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.68164796
+      value: 0.588
       objectReference: {fileID: 0}
     - target: {fileID: 1750257031914802154, guid: 27a5d865dbb59184bb15772caf4754bf,
         type: 3}
@@ -3391,6 +3391,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_ScrollSensitivity
       value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1851779848862216423, guid: 27a5d865dbb59184bb15772caf4754bf,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 3989779872680171440, guid: 27a5d865dbb59184bb15772caf4754bf,
         type: 3}
@@ -11185,7 +11190,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &539869546
 Transform:
   m_ObjectHideFlags: 0
@@ -13004,7 +13009,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -39676,7 +39681,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1808792354}
-  m_RootOrder: 13
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -39696,7 +39701,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -63121,6 +63126,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: UI Slider Channel 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6730451367376433513, guid: 72bc1938ca93d034189ad38eef303a40,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6988864295118667047, guid: 72bc1938ca93d034189ad38eef303a40,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -66567,7 +66577,7 @@ PrefabInstance:
     - target: {fileID: 1246085488443508085, guid: 99873f6f55d132448ae7e091eadb9cc4,
         type: 3}
       propertyPath: m_RootOrder
-      value: 9
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1524176354618156481, guid: 99873f6f55d132448ae7e091eadb9cc4,
         type: 3}
@@ -66612,7 +66622,7 @@ PrefabInstance:
     - target: {fileID: 6936005004364744146, guid: 99873f6f55d132448ae7e091eadb9cc4,
         type: 3}
       propertyPath: m_RootOrder
-      value: 15
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 6936005005157514080, guid: 99873f6f55d132448ae7e091eadb9cc4,
         type: 3}
@@ -66757,12 +66767,12 @@ PrefabInstance:
     - target: {fileID: 6936005005417356871, guid: 99873f6f55d132448ae7e091eadb9cc4,
         type: 3}
       propertyPath: m_RootOrder
-      value: 14
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 6936005005465528371, guid: 99873f6f55d132448ae7e091eadb9cc4,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 6936005005740369228, guid: 99873f6f55d132448ae7e091eadb9cc4,
         type: 3}
@@ -66777,7 +66787,7 @@ PrefabInstance:
     - target: {fileID: 8458807858719428914, guid: 99873f6f55d132448ae7e091eadb9cc4,
         type: 3}
       propertyPath: m_RootOrder
-      value: 10
+      value: 15
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 99873f6f55d132448ae7e091eadb9cc4, type: 3}
