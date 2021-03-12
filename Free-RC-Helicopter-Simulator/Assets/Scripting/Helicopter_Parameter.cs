@@ -189,10 +189,10 @@ namespace Parameter
             xr_zoom_factor = new stru_float();
             keep_ground_visible = new stru_float();
 
-            stiffness.val = 5.0f;
+            stiffness.val = 10.0f;
             stiffness.min = 0.0f;
             stiffness.max = 20f;
-            stiffness.hint = "Stiffnes of the camera-helicopter following rotation";
+            stiffness.hint = "Stiffness of the camera-helicopter following rotation";
             stiffness.comment = "";
             stiffness.unit = "-";
             stiffness.save_under_player_prefs = true;
@@ -1029,15 +1029,35 @@ namespace Parameter
     public class stru_fuselage
     {
         public stru_Vector3 S_fxyz { get; set; } // [m^2] effective drag area along the body-frame XYZ (front,vertical,side)
+        public stru_float downwash_factor_mainrotor { get; set; } // [0..1] Wing is hit by mainrotor downwash
+        public stru_float downwash_factor_tailrotor { get; set; } // [0..1] Wing is hit by tailrotor downwash  (tandem heli)
+
 
         public stru_fuselage()
         {
             S_fxyz = new stru_Vector3();
+            downwash_factor_mainrotor = new stru_float();
+            downwash_factor_tailrotor = new stru_float();
 
             S_fxyz.vect3 = new Vector3 { x = 0.02f, y = 0.08f, z = 0.09f };
             S_fxyz.hint = "Effective cross section area";
             S_fxyz.comment = "";
             S_fxyz.unit = "m^2";
+
+            downwash_factor_mainrotor.val = 0.5f;
+            downwash_factor_mainrotor.min = 0.0f;
+            downwash_factor_mainrotor.max = 1.0f;
+            downwash_factor_mainrotor.hint = "Wing is hit by mainrotor downwash";
+            downwash_factor_mainrotor.comment = "";
+            downwash_factor_mainrotor.unit = "[0...1]";
+
+            downwash_factor_tailrotor.val = 0.0f;
+            downwash_factor_tailrotor.min = 0.0f;
+            downwash_factor_tailrotor.max = 1.0f;
+            downwash_factor_tailrotor.hint = "Wing is hit by tailrotor downwash (if tandem rotor heli)"; // todo
+            downwash_factor_tailrotor.comment = "";
+            downwash_factor_tailrotor.unit = "[0...1]";
+
         }
     }
     // ##################################################################################
@@ -1698,7 +1718,7 @@ namespace Parameter
             I_flapping.unit = "kg*m^2";
 
 
-            hub_stiffness_mr.val = 60f;
+            hub_stiffness_mr.val = 120f;
             hub_stiffness_mr.min = 0.001f;
             hub_stiffness_mr.max = 1000f;
             hub_stiffness_mr.hint = "Hub stiffness in rotor head. (O-ring)";
@@ -1735,14 +1755,14 @@ namespace Parameter
             B_a_s.unit = "1/sec";
 
 
-            A_a_r.val = 0.02f;
+            A_a_r.val = 0.015f;
             A_a_r.min = 0.0f;
             A_a_r.max = 100f;
             A_a_r.hint = "Fast forward flight (large advance ratio) tilts rotor disc to \"nose up\".";
             A_a_r.comment = "";
             A_a_r.unit = "rad/m";
 
-            B_a_r.val = 0.02f; 
+            B_a_r.val = 0.015f; 
             B_a_r.min = 0.0f;
             B_a_r.max = 100f;
             B_a_r.hint = "Fast sideward flight (large advance ratio) tilts rotor disc to \"side up\".";
@@ -2196,7 +2216,7 @@ namespace Parameter
             engine_restart_time.comment = "";
             engine_restart_time.unit = "sec";
 
-            engine_restart_factor.val = 10f;
+            engine_restart_factor.val = 1f;
             engine_restart_factor.min = 0.01f;
             engine_restart_factor.max = 10.000f;
             engine_restart_factor.hint = "Factor to fast restart the motor and accelerate to the full speed.";
