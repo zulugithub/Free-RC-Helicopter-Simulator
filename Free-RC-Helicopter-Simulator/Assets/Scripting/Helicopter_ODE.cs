@@ -324,7 +324,7 @@ namespace Helisimulator
         private Vector3 vectO = Vector3.zero; // [m]
         public Vector3 veloLH { get; protected set; } // = Vector3.zero; // [m/sec]
         private Vector3 veloO = Vector3.zero; // [m/sec]
-        private Vector3 omegaLH = Vector3.zero; // [rad/sec]
+        private Vector3 omegaLH = Vector3.zero; // [rad/sec] 
         //private Vector3 omegaO = Vector3.zero; // [rad/sec]
         private float velo_u_aLH; // [m/sec] longitudinal front-back direction local velocity
         private float velo_v_aLH; // [m/sec] vertical top-bottom direction local velocity    (y is w! in 2011_Book_UnmannedRotorcraftSystems.pdf)
@@ -339,15 +339,15 @@ namespace Helisimulator
         private Vector3 torque_frictionLH_sum = Vector3.zero; // [Nm]
         private Vector3 velo_windLH = Vector3.zero; // [m/sec]
         private Vector3 velo_windO = Vector3.zero; // [m/sec]
-        private double dDELTA_x_roll__int_dt = 0;    // [rad/sec] flybareless error value integral
+        private double dDELTA_x_roll__int_dt = 0;    // [rad/sec] flybarless error value integral
         private double dDELTA_y_yaw__int_dt = 0;     // [rad/sec] gyro error value integral
-        private double dDELTA_z_pitch__int_dt = 0;   // [rad/sec] flybareless error value integral
-        private double DELTA_x_roll__diff = 0;    // [rad/sec] flybareless error value differential
+        private double dDELTA_z_pitch__int_dt = 0;   // [rad/sec] flybarless error value integral
+        private double DELTA_x_roll__diff = 0;    // [rad/sec] flybarless error value differential
         private double DELTA_y_yaw__diff = 0;     // [rad/sec] gyro error value differential
-        private double DELTA_z_pitch__diff = 0;   // [rad/sec] flybareless error value differential
-        private double DELTA_x_roll__diff_old = 0;    // [rad/sec] flybareless error value differential _old
+        private double DELTA_z_pitch__diff = 0;   // [rad/sec] flybarless error value differential
+        private double DELTA_x_roll__diff_old = 0;    // [rad/sec] flybarless error value differential _old
         private double DELTA_y_yaw__diff_old = 0;     // [rad/sec] gyro error value differential _old
-        private double DELTA_z_pitch__diff_old = 0;   // [rad/sec] flybareless error value differential _old
+        private double DELTA_z_pitch__diff_old = 0;   // [rad/sec] flybarless error value differential _old
         private double dservo_col_mr_damped_dt = 0;  // [-1...1] damping of mainrotor collective movement - Collective
         private double dservo_lat_mr_damped_dt = 0;  // [-1...1] damping of mainrotor lateral movement - Roll
         private double dservo_lon_mr_damped_dt = 0;  // [-1...1] damping of mainrotor longitudial movement - Pitch
@@ -430,9 +430,9 @@ namespace Helisimulator
         private double Omega_mo; // [rad] brushless motor rotational angle
         private double DELTA_omega_mo___int; // [rad] // PI Controller's integral part
 
-        private double DELTA_x_roll__int;   // [rad] flybareless error value integral
+        private double DELTA_x_roll__int;   // [rad] flybarless error value integral
         private double DELTA_y_yaw__int;    // [rad] gyro error value integral
-        private double DELTA_z_pitch__int;  // [rad] flybareless error value integral
+        private double DELTA_z_pitch__int;  // [rad] flybarless error value integral
 
         private double servo_col_mr_damped;  // [-1...1] damping of mainrotor collective movement - Collective
         private double servo_lat_mr_damped;  // [-1...1] damping of mainrotor lateral movement - Roll
@@ -710,9 +710,9 @@ namespace Helisimulator
             forcesO = Vector3.zero; // [N]
             torquesLH = Vector3.zero; // [Nm]
 
-            DELTA_x_roll__int = 0;   // [rad] flybareless error value integral
+            DELTA_x_roll__int = 0;   // [rad] flybarless error value integral
             DELTA_y_yaw__int = 0;    // [rad] gyro error value integral
-            DELTA_z_pitch__int = 0;  // [rad] flybareless error value integral
+            DELTA_z_pitch__int = 0;  // [rad] flybarless error value integral
 
             dflapping_a_s_mr_LR__int_dt = 0;   // [rad/sec] mainrotor pitch flapping velocity a_s (longitudial direction)
             dflapping_b_s_mr_LR__int_dt = 0;   // [rad/sec] mainrotor roll flapping velocity b_s (lateral direction)
@@ -730,15 +730,15 @@ namespace Helisimulator
             torque_frictionLH_sum = Vector3.zero; // [Nm]
             velo_windLH = Vector3.zero; // [m/sec]
             velo_windO = Vector3.zero; // [m/sec]
-            dDELTA_x_roll__int_dt = 0;    // [rad/sec] flybareless error value integral
+            dDELTA_x_roll__int_dt = 0;    // [rad/sec] flybarless error value integral
             dDELTA_y_yaw__int_dt = 0;     // [rad/sec] gyro error value integral
-            dDELTA_z_pitch__int_dt = 0;   // [rad/sec] flybareless error value integral
-            DELTA_x_roll__diff = 0;    // [rad/sec] flybareless error value differential
+            dDELTA_z_pitch__int_dt = 0;   // [rad/sec] flybarless error value integral
+            DELTA_x_roll__diff = 0;    // [rad/sec] flybarless error value differential
             DELTA_y_yaw__diff = 0;     // [rad/sec] gyro error value differential
-            DELTA_z_pitch__diff = 0;   // [rad/sec] flybareless error value differential
-            DELTA_x_roll__diff_old = 0;    // [rad/sec] flybareless error value differential _old
+            DELTA_z_pitch__diff = 0;   // [rad/sec] flybarless error value differential
+            DELTA_x_roll__diff_old = 0;    // [rad/sec] flybarless error value differential _old
             DELTA_y_yaw__diff_old = 0;     // [rad/sec] gyro error value differential _old
-            DELTA_z_pitch__diff_old = 0;   // [rad/sec] flybareless error value differential _old
+            DELTA_z_pitch__diff_old = 0;   // [rad/sec] flybarless error value differential _old
             dservo_col_mr_damped_dt = 0;  // [-1...1] damping of mainrotor collective movement - Collective
             dservo_lat_mr_damped_dt = 0;  // [-1...1] damping of mainrotor lateral movement - Roll
             dservo_lon_mr_damped_dt = 0;  // [-1...1] damping of mainrotor longitudial movement - Pitch
@@ -808,10 +808,10 @@ namespace Helisimulator
             if (flag_motor_enabled == false) DELTA_omega_mo___int = 0; // [deg]
             x_states[21] = DELTA_omega_mo___int; // [rad] mainrotorspeed controller's int part (from PI)  
 
-            // flybareless controller 
-            x_states[22] = 0; // [rad/sec] flybareless error value integral
+            // flybarless controller 
+            x_states[22] = 0; // [rad/sec] flybarless error value integral
             x_states[23] = 0; // [rad/sec] gyro error value integral
-            x_states[24] = 0; // [rad/sec] flybareless error value integral
+            x_states[24] = 0; // [rad/sec] flybarless error value integral
 
             // servo movement damping
             x_states[25] = 0;  // [rad] damping of mainrotor collective movement - Collective
@@ -1786,15 +1786,15 @@ namespace Helisimulator
             torque_frictionLH_sum = Vector3.zero; // [Nm]
             velo_windLH = Vector3.zero; // [m/sec]
             velo_windO = Vector3.zero; // [m/sec]
-            //dDELTA_x_roll__int_dt = 0;    // [rad/sec] flybareless error value integral
+            //dDELTA_x_roll__int_dt = 0;    // [rad/sec] flybarless error value integral
             //dDELTA_y_yaw__int_dt = 0;     // [rad/sec] gyro error value integral
-            //dDELTA_z_pitch__int_dt = 0;   // [rad/sec] flybareless error value integral
-            DELTA_x_roll__diff = 0;    // [rad/sec] flybareless error value differential
+            //dDELTA_z_pitch__int_dt = 0;   // [rad/sec] flybarless error value integral
+            DELTA_x_roll__diff = 0;    // [rad/sec] flybarless error value differential
             DELTA_y_yaw__diff = 0;     // [rad/sec] gyro error value differential
-            DELTA_z_pitch__diff = 0;   // [rad/sec] flybareless error value differential
-            DELTA_x_roll__diff_old = 0;    // [rad/sec] flybareless error value differential_old
+            DELTA_z_pitch__diff = 0;   // [rad/sec] flybarless error value differential
+            DELTA_x_roll__diff_old = 0;    // [rad/sec] flybarless error value differential_old
             DELTA_y_yaw__diff_old = 0;     // [rad/sec] gyro error value differential_old
-            DELTA_z_pitch__diff_old = 0;   // [rad/sec] flybareless error value differential_old
+            DELTA_z_pitch__diff_old = 0;   // [rad/sec] flybarless error value differential_old
             dservo_col_mr_damped_dt = 0;  // [-1...1] damping of mainrotor collective movement - Collective
             dservo_lat_mr_damped_dt = 0;  // [-1...1] damping of mainrotor lateral movement - Roll
             dservo_col_tr_damped_dt = 0;  // [-1...1] damping of tailrotor collective movement - Yaw
@@ -1833,9 +1833,9 @@ namespace Helisimulator
 
             DELTA_omega_mo___int = x_states[21]; // [rad] // PI Controller's integral part
 
-            DELTA_x_roll__int = x_states[22];   // [rad] flybareless error value integral
+            DELTA_x_roll__int = x_states[22];   // [rad] flybarless error value integral
             DELTA_y_yaw__int = x_states[23];    // [rad] gyro error value integral
-            DELTA_z_pitch__int = x_states[24];  // [rad] flybareless error value integral
+            DELTA_z_pitch__int = x_states[24];  // [rad] flybarless error value integral
 
             servo_col_mr_damped = x_states[25];  // [-1...1] damping of mainrotor collective movement - Collective
             servo_lat_mr_damped = x_states[26];  // [-1...1] damping of mainrotor lateral movement - Roll
@@ -1986,7 +1986,7 @@ namespace Helisimulator
                         delta_error_debug = delta_error;
 
                         // feedtrough of controller input (controller override)
-                        if (par.transmitter_and_helicopter.helicopter.flybarless.direct_feadtrough_flybareless.val == true)
+                        if (par.transmitter_and_helicopter.helicopter.flybarless.direct_feadtrough_flybarless.val == true)
                         {
                             delta_lat_mr = input_x_roll;
                             delta_lon_mr = input_z_pitch;
@@ -2045,7 +2045,7 @@ namespace Helisimulator
                         delta_col_tr = -controller_z_pitch * 0.20f + input_y_col * 0.80f;
 
                         // handle deactivation of controller
-                        if (par.transmitter_and_helicopter.helicopter.flybarless.direct_feadtrough_flybareless.val == true)
+                        if (par.transmitter_and_helicopter.helicopter.flybarless.direct_feadtrough_flybarless.val == true)
                         {
                             delta_lat_mr = input_x_roll * 0.50f - controller_y_yaw * 0.50f;
                             delta_lat_tr = input_x_roll * 0.50f + controller_y_yaw * 0.50f;
@@ -2058,7 +2058,7 @@ namespace Helisimulator
                             delta_lat_mr = controller_x_roll * 0.50f - input_y_yaw * 0.50f;
                             delta_lat_tr = controller_x_roll * 0.50f + input_y_yaw * 0.50f;
                         }
-                        if (par.transmitter_and_helicopter.helicopter.flybarless.direct_feadtrough_flybareless.val == true && 
+                        if (par.transmitter_and_helicopter.helicopter.flybarless.direct_feadtrough_flybarless.val == true && 
                             par.transmitter_and_helicopter.helicopter.gyro.direct_feadtrough_gyroscope.val == true)
                         {
                             delta_lat_mr = input_x_roll * 0.50f - input_y_yaw * 0.50f;
@@ -2111,10 +2111,10 @@ namespace Helisimulator
                     x_states[16] -= Math.Sign(x_states[16]) * factor1; // [rad] tailrotor roll flapping angle b_s (lateral direction)  // TODO
 
                     const float factor2 = 0.01f;
-                    // flybareless controller  - reduce state value to zero
-                    x_states[22] -= Math.Sign(x_states[22]) * factor2; // [rad/sec] flybareless error value integral  // TODO
+                    // flybarless controller  - reduce state value to zero
+                    x_states[22] -= Math.Sign(x_states[22]) * factor2; // [rad/sec] flybarless error value integral  // TODO
                     x_states[23] -= Math.Sign(x_states[23]) * factor2 * 0.01f; // [rad/sec] gyro error value integral  // TODO
-                    x_states[24] -= Math.Sign(x_states[24]) * factor2; // [rad/sec] flybareless error value integral  // TODO
+                    x_states[24] -= Math.Sign(x_states[24]) * factor2; // [rad/sec] flybarless error value integral  // TODO
 
                     //// servo movement damping - reduce state value to zero
                     //x_states[25] -= Math.Sign(x_states[25]) * factor2;  // [rad] damping of mainrotor collective movement - Collective
@@ -3039,9 +3039,9 @@ namespace Helisimulator
             dxdt[21] = dDELTA_omega_mo___int_dt; // [rad] governor PI-controller's integrator 
 
             // controller
-            dxdt[22] = dDELTA_x_roll__int_dt;    // [rad/sec] flybareless error value integral
+            dxdt[22] = dDELTA_x_roll__int_dt;    // [rad/sec] flybarless error value integral
             dxdt[23] = dDELTA_y_yaw__int_dt;     // [rad/sec] gyro error value integral
-            dxdt[24] = dDELTA_z_pitch__int_dt;   // [rad/sec] flybareless error value integral
+            dxdt[24] = dDELTA_z_pitch__int_dt;   // [rad/sec] flybarless error value integral
 
             // servo damping
             dxdt[25] = dservo_col_mr_damped_dt;  // [-1...1] damping of mainrotor collective movement - Collective

@@ -144,9 +144,9 @@ abstract public class Helicopter_Integrator  {
 
 		DELTA_omega_mo___int = x_states[21]; // [rad] // PI Controller's integral part
 
-		DELTA_x_roll__int = x_states[22];   // [rad] flybareless error value integral
+		DELTA_x_roll__int = x_states[22];   // [rad] flybarless error value integral
 		DELTA_y_yaw__int = x_states[23];    // [rad] gyro error value integral
-		DELTA_z_pitch__int = x_states[24];  // [rad] flybareless error value integral
+		DELTA_z_pitch__int = x_states[24];  // [rad] flybarless error value integral
 
 		servo_col_mr_damped = x_states[25];  // [-1...1] damping of mainrotor collective movement - Collective
 		servo_lat_mr_damped = x_states[26];  // [-1...1] damping of mainrotor lateral movement - Roll
