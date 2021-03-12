@@ -1086,9 +1086,17 @@ namespace Helisimulator
             velo_w_aLH = (veloLH.z - velo_windLH.z); // [m/sec] lateral left-rigth direction local velocity
 
             // CW value == 1 ?????
-            force_fuselageLH.x = (float)(-(par.scenery.weather.rho_air.val / 2) * par.transmitter_and_helicopter.helicopter.fuselage.S_fxyz.vect3.x * velo_u_aLH * Mathf.Abs(velo_u_aLH)); // [N] front  
-            force_fuselageLH.y = (float)(-(par.scenery.weather.rho_air.val / 2) * par.transmitter_and_helicopter.helicopter.fuselage.S_fxyz.vect3.y * (velo_v_aLH - v_i_mr) * Mathf.Abs(velo_v_aLH - (float)v_i_mr)); // [N] top with mainrotor downwash     TODO inverted flight should not have downwash
-            force_fuselageLH.z = (float)(-(par.scenery.weather.rho_air.val / 2) * par.transmitter_and_helicopter.helicopter.fuselage.S_fxyz.vect3.z * velo_w_aLH * Mathf.Abs(velo_w_aLH)); // [N]  side
+            float v_i_mr_factor = par.transmitter_and_helicopter.helicopter.fuselage.downwash_factor_mainrotor.val;     
+            float v_i_tr_factor = par.transmitter_and_helicopter.helicopter.fuselage.downwash_factor_tailrotor.val; // used by tandem-rotor helicopters 
+            force_fuselageLH.x = (float)(-(par.scenery.weather.rho_air.val / 2) * par.transmitter_and_helicopter.helicopter.fuselage.S_fxyz.vect3.x * 
+                velo_u_aLH * Mathf.Abs(velo_u_aLH)); // [N] front  
+            float v_i_mr_inverted_flight_factor = Helper.Step(-(float)v_i_mr, -0.5f, 0.3333f, +0.5f, 1.0f);  // inverted flight should have reduced downwash effect on fuselage
+            float v_i_tr_inverted_flight_factor = Helper.Step(-(float)v_i_tr, -0.5f, 0.3333f, +0.5f, 1.0f);  // inverted flight should have reduced downwash effect on fuselage
+            float velo_temp = velo_v_aLH - (float)v_i_mr * v_i_mr_factor * v_i_mr_inverted_flight_factor - (float)v_i_tr * v_i_tr_factor * v_i_tr_inverted_flight_factor; // [m/s]
+            force_fuselageLH.y = (float)(-(par.scenery.weather.rho_air.val / 2) * par.transmitter_and_helicopter.helicopter.fuselage.S_fxyz.vect3.y *
+                velo_temp * Mathf.Abs(velo_temp)); // [N] top with mainrotor downwash    
+            force_fuselageLH.z = (float)(-(par.scenery.weather.rho_air.val / 2) * par.transmitter_and_helicopter.helicopter.fuselage.S_fxyz.vect3.z * 
+                velo_w_aLH * Mathf.Abs(velo_w_aLH)); // [N]  side
 
             force_fuselageO = Helper.A_RL(q, force_fuselageLH); // [N]
 
