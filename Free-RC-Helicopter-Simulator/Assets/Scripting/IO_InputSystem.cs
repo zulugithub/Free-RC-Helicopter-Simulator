@@ -52,8 +52,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
     // custom devices
     public RX2SIM_Game_Controller RX2SIM_game_controller;
-    public DSMX_Game_Controller DSMX_game_controller; 
-
+    public DSMX_Game_Controller DSMX_game_controller;
+    public FRSKY_Game_Controller FRSKY_Game_Controller;
 
 
 
@@ -154,37 +154,61 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                             }
                         }
                     }
-                    else // device is a standard gamepad
+                    else
                     {
-                        for (int i = 0; i < 8; i++) input_channel_from_event_proccessing[i] = 0;
-
-                        foreach (var each_control in ((Gamepad)device).allControls)
+                        if (device.description.product.Contains("FrSky Simulator"))
                         {
-                            //UnityEngine.Debug.Log("Control___name " + each_control.name);
+                            for (int i = 0; i < 8; i++) input_channel_from_event_proccessing[i] = 0;
 
-                            if (each_control.displayName.Equals("Left Stick X"))
-                                ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[0]);
-                            if (each_control.displayName.Equals("Left Stick Y"))
-                                ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[1]);
-                            if (each_control.displayName.Equals("Right Stick X"))
-                                ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[2]);
-                            if (each_control.displayName.Equals("Right Stick Y"))
-                                ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[3]);
-                            if (each_control.displayName.Equals("Left Trigger"))
-                                ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[4]);
-                            if (each_control.displayName.Equals("Right Trigger"))
-                                ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[5]);
-                            if (each_control.displayName.Equals("X"))
-                                ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[6]);
-                            if (each_control.displayName.Equals("A"))
-                                ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[7]);
+                            foreach (var each_control in ((FRSKY_Game_Controller)device).allControls)
+                            {
+                                //UnityEngine.Debug.Log("Control___name: " + each_control.name);
+                                for (int i = 0; i < 8; i++)
+                                {
+                                    if (each_control.name.Contains("axis" + i.ToString()))
+                                    {
+                                        ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[i]);
+
+                                        // due to an overflow problem with values in range of -127...127: they are interpreted as uint and not as int, 
+                                        // therefore the result has an overflow problem. (maybe there is a better solution by editing FRSKY_Game_Controller_Device_State())
+                                        if (input_channel_from_event_proccessing[i] > 0.5f) input_channel_from_event_proccessing[i] -= 1.0f;
+
+                                        input_channel_from_event_proccessing[i] = input_channel_from_event_proccessing[i] * 2.0f - 1.0f; // formatting if neccessary
+                                    }
+                                }
+                            }
                         }
+                        else // device is a standard gamepad
+                        {
+                            for (int i = 0; i < 8; i++) input_channel_from_event_proccessing[i] = 0;
 
-                        // Can handle events yourself, for example, and then stop them
-                        // from further processing by marking them as handled.
-                        eventPtr.handled = true;
+                            foreach (var each_control in ((Gamepad)device).allControls)
+                            {
+                                //UnityEngine.Debug.Log("Control___name " + each_control.name);
+
+                                if (each_control.displayName.Equals("Left Stick X"))
+                                    ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[0]);
+                                if (each_control.displayName.Equals("Left Stick Y"))
+                                    ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[1]);
+                                if (each_control.displayName.Equals("Right Stick X"))
+                                    ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[2]);
+                                if (each_control.displayName.Equals("Right Stick Y"))
+                                    ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[3]);
+                                if (each_control.displayName.Equals("Left Trigger"))
+                                    ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[4]);
+                                if (each_control.displayName.Equals("Right Trigger"))
+                                    ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[5]);
+                                if (each_control.displayName.Equals("X"))
+                                    ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[6]);
+                                if (each_control.displayName.Equals("A"))
+                                    ((AxisControl)each_control).ReadValueFromEvent(eventPtr, out input_channel_from_event_proccessing[7]);
+                            }
+                        }
                     }
- 
+
+                    // Can handle events yourself, for example, and then stop them
+                    // from further processing by marking them as handled.
+                    eventPtr.handled = true;
 
                 } // if device is a joystick
                 else if (connected_input_devices_type[selected_input_device_id].Contains("Joystick"))   
@@ -327,6 +351,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         // ##################################################################################
         RX2SIM_game_controller = new RX2SIM_Game_Controller();  // call constructor
         DSMX_game_controller = new DSMX_Game_Controller();  // call constructor
+        FRSKY_Game_Controller = new FRSKY_Game_Controller();  // call constructor
 
 
         // ##################################################################################
@@ -641,6 +666,131 @@ public class DSMX_Game_Controller : Gamepad // Gamepad // Joystick // InputDevic
                 .WithInterface("HID")
                 .WithManufacturer("Cypress")
                 .WithProduct("USB dsmX HID"));
+
+        //// Alternatively, you can also match by PID and VID, which is generally
+        //// more reliable for HIDs.
+        //InputSystem.RegisterLayout<RX2SIM_Game_Controller>(
+        //    matches: new InputDeviceMatcher()
+        //        .WithInterface("HID")
+        //        .WithCapability("vendorId", 1155)
+        //        .WithCapability("productId", 41195)); 
+
+    }
+
+    //// In the Player, to trigger the calling of the static constructor,
+    //// create an empty method annotated with RuntimeInitializeOnLoadMethod.
+    [RuntimeInitializeOnLoadMethod]
+    static void Init() { }
+}
+// ##################################################################################
+
+
+
+
+
+
+
+
+
+//// ##################################################################################                                                                                                                                                                                                      
+//    FFFFFFFFFFFFFFFFFFFFFF                     SSSSSSSSSSSSSSS kkkkkkkk                                    
+//    F::::::::::::::::::::F                   SS:::::::::::::::Sk::::::k                                    
+//    F::::::::::::::::::::F                  S:::::SSSSSS::::::Sk::::::k                                    
+//    FF::::::FFFFFFFFF::::F                  S:::::S     SSSSSSSk::::::k                                    
+//      F:::::F       FFFFFFrrrrr   rrrrrrrrr S:::::S             k:::::k    kkkkkkkyyyyyyy           yyyyyyy
+//      F:::::F             r::::rrr:::::::::rS:::::S             k:::::k   k:::::k  y:::::y         y:::::y 
+//      F::::::FFFFFFFFFF   r:::::::::::::::::rS::::SSSS          k:::::k  k:::::k    y:::::y       y:::::y  
+//      F:::::::::::::::F   rr::::::rrrrr::::::rSS::::::SSSSS     k:::::k k:::::k      y:::::y     y:::::y   
+//      F:::::::::::::::F    r:::::r     r:::::r  SSS::::::::SS   k::::::k:::::k        y:::::y   y:::::y    
+//      F::::::FFFFFFFFFF    r:::::r     rrrrrrr     SSSSSS::::S  k:::::::::::k          y:::::y y:::::y     
+//      F:::::F              r:::::r                      S:::::S k:::::::::::k           y:::::y:::::y      
+//      F:::::F              r:::::r                      S:::::S k::::::k:::::k           y:::::::::y       
+//    FF:::::::FF            r:::::r          SSSSSSS     S:::::Sk::::::k k:::::k           y:::::::y        
+//    F::::::::FF            r:::::r          S::::::SSSSSS:::::Sk::::::k  k:::::k           y:::::y         
+//    F::::::::FF            r:::::r          S:::::::::::::::SS k::::::k   k:::::k         y:::::y          
+//    FFFFFFFFFFF            rrrrrrr           SSSSSSSSSSSSSSS   kkkkkkkk    kkkkkkk       y:::::y           
+//                                                                                        y:::::y            
+//                                                                                       y:::::y             
+//                                                                                      y:::::y              
+//                                                                                     y:::::y               
+//                                                                                    yyyyyyy 
+// ##################################################################################
+//// FrSky FrSky Simulator
+// ##################################################################################
+// Free RC helicopter Simulator Input Devices Tester --> device_description_x.txt
+// - only one reportID(=0) --> all informations are delivered in one event
+// - axes start at reportOffsetInBits = 32 --> "offset = 4" (bytes)
+// - all 8 axes have 8bit (-127...+127)  --> "sizeInBits = 8"
+// - last two axes seam to have additional reportOffsetInBits
+// ##################################################################################
+// We receive data as raw HID input reports. This struct
+// describes the raw binary format of such a report.
+//[StructLayout(LayoutKind.Explicit, Size = 15)]
+public struct FRSKY_Game_Controller_Device_State : IInputStateTypeInfo
+{
+    // Because all HID input reports are tagged with the 'HID ' FourCC,
+    // this is the format we need to use for this state struct.
+    public FourCC format => new FourCC('H', 'I', 'D');
+
+    // HID input reports can start with an 8-bit report ID. It depends on the device
+    // whether this is present or not. 
+    [InputControl(name = "reportId", format = "BIT", layout = "Integer", displayName = "reportId1", bit = 0, offset = 0, sizeInBits = 8)]
+    //[FieldOffset(0)]
+    public byte reportId_;
+
+    // https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/api/UnityEngine.InputSystem.Layouts.InputControlAttribute.html
+    [InputControl(name = "axis0", format = "BIT", layout = "Axis", displayName = "X Axis", bit = 0, offset = 4, sizeInBits = 8)] // axis-X Axis     , parameters = "normalize,normalizeMin=-127,normalizeMax=127")
+    public float axis0;
+
+    [InputControl(name = "axis1", format = "BIT", layout = "Axis", displayName = "Y Axis", bit = 0, offset = 5, sizeInBits = 8)] // axis-Y Axis
+    public float axis1;
+
+    [InputControl(name = "axis2", format = "BIT", layout = "Axis", displayName = "Z Axis", bit = 0, offset = 6, sizeInBits = 8)] // axis-Z Axis
+    public float axis2;
+
+    [InputControl(name = "axis3", format = "BIT", layout = "Axis", displayName = "X Rate Axis", bit = 0, offset = 7, sizeInBits = 8)] // axis-X Rate Axis
+    public float axis3;
+
+    [InputControl(name = "axis4", format = "BIT", layout = "Axis", displayName = "Y Rate Axis", bit = 0, offset = 8, sizeInBits = 8)] // axis-Y Rate Axis
+    public float axis4;
+
+    [InputControl(name = "axis5", format = "BIT", layout = "Axis", displayName = "Z Rate Axis", bit = 0, offset = 9, sizeInBits = 8)] // axis-Z Rate Axis
+    public float axis5;
+
+    [InputControl(name = "axis6", format = "BIT", layout = "Axis", displayName = "Throttle", bit = 0, offset = 11, sizeInBits = 8)] // axis-Throttle
+    public float axis6;
+
+    [InputControl(name = "axis7", format = "BIT", layout = "Axis", displayName = "Rudder", bit = 0, offset = 11, sizeInBits = 8)] // axis-Rudder
+    public float axis7;
+
+}
+// ##################################################################################
+
+
+
+// ##################################################################################
+// Using InputControlLayoutAttribute, we tell the system about the state
+// struct we created, which includes where to find all the InputControl
+// attributes that we placed on there.This is how the Input System knows
+// what controls to create and how to configure them.
+// ##################################################################################
+[InputControlLayout(stateType = typeof(FRSKY_Game_Controller_Device_State))]
+#if UNITY_EDITOR
+[InitializeOnLoad] // Make sure static constructor is called during startup.
+#endif
+public class FRSKY_Game_Controller : Gamepad // Gamepad // Joystick // InputDevice 
+{
+    ////public override int valueSizeInBytes { get; }
+
+    //UnityEngine.InputSystem.PlayerInput
+    static FRSKY_Game_Controller()
+    {
+        //// This is one way to match the Device.
+        InputSystem.RegisterLayout<FRSKY_Game_Controller>(
+            matches: new InputDeviceMatcher()
+                .WithInterface("HID")
+                .WithManufacturer("FrSky")
+                .WithProduct("FrSky Simulator"));
 
         //// Alternatively, you can also match by PID and VID, which is generally
         //// more reliable for HIDs.
