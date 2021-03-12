@@ -9,10 +9,10 @@ public class UI_Informations_Overlay : MonoBehaviour
     public GameObject object_to_follow;
     public float engine, autorotation, engine_restart_time, brakes, vortex_ring_state, turbulence, landing_gear, rpm, target_rpm, tailrotor_cyclic, mainrotor_cyclic, speed,
         ground_effect, flap_up;
-    public int mode;
+    public int bank;
     private Image image_engine, image_autorotation, image_engine_restart_time, image_brakes, image_vortex_ring_state, image_turbulence, 
         image_landing_gear, image_ground_effect, image_flap_up;
-    private Text text_rpm, text_target_rpm, text_mainrotor_cyclic, text_tailrotor_cyclic, text_speed, text_mode;
+    private Text text_rpm, text_target_rpm, text_mainrotor_cyclic, text_tailrotor_cyclic, text_speed, text_bank;
 
     private RawImage sr;
     //private Sprite mySprite;
@@ -37,7 +37,7 @@ public class UI_Informations_Overlay : MonoBehaviour
         text_mainrotor_cyclic = gameObject.transform.Find("TextMainrotorCyclic").GetComponent<Text>();
         text_tailrotor_cyclic = gameObject.transform.Find("TextTailrotorCyclic").GetComponent<Text>();
         text_speed = gameObject.transform.Find("TextSpeed").GetComponent<Text>();
-        text_mode = gameObject.transform.Find("TextMode").GetComponent<Text>();
+        text_bank = gameObject.transform.Find("TextBank").GetComponent<Text>();
 
         sr = gameObject.transform.Find("GGG").GetComponent<RawImage>();
         tex = new Texture2D(50, 50);
@@ -69,7 +69,7 @@ public class UI_Informations_Overlay : MonoBehaviour
         text_mainrotor_cyclic.text = "Mr: " + Helper.FormatNumber(mainrotor_cyclic, "####.0") + " °";
         text_tailrotor_cyclic.text = "Tr: " + Helper.FormatNumber(tailrotor_cyclic, "####.0") + " °";
         text_speed.text = Helper.FormatNumber(speed * 3.6f, "###.0")  + " kmh";
-        text_mode.text = "Mode " + mode.ToString();
+        text_bank.text = "Bank " + bank.ToString();
         text_target_rpm.text = Helper.FormatNumber(target_rpm, "####") + " rpm";
 
         //values.Insert(0, (int)( 25+ Mathf.Sin(Time.time*Mathf.PI*4)*20) );

@@ -230,8 +230,7 @@ namespace Helisimulator
         public ODEDebugClass ODEDebug = new ODEDebugClass();
         public float thrust_mr_for_stall_sound; // [N]
         public bool flag_motor_enabled = true; // [-]
-        public int flight_mode = 1; // [-]
-        public float governor_target_rpm; // [rpm]
+        public int flight_bank = 0; // [-]
         public float engine_restart_time; // [sec]
         public float engine_restart_time_stopped_time; // [sec]
         public enum flag_motor_start_speed { slow, fast };
@@ -663,7 +662,7 @@ namespace Helisimulator
             // brushless governor
             float omega_mo_target = (par.transmitter_and_helicopter.helicopter.transmission.invert_mainrotor_rotation_direction.val ? -1.0f : 1.0f) *
                                     (par.transmitter_and_helicopter.helicopter.transmission.n_mo2mr.val) *
-                                    (governor_target_rpm / (60.0f / (2.0f * Mathf.PI))); // [rad/sec] "governor_target_rpm" is mainrotor speed 
+                                    (par.transmitter_and_helicopter.helicopter.governor.target_rpm.vect3[flight_bank] / (60.0f / (2.0f * Mathf.PI))); // [rad/sec] "governor_target_rpm" is mainrotor speed 
             if (flag_motor_enabled == false)
             { 
                 omega_mo_target = 0;
@@ -1955,31 +1954,34 @@ namespace Helisimulator
                 case 0: // 0: Single Main Rotor (with optional pusher propeller)
                     {
                         // PI controller                  
-                        delta_error = par.transmitter_and_helicopter.helicopter.flybarless.K_a.val * Mathf.Deg2Rad * input_x_roll - (float)wx_LH; // [rad/sec] error value in PI controller
+                        delta_error = (par.transmitter_and_helicopter.helicopter.flybarless.K_a.vect3[flight_bank] * Mathf.Deg2Rad * input_x_roll - (float)wx_LH) ; // [rad/sec] error value in PI controller
+                        //delta_error = (par.transmitter_and_helicopter.helicopter.flybarless.K_a.val * Mathf.Deg2Rad * input_x_roll - (float)wx_LH) / (par.transmitter_and_helicopter.helicopter.flybarless.K_a.val * Mathf.Deg2Rad); // [rad/sec] error value in PI controller
                         DELTA_x_roll__diff = (delta_error - DELTA_x_roll__diff_old) / dtime; // differential part
                         if (integrator_function_call_number == 3)
                             DELTA_x_roll__diff_old = delta_error;
-                        delta_lat_mr = par.transmitter_and_helicopter.helicopter.flybarless.K_p.val * delta_error + 
-                                       par.transmitter_and_helicopter.helicopter.flybarless.K_I.val * (float)DELTA_x_roll__int +
-                                       par.transmitter_and_helicopter.helicopter.flybarless.K_d.val * (float)DELTA_x_roll__diff; // [rad/sec] roll
+                        delta_lat_mr = par.transmitter_and_helicopter.helicopter.flybarless.K_p.vect3[flight_bank] * delta_error + 
+                                       par.transmitter_and_helicopter.helicopter.flybarless.K_I.vect3[flight_bank] * (float)DELTA_x_roll__int +
+                                       par.transmitter_and_helicopter.helicopter.flybarless.K_d.vect3[flight_bank] * (float)DELTA_x_roll__diff; // [rad/sec] roll
                         dDELTA_x_roll__int_dt = delta_error; // [rad/sec] error value to be integrated
 
-                        delta_error = par.transmitter_and_helicopter.helicopter.gyro.K_a.val * Mathf.Deg2Rad * input_y_yaw - (float)wy_LH; // [rad/sec] error value in PI controller
+                        delta_error = (par.transmitter_and_helicopter.helicopter.gyro.K_a.vect3[flight_bank] * Mathf.Deg2Rad * input_y_yaw - (float)wy_LH); // [rad/sec] error value in PI controller
+                        //delta_error = (par.transmitter_and_helicopter.helicopter.gyro.K_a.val * Mathf.Deg2Rad * input_y_yaw - (float)wy_LH) / (par.transmitter_and_helicopter.helicopter.gyro.K_a.val * Mathf.Deg2Rad); // [rad/sec] error value in PI controller
                         DELTA_y_yaw__diff = (delta_error - DELTA_y_yaw__diff_old) / dtime; // differential part
                         if (integrator_function_call_number == 3)
                             DELTA_y_yaw__diff_old = delta_error;
-                        delta_col_tr = par.transmitter_and_helicopter.helicopter.gyro.K_p.val * delta_error + 
-                                       par.transmitter_and_helicopter.helicopter.gyro.K_I.val * (float)DELTA_y_yaw__int +
-                                       par.transmitter_and_helicopter.helicopter.gyro.K_d.val * (float)DELTA_y_yaw__diff; // [rad/sec] yaw
+                        delta_col_tr = par.transmitter_and_helicopter.helicopter.gyro.K_p.vect3[flight_bank] * delta_error + 
+                                       par.transmitter_and_helicopter.helicopter.gyro.K_I.vect3[flight_bank] * (float)DELTA_y_yaw__int +
+                                       par.transmitter_and_helicopter.helicopter.gyro.K_d.vect3[flight_bank] * (float)DELTA_y_yaw__diff; // [rad/sec] yaw
                         dDELTA_y_yaw__int_dt = delta_error; // [rad/sec] error value to be integrated
                         
-                        delta_error = par.transmitter_and_helicopter.helicopter.flybarless.K_a.val * Mathf.Deg2Rad * input_z_pitch - (float)wz_LH; // [rad/sec] error value in PI controller
+                        delta_error = (par.transmitter_and_helicopter.helicopter.flybarless.K_a.vect3[flight_bank] * Mathf.Deg2Rad * input_z_pitch - (float)wz_LH) ; // [rad/sec] error value in PI controller
+                        //delta_error = (par.transmitter_and_helicopter.helicopter.flybarless.K_a.val * Mathf.Deg2Rad * input_z_pitch - (float)wz_LH) / (par.transmitter_and_helicopter.helicopter.flybarless.K_a.val * Mathf.Deg2Rad); // [rad/sec] error value in PI controller
                         DELTA_z_pitch__diff = (delta_error - DELTA_z_pitch__diff_old) / dtime; // differential part
                         if (integrator_function_call_number == 3)
                             DELTA_z_pitch__diff_old = delta_error;
-                        delta_lon_mr = par.transmitter_and_helicopter.helicopter.flybarless.K_p.val * delta_error +
-                                       par.transmitter_and_helicopter.helicopter.flybarless.K_I.val * (float)DELTA_z_pitch__int +
-                                       par.transmitter_and_helicopter.helicopter.flybarless.K_d.val * (float)DELTA_z_pitch__diff; // [rad/sec] pitch
+                        delta_lon_mr = par.transmitter_and_helicopter.helicopter.flybarless.K_p.vect3[flight_bank] * delta_error +
+                                       par.transmitter_and_helicopter.helicopter.flybarless.K_I.vect3[flight_bank] * (float)DELTA_z_pitch__int +
+                                       par.transmitter_and_helicopter.helicopter.flybarless.K_d.vect3[flight_bank] * (float)DELTA_z_pitch__diff; // [rad/sec] pitch
                         dDELTA_z_pitch__int_dt = delta_error; // [rad/sec] error value to be integrated
                         delta_error_debug = delta_error;
 
@@ -2014,16 +2016,16 @@ namespace Helisimulator
 
 
                         // PI controller                  
-                        delta_error = par.transmitter_and_helicopter.helicopter.flybarless.K_a.val * Mathf.Deg2Rad * input_x_roll - (float)wx_LH; // [rad/sec] error value in PI controller
-                        float controller_x_roll = par.transmitter_and_helicopter.helicopter.flybarless.K_p.val * delta_error + par.transmitter_and_helicopter.helicopter.flybarless.K_I.val * (float)DELTA_x_roll__int; // [rad/sec] yaw
+                        delta_error = par.transmitter_and_helicopter.helicopter.flybarless.K_a.vect3[flight_bank] * Mathf.Deg2Rad * input_x_roll - (float)wx_LH; // [rad/sec] error value in PI controller
+                        float controller_x_roll = par.transmitter_and_helicopter.helicopter.flybarless.K_p.vect3[flight_bank] * delta_error + par.transmitter_and_helicopter.helicopter.flybarless.K_I.vect3[flight_bank] * (float)DELTA_x_roll__int; // [rad/sec] yaw
                         dDELTA_x_roll__int_dt = delta_error; // [rad/sec] error value to be integrated
 
-                        delta_error = par.transmitter_and_helicopter.helicopter.gyro.K_a.val * Mathf.Deg2Rad * input_y_yaw - (float)wy_LH; // [rad/sec] error value in PI controller
-                        float controller_y_yaw = par.transmitter_and_helicopter.helicopter.gyro.K_p.val * delta_error + par.transmitter_and_helicopter.helicopter.gyro.K_I.val * (float)DELTA_y_yaw__int; // [rad/sec] yaw
+                        delta_error = par.transmitter_and_helicopter.helicopter.gyro.K_a.vect3[flight_bank] * Mathf.Deg2Rad * input_y_yaw - (float)wy_LH; // [rad/sec] error value in PI controller
+                        float controller_y_yaw = par.transmitter_and_helicopter.helicopter.gyro.K_p.vect3[flight_bank] * delta_error + par.transmitter_and_helicopter.helicopter.gyro.K_I.vect3[flight_bank] * (float)DELTA_y_yaw__int; // [rad/sec] yaw
                         dDELTA_y_yaw__int_dt = delta_error; // [rad/sec] error value to be integrated
 
-                        delta_error = par.transmitter_and_helicopter.helicopter.flybarless.K_a.val * Mathf.Deg2Rad * input_z_pitch - (float)wz_LH; // [rad/sec] error value in PI controller
-                        float controller_z_pitch = par.transmitter_and_helicopter.helicopter.flybarless.K_p.val * delta_error + par.transmitter_and_helicopter.helicopter.flybarless.K_I.val * (float)DELTA_z_pitch__int; // [rad/sec] yaw
+                        delta_error = par.transmitter_and_helicopter.helicopter.flybarless.K_a.vect3[flight_bank] * Mathf.Deg2Rad * input_z_pitch - (float)wz_LH; // [rad/sec] error value in PI controller
+                        float controller_z_pitch = par.transmitter_and_helicopter.helicopter.flybarless.K_p.vect3[flight_bank] * delta_error + par.transmitter_and_helicopter.helicopter.flybarless.K_I.vect3[flight_bank] * (float)DELTA_z_pitch__int; // [rad/sec] yaw
                         dDELTA_z_pitch__int_dt = delta_error; // [rad/sec] error value to be integrated
 
 
@@ -2087,8 +2089,8 @@ namespace Helisimulator
             // ##################################################################################
             // turn off mainrotor flapping and flybarelles control when low rpm ( after landing )
             // ##################################################################################
-            float turn_off_flapping_below_this_rotational_speed = par.transmitter_and_helicopter.helicopter.governor.target_rpm_1.val * 0.7f * Helper.Rpm_to_RadPerSec;
-            float turn_off_flapping_completely_rotational_speed = par.transmitter_and_helicopter.helicopter.governor.target_rpm_1.val * 0.1f * Helper.Rpm_to_RadPerSec;
+            float turn_off_flapping_below_this_rotational_speed = par.transmitter_and_helicopter.helicopter.governor.target_rpm.vect3[0] * 0.7f * Helper.Rpm_to_RadPerSec;
+            float turn_off_flapping_completely_rotational_speed = par.transmitter_and_helicopter.helicopter.governor.target_rpm.vect3[0] * 0.1f * Helper.Rpm_to_RadPerSec;
 
             reduce_flapping_effect_at_low_rpm = Helper.Step((float)Math.Abs(omega_mr), turn_off_flapping_completely_rotational_speed, 0, turn_off_flapping_below_this_rotational_speed, 1);
 
@@ -2926,7 +2928,7 @@ namespace Helisimulator
             // set target speed
             float omega_mo_target = (par.transmitter_and_helicopter.helicopter.transmission.invert_mainrotor_rotation_direction.val ? -1.0f : 1.0f) *
                                      par.transmitter_and_helicopter.helicopter.transmission.n_mo2mr.val *
-                                    (governor_target_rpm / (60.0f / (2.0f * Mathf.PI))); // [rad/sec] desired speed   rpm/(60/(2*pi))-> rad/sec
+                                    (par.transmitter_and_helicopter.helicopter.governor.target_rpm.vect3[flight_bank] / (60.0f / (2.0f * Mathf.PI))); // [rad/sec] desired speed   rpm/(60/(2*pi))-> rad/sec
 
             // motor soft start speed (if motor is restarted inside a short time period, it accelerates faster)
             float start_speed_factor;

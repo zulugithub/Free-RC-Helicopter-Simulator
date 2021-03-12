@@ -1983,9 +1983,7 @@ namespace Parameter
     [Serializable]
     public class stru_governor
     {
-        public stru_float target_rpm_1 { get; set; } // first target rotational speed of mainrotor
-        public stru_float target_rpm_2 { get; set; } // second target rotational speed of mainrotor
-        public stru_float target_rpm_3 { get; set; } // third target rotational speed of mainrotor
+        public stru_Vector3 target_rpm { get; set; } // first target rotational speed of mainrotor 
         public stru_float Kp { get; set; } // rotational speed controller proportional gain
         public stru_float Ki { get; set; } // rotational speed controller Helicopter_Integrator gain
         [XmlIgnore]
@@ -1997,9 +1995,7 @@ namespace Parameter
 
         public stru_governor()
         {
-            target_rpm_1 = new stru_float();
-            target_rpm_2 = new stru_float();
-            target_rpm_3 = new stru_float();
+            target_rpm = new stru_Vector3();
             Kp = new stru_float();
             Ki = new stru_float();
             saturation_max = new stru_float();
@@ -2008,26 +2004,12 @@ namespace Parameter
             engine_restart_time = new stru_float();
             engine_restart_factor = new stru_float();
 
-            target_rpm_1.val = 1050f;
-            target_rpm_1.min = 500f;
-            target_rpm_1.max = 5000f;
-            target_rpm_1.hint = "First target rotational speed of mainrotor";
-            target_rpm_1.comment = "";
-            target_rpm_1.unit = "rpm";
-
-            target_rpm_2.val = 1300f;
-            target_rpm_2.min = 500f;
-            target_rpm_2.max = 5000f;
-            target_rpm_2.hint = "Second target rotational speed of mainrotor";
-            target_rpm_2.comment = "";
-            target_rpm_2.unit = "rpm";
-
-            target_rpm_3.val = 1400f;
-            target_rpm_3.min = 500f;
-            target_rpm_3.max = 5000f;
-            target_rpm_3.hint = "Third target rotational speed of mainrotor";
-            target_rpm_3.comment = "";
-            target_rpm_3.unit = "rpm";
+            target_rpm.vect3 = new Vector3 { x = 1050f, y = 1300f, z = 1400f }; // bank 1 2 3
+            //target_rpm_1.min = 500f;
+            //target_rpm_1.max = 5000f;
+            target_rpm.hint = "First target rotational speed of mainrotor";
+            target_rpm.comment = "";
+            target_rpm.unit = "rpm";
 
             Kp.val = 0.05f;
             Kp.min = 0.01f;
@@ -2775,33 +2757,33 @@ namespace Parameter
     [Serializable]
     public class stru_stick
     {
-        public stru_float clearance { get; set; } // [0...1] 
-        public stru_float expo { get; set; } // [%] 
-        public stru_float dualrate { get; set; } // [%] 
+        public stru_Vector3 clearance { get; set; } // [0...1] 
+        public stru_Vector3 expo { get; set; } // [%] 
+        public stru_Vector3 dualrate { get; set; } // [%] 
 
         public stru_stick()
         {
-            clearance = new stru_float();
-            expo = new stru_float();
-            dualrate = new stru_float();
+            clearance = new stru_Vector3();
+            expo = new stru_Vector3();
+            dualrate = new stru_Vector3();
 
-            clearance.val = 0.01f;
-            clearance.min = 0.00f;
-            clearance.max = 0.50f;
+            clearance.vect3 = new Vector3 { x = 0.01f, y = 0.01f, z = 0.01f }; // bank 1 2 3 
+            //clearance.min = 0.00f;
+            //clearance.max = 0.50f;
             clearance.hint = "Stick center position clearance";
             clearance.comment = "";
             clearance.unit = "0...1";
 
-            expo.val = 10f;
-            expo.min = 0.00f;
-            expo.max = 100f;
+            expo.vect3 = new Vector3 { x = 5f, y = 5f, z = 5f }; // bank 1 2 3
+            //expo.min = 0.00f;
+            //expo.max = 100f;
             expo.hint = "Stick expo";
             expo.comment = "";
             expo.unit = "%";
 
-            dualrate.val = 100f;
-            dualrate.min = 0f;
-            dualrate.max = 100f;
+            dualrate.vect3 = new Vector3 { x = 100f, y = 100f, z = 100f }; // bank 1 2 3
+            //dualrate.min = 0f;
+            //dualrate.max = 100f;
             dualrate.hint = "Stick dualrate";
             dualrate.comment = "";
             dualrate.unit = "%";
@@ -2922,44 +2904,44 @@ namespace Parameter
     [Serializable]
     public class stru_yaw_rate_controller
     {
-        public stru_float K_a { get; set; } /// [-] yaw rate controller input signal amplifier
-        public stru_float K_I { get; set; } /// [-] yaw rate controller integral gain
-        public stru_float K_p { get; set; } /// [-] yaw rate controller proportional gain
-        public stru_float K_d { get; set; } /// [-] yaw rate controller differential gain
+        public stru_Vector3 K_a { get; set; } /// [-] yaw rate controller input signal amplifier
+        public stru_Vector3 K_I { get; set; } /// [-] yaw rate controller integral gain
+        public stru_Vector3 K_p { get; set; } /// [-] yaw rate controller proportional gain
+        public stru_Vector3 K_d { get; set; } /// [-] yaw rate controller differential gain
         public stru_bool direct_feadtrough_gyroscope { get; set; } // [-] Turn off gyro. 
 
         public stru_yaw_rate_controller() 
         {
-            K_a = new stru_float();
-            K_I = new stru_float();
-            K_p = new stru_float();
-            K_d = new stru_float();
+            K_a = new stru_Vector3();
+            K_I = new stru_Vector3();
+            K_p = new stru_Vector3();
+            K_d = new stru_Vector3();
             direct_feadtrough_gyroscope = new stru_bool();
 
-            K_a.val = 500f;
-            K_a.min = 100f;
-            K_a.max = 2000f;
+            K_a.vect3 = new Vector3 { x = 300, y = 400, z = 450 }; // bank 1 2 3
+            //K_a.min = 100f;
+            //K_a.max = 2000f;
             K_a.hint = "Tailrotor maximum rotation velocity.";
             K_a.comment = "";
             K_a.unit = "deg/sec";
 
-            K_I.val = 2.0f;
-            K_I.min = 0.01f;
-            K_I.max = 100f;
+            K_I.vect3 = new Vector3 { x = 2, y = 2, z = 2 }; // bank 1 2 3
+            //K_I.min = 0.01f;
+            //K_I.max = 100f;
             K_I.hint = "Tailrotor integral gain (Heading Hold)";
             K_I.comment = "";
             K_I.unit = "1/sec";
 
-            K_p.val = 0.15f;
-            K_p.min = 0.01f;
-            K_p.max = 100f;
+            K_p.vect3 = new Vector3 { x = 0.15f, y = 0.15f, z = 0.15f }; // bank 1 2 3
+            //K_p.min = 0.01f;
+            //K_p.max = 100f;
             K_p.hint = "Tailrotor proportional gain";
             K_p.comment = "";
             K_p.unit = "-";
 
-            K_d.val = 0.0001f;
-            K_d.min = 0.0001f;
-            K_d.max = 100f;
+            K_d.vect3 = new Vector3 { x = 0.0001f, y = 0.0001f, z = 0.0001f }; // bank 1 2 3
+            //K_d.min = 0.0001f;
+            //K_d.max = 100f;
             K_d.hint = "Tailrotor differential gain";
             K_d.comment = "";
             K_d.unit = "-";
@@ -2982,53 +2964,53 @@ namespace Parameter
     [Serializable]
     public class stru_flybarless_controller
     {
-        public stru_float K_a { get; set; } // [-] flybarless controller input signal amplifier
-        public stru_float K_I { get; set; } // [-] flybarless controller integral gain
-        public stru_float K_p { get; set; } // [-] flybarless controller proportional gain
-        public stru_float K_d { get; set; } // [-] flybarless controller differential  gain
-        public stru_bool direct_feadtrough_flybareless { get; set; } // [-] Turn off flybareless. 
+        public stru_Vector3 K_a { get; set; } // [-] flybarless controller input signal amplifier
+        public stru_Vector3 K_I { get; set; } // [-] flybarless controller integral gain
+        public stru_Vector3 K_p { get; set; } // [-] flybarless controller proportional gain
+        public stru_Vector3 K_d { get; set; } // [-] flybarless controller differential  gain
+        public stru_bool direct_feadtrough_flybarless { get; set; } // [-] Turn off flybarless. 
 
 
         public stru_flybarless_controller()
         {
-            K_a = new stru_float();
-            K_I = new stru_float();
-            K_p = new stru_float();
-            K_d = new stru_float();
-            direct_feadtrough_flybareless = new stru_bool();
+            K_a = new stru_Vector3();
+            K_I = new stru_Vector3();
+            K_p = new stru_Vector3();
+            K_d = new stru_Vector3();
+            direct_feadtrough_flybarless = new stru_bool();
 
-            K_a.val = 275f;
-            K_a.min = 0.01f;
-            K_a.max = 100f;
-            K_a.hint = "Flybarless maximum rotation velocity.";
+            K_a.vect3 = new Vector3 { x = 160, y = 200, z = 220 }; // bank 1 2 3
+            //K_a.min = 0.01f;
+            //K_a.max = 100f;
+            K_a.hint = "Flybarless maximum rotation velocity. (Should be smaller, than what heli can perform, othervise stick range will be not fully used)";
             K_a.comment = "";
             K_a.unit = "deg/sec";
 
-            K_I.val = 2.0f;
-            K_I.min = 0.01f;
-            K_I.max = 10f;
+            K_I.vect3 = new Vector3 { x = 2.5f, y = 2.5f, z = 2.5f }; // bank 1 2 3
+            //K_I.min = 0.01f;
+            //K_I.max = 10f;
             K_I.hint = "Flybarless integral gain";
             K_I.comment = "";
             K_I.unit = "1/sec";
 
-            K_p.val = 0.1f;
-            K_p.min = 0.01f;
-            K_p.max = 10f;
+            K_p.vect3 = new Vector3 { x = 0.05f, y = 0.06f, z = 0.08f }; // bank 1 2 3
+            //K_p.min = 0.01f;
+            //K_p.max = 10f;
             K_p.hint = "Flybarless proportional gain";
             K_p.comment = "";
             K_p.unit = "-";
 
-            K_d.val = 0.0001f;
-            K_d.min = 0.0001f;
-            K_d.max = 100f;
+            K_d.vect3 = new Vector3 { x = 0.0003f, y = 0.0003f, z = 0.0003f }; // bank 1 2 3
+            //K_d.min = 0.00001f;
+            //K_d.max = 100f;
             K_d.hint = "Flybarless differential gain";
             K_d.comment = "";
             K_d.unit = "-";
 
-            direct_feadtrough_flybareless.val = false;
-            direct_feadtrough_flybareless.hint = "Turn off flybareless.";
-            direct_feadtrough_flybareless.comment = "";
-            direct_feadtrough_flybareless.unit = "-";
+            direct_feadtrough_flybarless.val = false;
+            direct_feadtrough_flybarless.hint = "Turn off flybarless.";
+            direct_feadtrough_flybarless.comment = "";
+            direct_feadtrough_flybarless.unit = "-";
         }
     }
     // ##################################################################################

@@ -1588,21 +1588,18 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 IO_Load_Transmitter_And_Helicopter_Parameter(filename);
 
                 // load governor rpm setting and change governor target rpm variable
-                int selected_governor_target_rpm_id = PlayerPrefs.GetInt("SavedSetting____" + helicopter_name + "____selected_governor_target_rpm_id", 2);
-                if (selected_governor_target_rpm_id == 1)
+                int selected_bank_id = PlayerPrefs.GetInt("SavedSetting____" + helicopter_name + "____selected_bank_id", 2);
+                if (selected_bank_id == 1)
                 { 
-                    helicopter_ODE.flight_mode = 1;
-                    helicopter_ODE.governor_target_rpm = helicopter_ODE.par.transmitter_and_helicopter.helicopter.governor.target_rpm_1.val;
+                    helicopter_ODE.flight_bank = 0;
                 }
-                if (selected_governor_target_rpm_id == 2)
+                if (selected_bank_id == 2)
                 {
-                    helicopter_ODE.flight_mode = 2; 
-                    helicopter_ODE.governor_target_rpm = helicopter_ODE.par.transmitter_and_helicopter.helicopter.governor.target_rpm_2.val;
+                    helicopter_ODE.flight_bank = 1; 
                 }
-                if (selected_governor_target_rpm_id == 3)
+                if (selected_bank_id == 3)
                 {
-                    helicopter_ODE.flight_mode = 3; 
-                    helicopter_ODE.governor_target_rpm = helicopter_ODE.par.transmitter_and_helicopter.helicopter.governor.target_rpm_3.val;
+                    helicopter_ODE.flight_bank = 2; 
                 }
                 // setup pilot with transmitter animation
                 var temp = GameObject.Find("Pilot/Pilot");
@@ -2399,21 +2396,18 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
                     if (UnityEngine.InputSystem.Keyboard.current.digit1Key.wasPressedThisFrame)
                     {
-                        helicopter_ODE.flight_mode = 1;
-                        helicopter_ODE.governor_target_rpm = helicopter_ODE.par.transmitter_and_helicopter.helicopter.governor.target_rpm_1.val;
-                        PlayerPrefs.SetInt("SavedSetting____" + helicopter_name + "____selected_governor_target_rpm_id", 1);
+                        helicopter_ODE.flight_bank = 0;
+                        PlayerPrefs.SetInt("SavedSetting____" + helicopter_name + "____selected_bank_id", 1);
                     }
                     if (UnityEngine.InputSystem.Keyboard.current.digit2Key.wasPressedThisFrame)
                     {
-                        helicopter_ODE.flight_mode = 2;
-                        helicopter_ODE.governor_target_rpm = helicopter_ODE.par.transmitter_and_helicopter.helicopter.governor.target_rpm_2.val;
-                        PlayerPrefs.SetInt("SavedSetting____" + helicopter_name + "____selected_governor_target_rpm_id", 2);
+                        helicopter_ODE.flight_bank = 1;
+                        PlayerPrefs.SetInt("SavedSetting____" + helicopter_name + "____selected_bank_id", 2);
                     }
                     if (UnityEngine.InputSystem.Keyboard.current.digit3Key.wasPressedThisFrame)
                     {
-                        helicopter_ODE.flight_mode = 3;
-                        helicopter_ODE.governor_target_rpm = helicopter_ODE.par.transmitter_and_helicopter.helicopter.governor.target_rpm_3.val;
-                        PlayerPrefs.SetInt("SavedSetting____" + helicopter_name + "____selected_governor_target_rpm_id", 3);
+                        helicopter_ODE.flight_bank = 2;
+                        PlayerPrefs.SetInt("SavedSetting____" + helicopter_name + "____selected_bank_id", 3);
                     }
 
                     if (UnityEngine.InputSystem.Keyboard.current.bKey.wasPressedThisFrame)
@@ -3577,8 +3571,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         ui_informations_overlay.mainrotor_cyclic = helicopter_ODE.ODEDebug.Theta_col_mr * Helper.Rad_to_Deg; 
         ui_informations_overlay.tailrotor_cyclic = helicopter_ODE.ODEDebug.Theta_col_tr * Helper.Rad_to_Deg;
         ui_informations_overlay.speed = helicopter_ODE.veloLH.magnitude;
-        ui_informations_overlay.target_rpm = helicopter_ODE.governor_target_rpm;
-        ui_informations_overlay.mode = helicopter_ODE.flight_mode;
+        ui_informations_overlay.target_rpm = helicopter_ODE.par.transmitter_and_helicopter.helicopter.governor.target_rpm.vect3[helicopter_ODE.flight_bank]; ;
+        ui_informations_overlay.bank = helicopter_ODE.flight_bank+1;
         // ##################################################################################
 
 

@@ -1251,18 +1251,18 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         thread_ODE_deltat = Helper.Clamp(helicopter_ODE.par.simulation.physics.delta_t);
 
         // controller parameter
-        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_collective].axis_settings.clearance = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_collective.clearance.val;
-        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_collective].axis_settings.expo = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_collective.expo.val;
-        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_collective].axis_settings.dualrate = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_collective.dualrate.val;
-        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_yaw].axis_settings.clearance = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_yaw.clearance.val;
-        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_yaw].axis_settings.expo = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_yaw.expo.val;
-        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_yaw].axis_settings.dualrate = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_yaw.dualrate.val;
-        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_pitch].axis_settings.clearance = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_pitch.clearance.val;
-        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_pitch].axis_settings.expo = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_pitch.expo.val;
-        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_pitch].axis_settings.dualrate = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_pitch.dualrate.val;
-        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_roll].axis_settings.clearance = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_roll.clearance.val;
-        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_roll].axis_settings.expo = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_roll.expo.val;
-        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_roll].axis_settings.dualrate = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_roll.dualrate.val;
+        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_collective].axis_settings.clearance = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_collective.clearance.vect3[helicopter_ODE.flight_bank];
+        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_collective].axis_settings.expo = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_collective.expo.vect3[helicopter_ODE.flight_bank];
+        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_collective].axis_settings.dualrate = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_collective.dualrate.vect3[helicopter_ODE.flight_bank];
+        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_yaw].axis_settings.clearance = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_yaw.clearance.vect3[helicopter_ODE.flight_bank];
+        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_yaw].axis_settings.expo = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_yaw.expo.vect3[helicopter_ODE.flight_bank];
+        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_yaw].axis_settings.dualrate = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_yaw.dualrate.vect3[helicopter_ODE.flight_bank];
+        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_pitch].axis_settings.clearance = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_pitch.clearance.vect3[helicopter_ODE.flight_bank];
+        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_pitch].axis_settings.expo = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_pitch.expo.vect3[helicopter_ODE.flight_bank];
+        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_pitch].axis_settings.dualrate = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_pitch.dualrate.vect3[helicopter_ODE.flight_bank];
+        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_roll].axis_settings.clearance = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_roll.clearance.vect3[helicopter_ODE.flight_bank];
+        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_roll].axis_settings.expo = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_roll.expo.vect3[helicopter_ODE.flight_bank];
+        stru_controller_settings_work.list_channel_settings[stru_controller_settings_work.channel_roll].axis_settings.dualrate = helicopter_ODE.par.transmitter_and_helicopter.transmitter.stick_roll.dualrate.vect3[helicopter_ODE.flight_bank];
 
     }
     // ##################################################################################
