@@ -1676,13 +1676,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
 
                 // update ui
-                if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter)
-                {
-                    UI_Dropdown_Update_Items(folder_saved_parameter_for_transmitter_and_helicopter);
-                    UI_Dropdown_Select_By_Name(ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename);
-                    UI_Update_Parameter_Settings_UI();
-                    ui_inputfield_save.text = helicopter_name;
-                }
+                UI_Update();
             }
             else
             {
@@ -3711,7 +3705,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 main_camera_rotation = Quaternion.Slerp(main_camera_rotation, camera_rotation, Time.deltaTime * helicopter_ODE.par.simulation.camera.stiffness.val);
 
                 // if debugging is activated, the camrera should not focus on the heli, but show it on the right side of the screen
-                const float main_camera_rotation_offset_during_debuging_ = -8; // [deg]
+                const float main_camera_rotation_offset_during_debuging_ = -11; // [deg]
                 if (ui_debug_panel_state <= 1)
                     main_camera_rotation_offset_during_debuging -= Time.deltaTime * 1.5f;
                 else

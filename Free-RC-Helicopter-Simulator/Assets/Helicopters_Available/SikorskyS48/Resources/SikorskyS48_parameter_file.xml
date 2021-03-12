@@ -136,20 +136,6 @@
         <vect3>  <x>0</x>  <y>0</y>  <z>0</z>  </vect3> 
       </oriLH>  
 	</propeller>
-	<tuning>
-		<vortex_ring_state_v_horizontal>  <val>2.5</val>  </vortex_ring_state_v_horizontal>
-		<vortex_ring_state_v_vertical>  <val>-3.0</val>  </vortex_ring_state_v_vertical>
-		<vortex_ring_state_force_reduction_factor>  <val>0.45</val>  </vortex_ring_state_force_reduction_factor>
-		<vortex_ring_state_torque_reduction_factor>  <val>0.35</val>  </vortex_ring_state_torque_reduction_factor>
-		<vortex_ring_state_stength_rising_speed_factor>  <val>0.015</val>  </vortex_ring_state_stength_rising_speed_factor>
-		<turbulence_rotational_velocity_limit>  <val>4</val>  </turbulence_rotational_velocity_limit>
-		<turbulence_translational_velocity_limit>  <val>10</val>  </turbulence_translational_velocity_limit>
-		<turbulence_frequency>  <val>4.0</val>  </turbulence_frequency>
-		<turbulence_force_strength>  <vect3>  <x>3</x>  <y>20.0</y>  <z>3</z>  </vect3>  </turbulence_force_strength>
-		<turbulence_torque_strength>  <vect3>  <x>30.0</x>  <y>3</y>  <z>30.0</z>  </vect3>  </turbulence_torque_strength>
-		<startup_rotating_unbalance_mass>  <val>0.025</val> </startup_rotating_unbalance_mass>
-		<startup_rotating_unbalance_turn_off_rpm>  <val>300</val> </startup_rotating_unbalance_turn_off_rpm>
-	</tuning>
     <transmission>
       <invert_mainrotor_rotation_direction>  <val>true</val>  </invert_mainrotor_rotation_direction>
       <invert_motor2maingear_transmission>  <val>true</val>  </invert_motor2maingear_transmission>
@@ -246,4 +232,37 @@
 	  <debug_torque_arrow_scale>  <val>0.5</val>  </debug_torque_arrow_scale>
     </visual_effects>
   </helicopter>
+	<tuning>
+		<stru_vortex_ring_state>
+			<v_vertical>  <val>-2.2</val>  </v_vertical>
+			<force_reduction_factor>  <val>0.45</val>  </force_reduction_factor>
+			<torque_reduction_factor>  <val>0.35</val>  </torque_reduction_factor>
+			<stength_rising_speed_factor>  <val>0.015</val>  </stength_rising_speed_factor>
+		</stru_vortex_ring_state>
+		<turbulence>
+			<rotational_velocity_limit>  <val>4</val>  </rotational_velocity_limit>
+			<translational_velocity_limit>  <val>10</val>  </translational_velocity_limit>
+			<frequency>  <val>4.0</val>  </frequency>
+			<force_strength>  <vect3>  <x>3</x>  <y>15.0</y>  <z>3</z>  </vect3>  </force_strength>
+			<torque_strength>  <vect3>  <x>40.0</x>  <y>3</y>  <z>40.0</z>  </vect3>  </torque_strength>
+		</turbulence>
+		<startup_rotating_unbalance>
+			<mass>  <val>0.025</val> </mass>
+			<turn_off_rpm>  <val>300</val> </turn_off_rpm>
+		</startup_rotating_unbalance>
+		<rotor_tuning>
+			<mainrotor_tuning>
+				<inflow_factor>  <val>1.8</val> </inflow_factor>
+				<inflow_offset>  <val>2.0</val> </inflow_offset>
+			</mainrotor_tuning>
+			<tailrotor_tuning>
+				<inflow_factor>  <val>1.3</val> </inflow_factor>
+				<inflow_offset>  <val>2.0</val> </inflow_offset>
+			</tailrotor_tuning>
+			<propeller>
+				<inflow_factor>  <val>1.0</val> </inflow_factor>
+				<inflow_offset>  <val>1.0</val> </inflow_offset>
+			</propeller>
+		</rotor_tuning>
+	</tuning>
 </stru_transmitter_and_helicopter>

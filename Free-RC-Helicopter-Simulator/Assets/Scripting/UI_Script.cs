@@ -176,12 +176,14 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
     Button ui_button_scenery;
     Button ui_button_transmitter;
     Button ui_button_helicopter;
+    Button ui_button_tuning;
     enum Available_Tabs
     {
         simulation,
         scenery,
         transmitter,
-        helicopter
+        helicopter,
+        tuning
     }
     Available_Tabs ui_which_tab_is_selected;
 
@@ -295,6 +297,24 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
 
     // ##################################################################################
+    // Update UI
+    // ##################################################################################
+    void UI_Update()
+    {
+        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter || ui_which_tab_is_selected == Available_Tabs.tuning)
+        {
+            UI_Dropdown_Update_Items(folder_saved_parameter_for_transmitter_and_helicopter);
+            UI_Dropdown_Select_By_Name(ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename);
+            UI_Update_Parameter_Settings_UI();
+            ui_inputfield_save.text = helicopter_name;
+        }
+    }
+    // ##################################################################################
+
+
+
+
+    // ##################################################################################
     // xml-files are listen in ui-dropdown, update them
     // ##################################################################################
     void UI_Dropdown_Update_Items(string folder)
@@ -318,7 +338,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                     if (Path.GetFileName(each_fullpath_file).StartsWith(scenery_name) || Path.GetFileName(each_fullpath_file) == ui_dropdown_actual_selected_scenery_xml_filename)
                         put_name_into_list_flag = true;
                 }
-                if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter)
+                if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter || ui_which_tab_is_selected == Available_Tabs.tuning)
                 {
                     if (Path.GetFileName(each_fullpath_file).StartsWith(helicopter_name) || Path.GetFileName(each_fullpath_file) == ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename)
                         put_name_into_list_flag = true;
@@ -368,7 +388,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 }
             }
         }
-        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter)
+        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter || ui_which_tab_is_selected == Available_Tabs.tuning)
         {
             List<Dropdown.OptionData> menuOptions = ui_dropdown_load.GetComponent<Dropdown>().options;
             for (int i = 0; i < menuOptions.Count; i++)
@@ -414,7 +434,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
 
             Change_Skybox_Sun_Sound_Camera_Parameter();
         }
-        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter)
+        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter || ui_which_tab_is_selected == Available_Tabs.tuning)
         {
             List<Dropdown.OptionData> menuOptions = ui_dropdown_load.GetComponent<Dropdown>().options;
             ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename = menuOptions[ui_dropdown_load.value].text;
@@ -447,7 +467,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
                 UI_Dropdown_Select_By_Name(filename);
             }
         }
-        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter)
+        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter || ui_which_tab_is_selected == Available_Tabs.tuning)
         {
             if (ui_inputfield_save.text != (scenery_name + "_default_parameter" + ".xml"))
             {
@@ -491,7 +511,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             }
 
         }
-        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter)
+        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter || ui_which_tab_is_selected == Available_Tabs.tuning)
         {
             //if (ui_dropdown_load.options[ui_dropdown_load.value].text != (helicopter_name + "_default_parameter" + ".xml"))
             if (!ui_dropdown_load.options[ui_dropdown_load.value].text.Contains(helicopter_name + "_default_parameter"))
@@ -641,7 +661,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             Flocks_Update(ref all_animal_flocks);
 
         // update UI
-        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter)
+        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter || ui_which_tab_is_selected == Available_Tabs.tuning)
         {
             ui_inputfield_save.text = helicopter_name;
             ui_text_fullpath_echo.text = fullpath.Replace(@"\", "/");
@@ -852,12 +872,14 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         ui_button_scenery = ui_parameter.transform.Find("Parameter Panel/Button Scenery").GetComponent<Button>();
         ui_button_transmitter = ui_parameter.transform.Find("Parameter Panel/Button Transmitter").GetComponent<Button>();
         ui_button_helicopter = ui_parameter.transform.Find("Parameter Panel/Button Helicopter").GetComponent<Button>();
+        ui_button_tuning = ui_parameter.transform.Find("Parameter Panel/Button Tuning").GetComponent<Button>();
 
         ui_button_simulation.onClick.AddListener(delegate { Listener_Tab_Button(Available_Tabs.simulation); });
         ui_button_scenery.onClick.AddListener(delegate { Listener_Tab_Button(Available_Tabs.scenery); });
         ui_button_transmitter.onClick.AddListener(delegate { Listener_Tab_Button(Available_Tabs.transmitter); });
         ui_button_helicopter.onClick.AddListener(delegate { Listener_Tab_Button(Available_Tabs.helicopter); });
-     
+        ui_button_tuning.onClick.AddListener(delegate { Listener_Tab_Button(Available_Tabs.tuning); });
+
         // add listener for when the value of the Dropdown changes, to take action
         ui_dropdown_load.onValueChanged.AddListener(delegate { Listener_UI_Dropdown_Load_OnValueChanged(); });
         ui_button_save.onClick.AddListener(delegate { Listener_UI_Button_Save_OnClick(); });
@@ -940,7 +962,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             UI_Dropdown_Update_Items(folder_saved_parameter_for_sceneries);
             UI_Dropdown_Select_By_Name(ui_dropdown_actual_selected_scenery_xml_filename);
         }
-        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter)
+        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter || ui_which_tab_is_selected == Available_Tabs.tuning)
         {
             UI_Dropdown_Update_Items(folder_saved_parameter_for_transmitter_and_helicopter);
             UI_Dropdown_Select_By_Name(ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename);
@@ -1065,6 +1087,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         colors = ui_button_scenery.colors; colors.normalColor = color_unselected; ui_button_scenery.colors = colors;
         colors = ui_button_transmitter.colors; colors.normalColor = color_unselected; ui_button_transmitter.colors = colors;
         colors = ui_button_helicopter.colors; colors.normalColor = color_unselected; ui_button_helicopter.colors = colors;
+        colors = ui_button_tuning.colors; colors.normalColor = color_unselected; ui_button_tuning.colors = colors;
 
         ui_which_tab_is_selected = selected_tab;
 
@@ -1092,7 +1115,12 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             ui_panel_load_save.gameObject.SetActive(true);
             ui_panel_simulation.gameObject.SetActive(false);
         }
-
+        if (ui_which_tab_is_selected == Available_Tabs.tuning)
+        {
+            colors = ui_button_tuning.colors; colors.normalColor = color_selected; ui_button_tuning.colors = colors;
+            ui_panel_load_save.gameObject.SetActive(true);
+            ui_panel_simulation.gameObject.SetActive(false);
+        }
 
 
         //UnityEngine.Debug.Log(" iiiiiiiiiii  Manage_Tab_Button_Logic    ui_which_tab_is_selected:" + ui_which_tab_is_selected);
@@ -1110,7 +1138,7 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             ui_inputfield_save.text = scenery_name;
             ui_text_fullpath_echo.text = (folder_saved_parameter_for_sceneries + ui_dropdown_actual_selected_scenery_xml_filename).Replace(@"\", "/");
         }
-        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter)
+        if (ui_which_tab_is_selected == Available_Tabs.transmitter || ui_which_tab_is_selected == Available_Tabs.helicopter || ui_which_tab_is_selected == Available_Tabs.tuning)
         {
             UI_Dropdown_Update_Items(folder_saved_parameter_for_transmitter_and_helicopter);
             UI_Dropdown_Select_By_Name(ui_dropdown_actual_selected_transmitter_and_helicopter_xml_filename);
@@ -1222,7 +1250,8 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
             ui_text_title.text = "Setup Transmitter - " + helicopter_name;
         if (ui_which_tab_is_selected == Available_Tabs.helicopter)
             ui_text_title.text = "Setup Helicopter - " + helicopter_name;
-
+        if (ui_which_tab_is_selected == Available_Tabs.tuning)
+            ui_text_title.text = "Setup Tuning - " + helicopter_name;
 
         // reset variables that define the vertical position of each row 
         prefabs_vertical_position_on_scroll_view_ui = prefabs_vertical_position_on_scroll_view_ui_START_VALUE; // start at this vertical position to put prefabs on Croll View's Content 
@@ -1237,8 +1266,10 @@ public partial class Helicopter_Main : Helicopter_TimestepModel
         if (ui_which_tab_is_selected == Available_Tabs.transmitter)
             ParameterObject_To_UIPrefab(ui_scroll_view_content, Ui_Styles.ui_scroll_view_content, (object)helicopter_ODE.par_temp.transmitter_and_helicopter.transmitter); 
         if (ui_which_tab_is_selected == Available_Tabs.helicopter)
-             ParameterObject_To_UIPrefab(ui_scroll_view_content, Ui_Styles.ui_scroll_view_content, (object)helicopter_ODE.par_temp.transmitter_and_helicopter.helicopter); 
-        
+             ParameterObject_To_UIPrefab(ui_scroll_view_content, Ui_Styles.ui_scroll_view_content, (object)helicopter_ODE.par_temp.transmitter_and_helicopter.helicopter);
+        if (ui_which_tab_is_selected == Available_Tabs.tuning)
+            ParameterObject_To_UIPrefab(ui_scroll_view_content, Ui_Styles.ui_scroll_view_content, (object)helicopter_ODE.par_temp.transmitter_and_helicopter.tuning);
+
         ParameterObject_To_UIPrefab(ui_overlaid_parameterlist, Ui_Styles.ui_overlaid_parameterlist, (object)helicopter_ODE.par_temp);
 
         // resize rect-transform area now to fit all UI-prefabs into

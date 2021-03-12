@@ -1203,7 +1203,8 @@ namespace Helisimulator
                 calculate_ground_effect,
                 par.transmitter_and_helicopter.helicopter.mainrotor,
                 par.transmitter_and_helicopter.helicopter.flapping,
-                par.transmitter_and_helicopter.helicopter.tuning,
+                par.transmitter_and_helicopter.tuning,
+                par.transmitter_and_helicopter.tuning.rotor_tuning.mainrotor_tuning,
                 par.scenery.weather.rho_air.val,
                 par.transmitter_and_helicopter.helicopter.mass_total.val, // [m]
                 random,
@@ -1324,7 +1325,8 @@ namespace Helisimulator
                 calculate_ground_effect,
                 par.transmitter_and_helicopter.helicopter.tailrotor,
                 par.transmitter_and_helicopter.helicopter.flapping, // just as dummy, not used for tailrotor
-                 par.transmitter_and_helicopter.helicopter.tuning,
+                par.transmitter_and_helicopter.tuning,
+                par.transmitter_and_helicopter.tuning.rotor_tuning.tailrotor_tuning,
                 par.scenery.weather.rho_air.val,
                 par.transmitter_and_helicopter.helicopter.mass_total.val, // [m]
                 random,
@@ -1425,7 +1427,8 @@ namespace Helisimulator
                 calculate_ground_effect, // 
                 par.transmitter_and_helicopter.helicopter.propeller,
                 par.transmitter_and_helicopter.helicopter.flapping, // just as dummy, not used for propeller
-                 par.transmitter_and_helicopter.helicopter.tuning,
+                par.transmitter_and_helicopter.tuning,
+                par.transmitter_and_helicopter.tuning.rotor_tuning.propeller_tuning,
                 par.scenery.weather.rho_air.val,
                 par.transmitter_and_helicopter.helicopter.mass_total.val, // [m]
                 random,
@@ -2868,8 +2871,8 @@ namespace Helisimulator
             // ##################################################################################
             // rotating unbalance of mainrotor blades during startup
             // ##################################################################################
-            float unbalance_turn_off_rpm = par.transmitter_and_helicopter.helicopter.tuning.startup_rotating_unbalance_turn_off_rpm.val; // [rpm]  turn off effect, if shaft rotational speed rises above this value
-            float rotating_unbalance_mass = par.transmitter_and_helicopter.helicopter.tuning.startup_rotating_unbalance_mass.val; // [kg] unbalance mass (at r=1.0m)
+            float unbalance_turn_off_rpm = par.transmitter_and_helicopter.tuning.startup_rotating_unbalance.turn_off_rpm.val; // [rpm]  turn off effect, if shaft rotational speed rises above this value
+            float rotating_unbalance_mass = par.transmitter_and_helicopter.tuning.startup_rotating_unbalance.mass.val; // [kg] unbalance mass (at r=1.0m)
 
             if (integrator_function_call_number == 0)
             {

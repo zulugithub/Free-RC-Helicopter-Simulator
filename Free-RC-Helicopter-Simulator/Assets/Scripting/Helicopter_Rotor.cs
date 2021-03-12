@@ -595,6 +595,7 @@ namespace Rotor
             stru_rotor par_rotor,
             stru_flapping par_flapping,
             stru_tuning par_tuning,
+            stru_rotor_tuning_base par_rotor_tuning,
             float rho_air, // [kg/m^3] par.scenery.weather.rho_air.val
             float mass_total, // [kg] par.transmitter_and_helicopter.helicopter.mass_total.val
             System.Random random,
@@ -668,7 +669,7 @@ namespace Rotor
             // ##################################################################################
             // Rotor_Thrust_and_Torque
             // ##################################################################################
-            Rotor_Thrust_and_Torque(invert_rotor_rotation_direction, par_rotor, rho_air, mass_total, omega_shaft, Theta_col, v_rotor_hub_yO, v_PRO_LR, force_fuselageLH, flapping_a_s_LR, flapping_b_s_LR, out thrust, out torque, out v_i,
+            Rotor_Thrust_and_Torque(invert_rotor_rotation_direction, par_rotor, par_rotor_tuning, rho_air, mass_total, omega_shaft, Theta_col, v_rotor_hub_yO, v_PRO_LR, force_fuselageLH, flapping_a_s_LR, flapping_b_s_LR, out thrust, out torque, out v_i,
                                 out debug_power_rotor_pr,
                                 out debug_power_rotor_i,
                                 out debug_power_rotor_pa,
@@ -932,7 +933,7 @@ namespace Rotor
         // ##################################################################################
         // calculate rotors thrust and torque
         // ##################################################################################
-        static void Rotor_Thrust_and_Torque(bool invert_rotor_torque_direction, stru_rotor par_rotor, double rho_air, 
+        static void Rotor_Thrust_and_Torque(bool invert_rotor_torque_direction, stru_rotor par_rotor, stru_rotor_tuning_base par_rotor_tuning, double rho_air, 
             double mass_total, double omega_shaft, double Theta_col, double v_mr_hub_yO, Vector3 velo_rotor_hub_and_windLR, 
             Vector3 force_fuselageLH, double flapping_a_s_LR, double flapping_b_s_LR, out double thrust, out double torque, out double v_i,
                 out float debug_power_rotor_pr,
@@ -940,16 +941,17 @@ namespace Rotor
                 out float debug_power_rotor_pa,
                 out float debug_power_rotor_c)
         {
+   
             // thrust and induced velocity (has to be solved iteratively)
-            Newton_Raphson(Rotor_Thrust_and_Induced_Velocity, par_rotor, rho_air, mass_total, omega_shaft, velo_rotor_hub_and_windLR,
+            Newton_Raphson(Rotor_Thrust_and_Induced_Velocity, par_rotor, par_rotor_tuning, rho_air, mass_total, omega_shaft, velo_rotor_hub_and_windLR,
                 Theta_col, flapping_a_s_LR, flapping_b_s_LR, out thrust, out v_i);
             
-            v_i *= 1.80000000000;
-            thrust *= 1.10000000000;
+            v_i *= 1.50000000000;
+            thrust *= 0.90000000000;
 
             // torque
-            Rotor_Torque(par_rotor, invert_rotor_torque_direction, rho_air, mass_total, omega_shaft, 
-                v_mr_hub_yO, velo_rotor_hub_and_windLR, force_fuselageLH, v_i*1.50000000, thrust, out torque, 
+            Rotor_Torque(par_rotor, par_rotor_tuning, invert_rotor_torque_direction, rho_air, mass_total, omega_shaft, 
+                v_mr_hub_yO, velo_rotor_hub_and_windLR, force_fuselageLH, v_i*1.200000000, thrust, out torque, 
                 out debug_power_rotor_pr,
                 out debug_power_rotor_i,
                 out debug_power_rotor_pa,
@@ -970,6 +972,7 @@ namespace Rotor
         static private double Rotor_Thrust_and_Induced_Velocity(
             double v_i,  // [m/sec] 
             stru_rotor par_rotor,
+            stru_rotor_tuning_base par_rotor_tuning,
             double rho_air,  // [kg/m^3] 
             double mass_total, // par.transmitter_and_helicopter.helicopter.mass_total.val
             double omega_shaft, // [rad/sec] 
@@ -979,26 +982,25 @@ namespace Rotor
             double flapping_b_s_LR, // [rad] 
             out double thrust) // [N]    
         {
-            double T_max = 8.0 * mass_total * 9.81; // par.scenery.gravity.val; //[N] TODO: factor physical source and put into parameter  
+            double T_max = 20.0 * mass_total * 9.81; // par.scenery.gravity.val; //[N] TODO: factor physical source and put into parameter  
             double T_max_transition = T_max * 0.1; //[N] ????  TODO
 
             double Cl_alpha_rotor = par_rotor.C_l_alpha.val; // lift curve slope
 
             double u_a = velo_rotor_hub_and_wind_LR.x; // [m/sec]
-            //double v_a = velo_rotor_hub_and_wind_LR.y; //*2 [m/sec] 
-            double v_a = velo_rotor_hub_and_wind_LR.y*1.300000000000000; //*2 [m/sec] 
+            double v_a = velo_rotor_hub_and_wind_LR.y; // [m/sec]  
             double w_a = velo_rotor_hub_and_wind_LR.z; // [m/sec] 
 
-            /*  if(w_a<6 && w_a>-6)
-              { 
-                  if(w_a<0)
-                      w_a = -6;
-                  else
-                      w_a =6;
-              }*/
-            w_a += 3.00000000000000 * Math.Sign(w_a);
-            u_a += 3.00000000000000 * Math.Sign(u_a);
-            //u_a += 3;
+            // ------------------------------------------------------------------------
+            // nonphysical tuning
+            // ------------------------------------------------------------------------
+            u_a *= par_rotor_tuning.inflow_factor.val; // [m/sec]
+            v_a *= par_rotor_tuning.inflow_factor.val; // [m/sec]
+            w_a *= par_rotor_tuning.inflow_factor.val; // [m/sec]
+            u_a += par_rotor_tuning.inflow_offset.val * Math.Sign(u_a); // [m/sec]
+            //v_a += par_rotor_tuning.inflow_offset.val * Math.Sign(v_a); // [m/sec]
+            w_a += par_rotor_tuning.inflow_offset.val * Math.Sign(w_a); // [m/sec]
+            // ------------------------------------------------------------------------
 
             double a_s = flapping_a_s_LR; // [rad] flapping angle
             double b_s = flapping_b_s_LR; // [rad] flapping angle
@@ -1030,6 +1032,7 @@ namespace Rotor
         // ##################################################################################
         static private void Rotor_Torque(
             stru_rotor par_rotor,
+            stru_rotor_tuning_base par_tuning,
             bool invert_rotor_torque_direction, // par.transmitter_and_helicopter.helicopter.transmission.invert_rotor_rotation_direction.val
             double rho_air,  // [kg/m^3]  
             double mass_total, // [kg] 
@@ -1124,8 +1127,8 @@ namespace Rotor
         /// <param name="thrust"></param>
         /// <returns></returns>
         // ############################################################################
-        public delegate double MyFunc(double v_i, stru_rotor par_rotor, double rho_air, double mass_total, double omega_shaft, Vector3 velo_and_windL, double delta_col, double flapping_a_s_LR, double flapping_b_s_LR, out double thrust);
-        public static void Newton_Raphson(MyFunc delegateFunc, stru_rotor par_rotor, double rho_air, double mass_total, double omega_shaft, Vector3 velo_and_windL, double delta_col, double flapping_a_s_LR, double flapping_b_s_LR, out double thrust, out double v_i_out)
+        public delegate double MyFunc(double v_i, stru_rotor par_rotor, stru_rotor_tuning_base par_rotor_tuning, double rho_air, double mass_total, double omega_shaft, Vector3 velo_and_windL, double delta_col, double flapping_a_s_LR, double flapping_b_s_LR, out double thrust);
+        public static void Newton_Raphson(MyFunc delegateFunc, stru_rotor par_rotor, stru_rotor_tuning_base par_rotor_tuning, double rho_air, double mass_total, double omega_shaft, Vector3 velo_and_windL, double delta_col, double flapping_a_s_LR, double flapping_b_s_LR, out double thrust, out double v_i_out)
         {
             // Newton-Raphson scheme https://en.wikipedia.org/wiki/Newton%27s_method 
             int n = 0; // [-] counter of Newton�Raphson iterations
@@ -1145,12 +1148,12 @@ namespace Rotor
             while (error >= error_tol && n++ <= n_max)
             {
                 // derivFunc(x) using central difference scheme
-                derivFunc = (delegateFunc(v_i_t + DELTA_v_i, par_rotor, rho_air, mass_total, omega_shaft, velo_and_windL, delta_col, flapping_a_s_LR, flapping_b_s_LR, out _) -
-                             delegateFunc(v_i_t - DELTA_v_i, par_rotor, rho_air, mass_total, omega_shaft, velo_and_windL, delta_col, flapping_a_s_LR, flapping_b_s_LR, out thrust)) / (2.0 * DELTA_v_i);
+                derivFunc = (delegateFunc(v_i_t + DELTA_v_i, par_rotor, par_rotor_tuning, rho_air, mass_total, omega_shaft, velo_and_windL, delta_col, flapping_a_s_LR, flapping_b_s_LR, out _) -
+                             delegateFunc(v_i_t - DELTA_v_i, par_rotor, par_rotor_tuning, rho_air, mass_total, omega_shaft, velo_and_windL, delta_col, flapping_a_s_LR, flapping_b_s_LR, out thrust)) / (2.0 * DELTA_v_i);
 
                 // h+1 = h - f * func(x) / derivFunc(x)
                 if (Math.Abs(derivFunc) > 0.00001)
-                    v_i_tp1 = v_i_t - f * delegateFunc(v_i_t, par_rotor, rho_air, mass_total, omega_shaft, velo_and_windL, delta_col, flapping_a_s_LR, flapping_b_s_LR, out thrust) / derivFunc;
+                    v_i_tp1 = v_i_t - f * delegateFunc(v_i_t, par_rotor, par_rotor_tuning, rho_air, mass_total, omega_shaft, velo_and_windL, delta_col, flapping_a_s_LR, flapping_b_s_LR, out thrust) / derivFunc;
                 else
                     v_i_tp1 = v_i_tp1_save;
 

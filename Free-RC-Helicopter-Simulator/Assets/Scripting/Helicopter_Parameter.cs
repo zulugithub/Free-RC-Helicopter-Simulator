@@ -1756,134 +1756,276 @@ namespace Parameter
 
 
     // ##################################################################################
-    // physics - tunining varaibles
+    // physics - tunining - vortex_ring_state
+    // ##################################################################################
+    [Serializable]
+    public class stru_vortex_ring_state
+    {
+        public stru_float v_vertical { get; set; } // [m/sec] 
+        public stru_float force_reduction_factor { get; set; } // [-] 
+        public stru_float torque_reduction_factor { get; set; } // [-] 
+        public stru_float stength_rising_speed_factor { get; set; } // [-] 
+
+        public stru_vortex_ring_state()
+        {
+            v_vertical = new stru_float();
+            force_reduction_factor = new stru_float();
+            torque_reduction_factor = new stru_float();
+            stength_rising_speed_factor = new stru_float();
+
+            v_vertical.val = -2.5f;
+            v_vertical.min = -20.0f;
+            v_vertical.max = 0f;
+            v_vertical.hint = "Local vertical velocity where vortex-ring-state grows at most.";
+            v_vertical.comment = "";
+            v_vertical.unit = "m/sec";
+
+            force_reduction_factor.val = 0.45f;
+            force_reduction_factor.min = 0.1f;
+            force_reduction_factor.max = 1.0f;
+            force_reduction_factor.hint = "If vortex fully developed rotor thrust is reduced at this amount (larger value => worse).";
+            force_reduction_factor.comment = "";
+            force_reduction_factor.unit = "-";
+
+            torque_reduction_factor.val = 0.35f;
+            torque_reduction_factor.min = 0.1f;
+            torque_reduction_factor.max = 1f;
+            torque_reduction_factor.hint = "If vortex fully developed rotor thrust is reduced at this amount (larger value => worse).";
+            torque_reduction_factor.comment = "";
+            torque_reduction_factor.unit = "-";
+
+            stength_rising_speed_factor.val = 0.015f;
+            stength_rising_speed_factor.min = 0.1f;
+            stength_rising_speed_factor.max = 1f;
+            stength_rising_speed_factor.hint = "How fast the vortex develops and decays.";
+            stength_rising_speed_factor.comment = "";
+            stength_rising_speed_factor.unit = "-";
+
+        }
+    }
+    // ##################################################################################
+
+
+
+
+    // ##################################################################################
+    // physics - tunining - turbulence
+    // ##################################################################################
+    [Serializable]
+    public class stru_turbulence
+    {
+        public stru_float rotational_velocity_limit { get; set; } // [rad/sec] 
+        public stru_float translational_velocity_limit { get; set; } // [m/sec] 
+        public stru_float frequency { get; set; } // [-] 
+        public stru_Vector3 force_strength { get; set; } // [N] 
+        public stru_Vector3 torque_strength { get; set; } // [Nm] 
+
+        public stru_turbulence()
+        {
+            rotational_velocity_limit = new stru_float();
+            translational_velocity_limit = new stru_float();
+            frequency = new stru_float();
+            force_strength = new stru_Vector3();
+            torque_strength = new stru_Vector3();
+
+            rotational_velocity_limit.val = 4f;
+            rotational_velocity_limit.min = 0.01f;
+            rotational_velocity_limit.max = 20f;
+            rotational_velocity_limit.hint = "Rotational velocity below whitch turbulence is increased.";
+            rotational_velocity_limit.comment = "";
+            rotational_velocity_limit.unit = "rad/s";
+
+            translational_velocity_limit.val = 10f;
+            translational_velocity_limit.min = 0.01f;
+            translational_velocity_limit.max = 20f;
+            translational_velocity_limit.hint = "Translational velocity above whitch turbulence is reduced, even if rotation speed is high.";
+            translational_velocity_limit.comment = "";
+            translational_velocity_limit.unit = "m/s";
+
+            frequency.val = 5.0f;
+            frequency.min = 0.01f;
+            frequency.max = 100f;
+            frequency.hint = "Turbulence frequency.";
+            frequency.comment = "";
+            frequency.unit = "Hz";
+
+            force_strength.vect3 = new Vector3 { x = 2f, y = 12f, z = 2f };
+            force_strength.hint = ".";
+            force_strength.comment = "";
+            force_strength.unit = "N";
+
+            torque_strength.vect3 = new Vector3 { x = 50f, y = 2f, z = 50f };
+            torque_strength.hint = ".";
+            torque_strength.comment = "";
+            torque_strength.unit = "Nm";
+        }
+    }
+    // ##################################################################################
+
+
+
+
+    // ##################################################################################
+    // physics - tunining - startup_rotating_unbalance
+    // ##################################################################################
+    [Serializable]
+    public class stru_startup_rotating_unbalance
+    {
+        public stru_float mass { get; set; } // [kg] 
+        public stru_float turn_off_rpm { get; set; } // [rpm] 
+
+        public stru_startup_rotating_unbalance()
+        {
+            mass = new stru_float();
+            turn_off_rpm = new stru_float();
+
+            mass.val = 0.020f;
+            mass.min = 0.01f;
+            mass.max = 100f;
+            mass.hint = "Startup rotationg unbalance mass (r=0.1m)";
+            mass.comment = "";
+            mass.unit = "kg";
+
+            turn_off_rpm.val = 250.0f;
+            turn_off_rpm.min = 0.01f;
+            turn_off_rpm.max = 1000f;
+            turn_off_rpm.hint = "Over this shaft rotational speed the unbalance dissapears.";
+            turn_off_rpm.comment = "";
+            turn_off_rpm.unit = "rpm";
+        }
+    }
+    // ##################################################################################
+
+
+
+
+
+    // ##################################################################################
+    // physics - tunining - rotor_tuning
+    // ##################################################################################
+    [Serializable]
+    public class stru_rotor_tuning_base
+    {
+        public stru_float inflow_factor { get; set; } // [-] 
+        public stru_float inflow_offset { get; set; } // [m/s] 
+
+        public stru_rotor_tuning_base()
+        {
+            inflow_factor = new stru_float();
+            inflow_offset = new stru_float();
+
+            inflow_factor.min = 0.5f;
+            inflow_factor.max = 3.0f;
+            inflow_factor.comment = "";
+            inflow_factor.unit = "-";
+
+            inflow_offset.min = 0.0f;
+            inflow_offset.max = 3.0f;
+            inflow_offset.comment = "";
+            inflow_offset.unit = "m/s";
+        }
+     }
+    // ##################################################################################
+
+
+
+
+
+    // ##################################################################################
+    // physics - tuning - mainrotor_tuning
+    // ##################################################################################
+    [Serializable]
+    public class stru_mainrotor_tuning : stru_rotor_tuning_base
+    {
+        public stru_mainrotor_tuning()
+        {
+            inflow_factor.val = 1.8f;
+            inflow_factor.hint = "Multiplies mainrotor inflow velocity.";
+
+            inflow_offset.val = 2.0f;
+            inflow_offset.hint = "Add mainrotor inflow velocity offset.";
+        }
+    }
+    // ##################################################################################
+    // physics - tuning - tailrotor_tuning
+    // ##################################################################################
+    [Serializable]
+    public class stru_tailrotor_tuning : stru_rotor_tuning_base
+    {
+        public stru_tailrotor_tuning()
+        {
+            inflow_factor.val = 1.4f;
+            inflow_factor.hint = "Multiplies tailrotor inflow velocity.";
+
+            inflow_offset.val = 2.0f;
+            inflow_offset.hint = "Add tailrotor inflow velocity offset.";
+        }
+    }
+    // ##################################################################################
+    // physics - tuning - propeller_tuning
+    // ##################################################################################
+    [Serializable]
+    public class stru_propeller_tuning : stru_rotor_tuning_base
+    {
+        public stru_propeller_tuning()
+        {
+            inflow_factor.val = 1.0f;
+            inflow_factor.hint = "Multiplies propeller inflow velocity.";
+
+            inflow_offset.val = 2.0f;
+            inflow_offset.hint = "Add propeller inflow velocity offset.";
+        }
+    }
+    // ##################################################################################
+
+
+
+
+
+    // ##################################################################################
+    // physics - tuning - rotor_tuning
+    // ##################################################################################
+    [Serializable]
+    public class stru_rotor_tuning
+    {
+        public stru_mainrotor_tuning mainrotor_tuning { get; set; } // [-] 
+        public stru_tailrotor_tuning tailrotor_tuning { get; set; } // [-] 
+        public stru_propeller_tuning propeller_tuning { get; set; } // [-] 
+
+        public stru_rotor_tuning()
+        {
+            mainrotor_tuning = new stru_mainrotor_tuning();
+            tailrotor_tuning = new stru_tailrotor_tuning();
+            propeller_tuning = new stru_propeller_tuning();
+        }
+    }
+    // ##################################################################################
+
+
+
+
+
+    // ##################################################################################
+    // physics - tuning variables
     // ##################################################################################
     [Serializable]
     public class stru_tuning
     {
-        public stru_float vortex_ring_state_v_horizontal { get; set; } // [m/sec] 
-        public stru_float vortex_ring_state_v_vertical { get; set; } // [m/sec] 
-        public stru_float vortex_ring_state_force_reduction_factor { get; set; } // [-] 
-        public stru_float vortex_ring_state_torque_reduction_factor { get; set; } // [-] 
-        public stru_float vortex_ring_state_stength_rising_speed_factor { get; set; } // [-] 
+        public stru_vortex_ring_state vortex_ring_state { get; set; }
+        public stru_turbulence turbulence { get; set; }
+        public stru_startup_rotating_unbalance startup_rotating_unbalance { get; set; }
+        public stru_rotor_tuning rotor_tuning { get; set; }
         
-        public stru_float turbulence_rotational_velocity_limit { get; set; } // [rad/sec] 
-        public stru_float turbulence_translational_velocity_limit { get; set; } // [m/sec] 
-        public stru_float turbulence_frequency { get; set; } // [-] 
-        public stru_Vector3 turbulence_force_strength { get; set; } // [N] 
-        public stru_Vector3 turbulence_torque_strength { get; set; } // [Nm] 
-        public stru_float startup_rotating_unbalance_mass { get; set; } // [kg] 
-        public stru_float startup_rotating_unbalance_turn_off_rpm { get; set; } // [rpm] 
-
-
-
         public stru_tuning()
         {
-            vortex_ring_state_v_horizontal = new stru_float();
-            vortex_ring_state_v_vertical = new stru_float();
-            vortex_ring_state_force_reduction_factor = new stru_float();
-            vortex_ring_state_torque_reduction_factor = new stru_float();
-            vortex_ring_state_stength_rising_speed_factor = new stru_float();
-            turbulence_rotational_velocity_limit = new stru_float();
-            turbulence_translational_velocity_limit = new stru_float();
-            turbulence_frequency = new stru_float();
-            turbulence_force_strength = new stru_Vector3();
-            turbulence_torque_strength = new stru_Vector3();
-            startup_rotating_unbalance_mass = new stru_float();
-            startup_rotating_unbalance_turn_off_rpm = new stru_float();
-
-
-            vortex_ring_state_v_horizontal.val = 2f;
-            vortex_ring_state_v_horizontal.min = 0.0f;
-            vortex_ring_state_v_horizontal.max = 20f;
-            vortex_ring_state_v_horizontal.hint = "Local horizontal velocity where vortex-ring-state grows at most.";
-            vortex_ring_state_v_horizontal.comment = "";
-            vortex_ring_state_v_horizontal.unit = "m/sec";
-
-            vortex_ring_state_v_vertical.val = -3.0f;
-            vortex_ring_state_v_vertical.min = -20.0f;
-            vortex_ring_state_v_vertical.max = 0f;
-            vortex_ring_state_v_vertical.hint = "Local vertical velocity where vortex-ring-state grows at most.";
-            vortex_ring_state_v_vertical.comment = "";
-            vortex_ring_state_v_vertical.unit = "m/sec";
-
-            vortex_ring_state_force_reduction_factor.val = 0.45f;
-            vortex_ring_state_force_reduction_factor.min = 0.1f;
-            vortex_ring_state_force_reduction_factor.max = 1.0f;
-            vortex_ring_state_force_reduction_factor.hint = "If vortex fully developed rotor thrust is reduced at this amount (larger value => worse).";
-            vortex_ring_state_force_reduction_factor.comment = "";
-            vortex_ring_state_force_reduction_factor.unit = "-";
-
-            vortex_ring_state_torque_reduction_factor.val = 0.35f;
-            vortex_ring_state_torque_reduction_factor.min = 0.1f;
-            vortex_ring_state_torque_reduction_factor.max = 1f;
-            vortex_ring_state_torque_reduction_factor.hint = "If vortex fully developed rotor thrust is reduced at this amount (larger value => worse).";
-            vortex_ring_state_torque_reduction_factor.comment = "";
-            vortex_ring_state_torque_reduction_factor.unit = "-";
-
-            vortex_ring_state_stength_rising_speed_factor.val = 0.015f;
-            vortex_ring_state_stength_rising_speed_factor.min = 0.1f;
-            vortex_ring_state_stength_rising_speed_factor.max = 1f;
-            vortex_ring_state_stength_rising_speed_factor.hint = "How fast the vortex develops and decays.";
-            vortex_ring_state_stength_rising_speed_factor.comment = "";
-            vortex_ring_state_stength_rising_speed_factor.unit = "-";
-
-
-
-
-            turbulence_rotational_velocity_limit.val = 4f;
-            turbulence_rotational_velocity_limit.min = 0.01f;
-            turbulence_rotational_velocity_limit.max = 20f;
-            turbulence_rotational_velocity_limit.hint = "Rotational velocity below whitch turbulence is increased.";
-            turbulence_rotational_velocity_limit.comment = "";
-            turbulence_rotational_velocity_limit.unit = "rad/s";
-
-            turbulence_translational_velocity_limit.val = 10f;
-            turbulence_translational_velocity_limit.min = 0.01f;
-            turbulence_translational_velocity_limit.max = 20f;
-            turbulence_translational_velocity_limit.hint = "Translational velocity above whitch turbulence is reduced, even if rotation speed is high.";
-            turbulence_translational_velocity_limit.comment = "";
-            turbulence_translational_velocity_limit.unit = "m/s";
-
-            turbulence_frequency.val = 4.0f;
-            turbulence_frequency.min = 0.01f;
-            turbulence_frequency.max = 100f;
-            turbulence_frequency.hint = "Turbulence frequency.";
-            turbulence_frequency.comment = "";
-            turbulence_frequency.unit = "Hz";
-
-            turbulence_force_strength.vect3 = new Vector3 { x = 3f, y = 20f, z = 3f };
-            turbulence_force_strength.hint = ".";
-            turbulence_force_strength.comment = "";
-            turbulence_force_strength.unit = "N";
-
-            turbulence_torque_strength.vect3 = new Vector3 { x = 40f, y = 2f, z = 40f };
-            turbulence_torque_strength.hint = ".";
-            turbulence_torque_strength.comment = "";
-            turbulence_torque_strength.unit = "Nm";
-
-
-
-            startup_rotating_unbalance_mass.val = 0.020f;
-            startup_rotating_unbalance_mass.min = 0.01f;
-            startup_rotating_unbalance_mass.max = 100f;
-            startup_rotating_unbalance_mass.hint = "Startup rotationg unbalance mass (r=0.1m)";
-            startup_rotating_unbalance_mass.comment = "";
-            startup_rotating_unbalance_mass.unit = "kg";
-
-            startup_rotating_unbalance_turn_off_rpm.val = 250.0f;
-            startup_rotating_unbalance_turn_off_rpm.min = 0.01f;
-            startup_rotating_unbalance_turn_off_rpm.max = 1000f;
-            startup_rotating_unbalance_turn_off_rpm.hint = "Over this shaft rotational speed the unbalance dissapears.";
-            startup_rotating_unbalance_turn_off_rpm.comment = "";
-            startup_rotating_unbalance_turn_off_rpm.unit = "rpm";
-
-            
-
-        }
-
-       
+            vortex_ring_state = new stru_vortex_ring_state();
+            turbulence = new stru_turbulence();
+            startup_rotating_unbalance = new stru_startup_rotating_unbalance();
+            rotor_tuning = new stru_rotor_tuning();
+        } 
     }
+    // ##################################################################################
+
 
 
 
@@ -3126,7 +3268,6 @@ namespace Parameter
         public stru_flapping flapping { get; set; }
         public stru_tailrotor tailrotor { get; set; }
         public stru_propeller propeller { get; set; }
-        public stru_tuning tuning { get; set; }
         public stru_fuselage fuselage { get; set; }
         public stru_horizontal_fin horizontal_fin { get; set; }
         public stru_vertical_fin vertical_fin { get; set; }
@@ -3162,7 +3303,6 @@ namespace Parameter
             flapping = new stru_flapping();
             tailrotor = new stru_tailrotor();
             propeller = new stru_propeller();
-            tuning = new stru_tuning();
             fuselage = new stru_fuselage();
             horizontal_fin = new stru_horizontal_fin();       // tail
             vertical_fin = new stru_vertical_fin();         // tail
@@ -3237,11 +3377,13 @@ namespace Parameter
     {
         public stru_transmitter transmitter { get; set; }
         public stru_helicopter helicopter { get; set; }
+        public stru_tuning tuning { get; set; }
 
         public stru_transmitter_and_helicopter()
         {
             transmitter = new stru_transmitter();
             helicopter = new stru_helicopter();
+            tuning = new stru_tuning();
         }
 
 
