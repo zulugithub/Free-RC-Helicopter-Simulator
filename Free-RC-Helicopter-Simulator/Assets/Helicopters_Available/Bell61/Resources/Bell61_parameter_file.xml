@@ -4,24 +4,24 @@
     <countdown_minutes>  <val>8.0</val>  </countdown_minutes>
     <countdown_volume>  <val>60.0</val>  </countdown_volume>
     <stick_roll>
-      <clearance>  <val>0.01</val>  </clearance>
-      <expo>  <val>20</val>  </expo>
-      <dualrate>  <val>100</val>  </dualrate>
+      <clearance><vect3>    <x>0.01</x><y>0.01</y><z>0.01</z>  </vect3></clearance> <!-- bank 1 2 3 -->  
+      <expo><vect3>    <x>15</x><y>15</y><z>15</z>  </vect3></expo> <!-- bank 1 2 3 -->  
+      <dualrate><vect3>    <x>100</x><y>100</y><z>100</z>  </vect3></dualrate> <!-- bank 1 2 3 -->  
     </stick_roll>
     <stick_pitch>
-      <clearance>  <val>0.01</val>  </clearance>
-      <expo>  <val>20</val>  </expo>
-      <dualrate>  <val>100</val>  </dualrate>
+      <clearance><vect3>    <x>0.01</x><y>0.01</y><z>0.01</z>  </vect3></clearance> <!-- bank 1 2 3 -->  
+      <expo><vect3>    <x>15</x><y>15</y><z>15</z>  </vect3></expo> <!-- bank 1 2 3 -->  
+      <dualrate><vect3>    <x>100</x><y>100</y><z>100</z>  </vect3></dualrate> <!-- bank 1 2 3 --> 
     </stick_pitch>
     <stick_yaw>
-      <clearance>  <val>0.01</val>  </clearance>
-      <expo>  <val>20</val>  </expo>
-      <dualrate>  <val>100</val>  </dualrate>
+      <clearance><vect3>    <x>0.01</x><y>0.01</y><z>0.01</z>  </vect3></clearance> <!-- bank 1 2 3 -->  
+      <expo><vect3>    <x>15</x><y>15</y><z>15</z>  </vect3></expo> <!-- bank 1 2 3 -->  
+      <dualrate><vect3>    <x>100</x><y>100</y><z>100</z>  </vect3></dualrate> <!-- bank 1 2 3 -->   
     </stick_yaw>
     <stick_collective>
-      <clearance>  <val>0.01</val>  </clearance>
-      <expo>  <val>20</val>  </expo>
-      <dualrate>  <val>100</val>  </dualrate>
+      <clearance><vect3>    <x>0.01</x><y>0.01</y><z>0.01</z>  </vect3></clearance> <!-- bank 1 2 3 -->  
+      <expo><vect3>    <x>5</x><y>5</y><z>5</z>  </vect3></expo> <!-- bank 1 2 3 -->  
+      <dualrate><vect3>    <x>100</x><y>100</y><z>100</z>  </vect3></dualrate> <!-- bank 1 2 3 --> 
     </stick_collective>
   </transmitter>
   <helicopter>
@@ -34,40 +34,40 @@
         <vect3>  <x>0</x>  <y>0</y>  <z>8</z>  </vect3>
       </orientation>
     </reference_to_masscentrum>
-	<rotor_systems_configuration>  <val>1</val>  </rotor_systems_configuration>
+    <rotor_systems_configuration>  <val>1</val>  </rotor_systems_configuration>
     <mass_total>  <val>96</val>  </mass_total> <!-- m*s^3 = 12000kg * 0.5^3 = 96kg -->
     <rotor_sound_recorded_rpm>  <val>1000</val>  </rotor_sound_recorded_rpm> 
     <motor_sound_recorded_rpm>  <val>440</val>  </motor_sound_recorded_rpm> 
-	<stall_sound_recorded_rpm>  <val>1000</val>  </stall_sound_recorded_rpm>
-    <sound_volume>  <val>30</val>  </sound_volume>	
+    <stall_sound_recorded_rpm>  <val>1000</val>  </stall_sound_recorded_rpm>
+    <sound_volume>  <val>30</val>  </sound_volume>    
     <Jxx_Jyy_Jzz>
       <vect3>  <x>10</x>  <y>30</y>  <z>30</z>  </vect3>
     </Jxx_Jyy_Jzz>
     <Jxy_Jxz_Jyz>
       <vect3>  <x>2</x>  <y>5</y>  <z>0.5</z>  </vect3>
     </Jxy_Jxz_Jyz>
-	<gyro>
-      <K_a>  <val>100</val>  </K_a>
-      <K_I>  <val>0.5</val>  </K_I>
-      <K_p>  <val>1.0</val>  </K_p>
+    <gyro>
+      <K_a><vect3>    <x>100</x><y>110</y><z>120</z>  </vect3></K_a> <!-- bank 1 2 3 -->  
+      <K_I><vect3>    <x>0.5</x><y>0.5</y><z>0.5</z>  </vect3></K_I> <!-- bank 1 2 3 -->
+      <K_p><vect3>    <x>1.0</x><y>1.0</y><z>1.0</z>  </vect3></K_p> <!-- bank 1 2 3 -->
+      <K_d><vect3>    <x>0.0001</x><y>0.0001</y><z>0.0001</z>  </vect3></K_d> <!-- bank 1 2 3 -->
       <direct_feadtrough_gyroscope>  <val>false</val>  </direct_feadtrough_gyroscope>
     </gyro>
     <flybarless>
-      <K_a>  <val>120</val>  </K_a>
-      <K_I>  <val>1.5</val>  </K_I>
-      <K_p>  <val>0.6</val>  </K_p>
-      <direct_feadtrough_flybareless>  <val>false</val>  </direct_feadtrough_flybareless>
+      <K_a><vect3>    <x>110</x><y>120</y><z>130</z>  </vect3></K_a> <!-- bank 1 2 3 -->  
+      <K_I><vect3>    <x>2.0</x><y>2.0</y><z>1.5</z>  </vect3></K_I> <!-- bank 1 2 3 -->
+      <K_p><vect3>    <x>0.3</x><y>0.3</y><z>0.3</z>  </vect3></K_p> <!-- bank 1 2 3 -->
+      <K_d><vect3>    <x>0.0001</x><y>0.0001</y><z>0.0001</z>  </vect3></K_d> <!-- bank 1 2 3 -->
+      <direct_feadtrough_flybarless>  <val>false</val>  </direct_feadtrough_flybarless>
     </flybarless>
     <servo_damping>
-		<servo_col_mr_time_constant><val>0.100</val></servo_col_mr_time_constant>
-		<servo_lat_mr_time_constant><val>0.100</val></servo_lat_mr_time_constant>
-		<servo_col_tr_time_constant><val>0.050</val></servo_col_tr_time_constant>
-		<servo_lon_mr_time_constant><val>0.100</val></servo_lon_mr_time_constant>
-	</servo_damping>
-	<governor>
-      <target_rpm_1>  <val>700</val>  </target_rpm_1>
-      <target_rpm_2>  <val>750</val>  </target_rpm_2>
-      <target_rpm_3>  <val>760</val>  </target_rpm_3>
+        <servo_col_mr_time_constant><val>0.100</val></servo_col_mr_time_constant>
+        <servo_lat_mr_time_constant><val>0.100</val></servo_lat_mr_time_constant>
+        <servo_col_tr_time_constant><val>0.050</val></servo_col_tr_time_constant>
+        <servo_lon_mr_time_constant><val>0.100</val></servo_lon_mr_time_constant>
+    </servo_damping>
+    <governor>
+      <target_rpm><vect3>  <x>700</x><y>750</y><z>760</z>  </vect3></target_rpm> <!-- bank 1 2 3 -->
       <Kp>  <val>0.1</val>  </Kp>
       <Ki>  <val>0.1</val>  </Ki>
       <saturation_min>  <val>0</val>  </saturation_min>
@@ -93,7 +93,7 @@
       <invert_motor2maingear_transmission>  <val>true</val>  </invert_motor2maingear_transmission>
       <invert_mainrotor2tailrotor_transmission>  <val>false</val>  </invert_mainrotor2tailrotor_transmission>
       <invert_mainrotor2propeller_transmission>  <val>false</val>  </invert_mainrotor2propeller_transmission>
-	  <i_gear_motor>  <val>13</val>  </i_gear_motor>
+      <i_gear_motor>  <val>13</val>  </i_gear_motor>
       <i_gear_maingear>  <val>106</val>  </i_gear_maingear>
       <i_gear_mainrotor>  <val>42</val>  </i_gear_mainrotor>
       <i_gear_tailrotor>  <val>42</val>  </i_gear_tailrotor>
@@ -161,7 +161,7 @@
       <oriLH>
         <vect3>  <x>0</x>  <y>0</y>  <z>0</z>  </vect3> 
       </oriLH>  
-	</propeller>
+    </propeller>
     <propeller>
       <rotor_exists>  <val>false</val>  </rotor_exists>
       <b>  <val>0</val>  </b>
@@ -182,10 +182,12 @@
     <fuselage>
       <S_fxyz>
         <vect3>  <x>0.20</x>  <y>1.00</y>  <z>1.00</z>   </vect3>  <!--(2.3m*1.7m)*(0.2scale)^2   (14m*1.7m)*(0.2scale)^2   (14m*1.7m)*(0.2scale)^2 -->
+        <downwash_factor_mainrotor>  <val>0.4</val>  </downwash_factor_mainrotor>
+        <downwash_factor_tailrotor>  <val>0.4</val>  </downwash_factor_tailrotor>
       </S_fxyz>
     </fuselage>
     <horizontal_fin>
-	  <wing_exists>  <val>false</val>  </wing_exists>
+      <wing_exists>  <val>false</val>  </wing_exists>
       <horizontal0_or_vertical1>  <val>0</val>  </horizontal0_or_vertical1>
       <area>  <val>0.1000000</val>  </area>
       <drag_coeff>  <val>1</val>  </drag_coeff>
@@ -199,7 +201,7 @@
       </posLH>
     </horizontal_fin>
     <vertical_fin>
-	  <wing_exists>  <val>true</val>  </wing_exists>
+      <wing_exists>  <val>true</val>  </wing_exists>
       <horizontal0_or_vertical1>  <val>1</val>  </horizontal0_or_vertical1>
       <area>  <val>0.3000000</val>  </area>
       <drag_coeff>  <val>1</val>  </drag_coeff>
@@ -209,11 +211,11 @@
       <downwash_factor_tailrotor>  <val>0.0</val>  </downwash_factor_tailrotor>
       <downwash_factor_propeller>  <val>0.0</val>  </downwash_factor_propeller>
       <posLH> 
-        <vect3>  <x>-2.1</x>  <y>-0.05</y>  <z>0.0</z>  </vect3>
+        <vect3>  <x>-1.2</x>  <y>0.10</y>  <z>0.0</z>  </vect3>
       </posLH>
     </vertical_fin>
-	<horizontal_wing_left>
-	  <wing_exists>  <val>false</val>  </wing_exists>
+    <horizontal_wing_left>
+      <wing_exists>  <val>false</val>  </wing_exists>
       <horizontal0_or_vertical1>  <val>0</val>  </horizontal0_or_vertical1>
       <area>  <val>0.400000</val>  </area>
       <drag_coeff>  <val>1</val>  </drag_coeff>
@@ -226,8 +228,8 @@
         <vect3>  <x>-0.18</x>  <y>-0.12</y>  <z>-0.50</z>  </vect3>
       </posLH>
     </horizontal_wing_left>
-	<horizontal_wing_right>
-	  <wing_exists>  <val>false</val>  </wing_exists>
+    <horizontal_wing_right>
+      <wing_exists>  <val>false</val>  </wing_exists>
       <horizontal0_or_vertical1>  <val>0</val>  </horizontal0_or_vertical1>
       <area>  <val>0.400000</val>  </area>
       <drag_coeff>  <val>1</val>  </drag_coeff>
@@ -240,7 +242,7 @@
         <vect3>  <x>-0.18</x>  <y>-0.12</y>  <z>0.50</z>  </vect3>
       </posLH>
     </horizontal_wing_right>    
-	<collision>
+    <collision>
       <friction_coeff>  <val>0.4</val>  </friction_coeff>
       <friction_coeff_forward>  <val>0.02</val>  </friction_coeff_forward>
       <friction_coeff_sideward>  <val>0.5</val>  </friction_coeff_sideward>
@@ -277,7 +279,7 @@
           <Vector3>  <x>-1.25</x>  <y>-0.125</y>  <z>0.0</z>  </Vector3>
         </vect3>
       </positions_usual>
-	  <collision_force_max>  <val>2500</val>  </collision_force_max>
+      <collision_force_max>  <val>2500</val>  </collision_force_max>
   </collision>
     <visual_effects>
       <mainrotor_idle_deformation>  <val>4</val>  </mainrotor_idle_deformation>
@@ -287,8 +289,8 @@
       <landing_gear_main_transition_time_gear>  <val>2.5</val>  </landing_gear_main_transition_time_gear>
       <landing_gear_main_transition_time_bay>  <val>-0.5</val>  </landing_gear_main_transition_time_bay>
       <landing_gear_main_mechanism_tilted_forward>  <val>2</val>  </landing_gear_main_mechanism_tilted_forward> <!--[deg]-->
-	  <debug_force_arrow_scale>  <val>0.005</val>  </debug_force_arrow_scale>
-	  <debug_torque_arrow_scale>  <val>0.05</val>  </debug_torque_arrow_scale>
+      <debug_force_arrow_scale>  <val>0.005</val>  </debug_force_arrow_scale>
+      <debug_torque_arrow_scale>  <val>0.05</val>  </debug_torque_arrow_scale>
     </visual_effects>
   </helicopter>
 	<tuning>

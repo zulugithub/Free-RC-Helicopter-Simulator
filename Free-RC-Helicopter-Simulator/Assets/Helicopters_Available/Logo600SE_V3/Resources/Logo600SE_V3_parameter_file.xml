@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <stru_transmitter_and_helicopter xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <helicopter>
-	<sound_volume>  <val>12</val>  </sound_volume> <!-- LOGO600SE is the default model and its parameter are set in "Helicopter_Parameter.cs"-->
+    <sound_volume>  <val>12</val>  </sound_volume> <!-- LOGO600SE is the default model and its parameter are set in "Helicopter_Parameter.cs"-->
     <collision>
       <positions_left>
         <vect3>
